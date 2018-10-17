@@ -1,3 +1,4 @@
 # phosae.github.io
 share interesting things
-as a begin of share
+这是一个有趣的世界
+10:11 push for encode test
