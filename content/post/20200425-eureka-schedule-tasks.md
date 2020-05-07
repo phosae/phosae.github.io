@@ -9,8 +9,6 @@ tags: ["Spring Cloud","Eureka","Spring","Java"]
 author: "Zeng Xu"
 summary: "扒一扒 Eureka 中的定时任务"
 
-# You can also close(false) or open(true) something for this content.
-# P.S. comment can only be closed
 comment: true
 toc: true
 autoCollapseToc: false
