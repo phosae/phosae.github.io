@@ -237,7 +237,7 @@ Eureka server 实例通过 register 同时处理应用注册 (isReplication=fals
 同理，其他操作，如续租 (renew), 下线 (cancel) 都是类似的。值得一提的是，Eureka 的设计思想是 AP，所以过期服务淘汰(evict) 并不会同步至其他节点。
 
 ## Eureka cluster in k8s
-任意 Eureka 节点均需知道其他节点的地址，切需要通过固定地址维续通信，于是 Eureka 集群在 k8s 中的适宜部署为 StatefuleSet。在 StatefulSet yaml 中，只需要将节点信息替换称固定域名即可，这里省去该部分配置。
+任意 Eureka 节点均需知道其他节点的地址，并通过固定地址维续通信，于是 Eureka 集群在 k8s 中的适宜部署为 StatefuleSet。在 StatefulSet yaml 中，只需要将固定 IP 替换称固定域名即可，这里省去该部分配置。
 
 值得注意的是，这里使用了多个 Service 暴露底层的 Eureka 实例，原因都写在注释中，StatefulSet 需要根据 Service 声明生成节点域名，如果 StatefulSet 名为 eureka，那么节点固定域名就是 eureka-0.eureka-svc, eureka-1.eureka-svc,..., eureka-n.eureka-svc。
 
