@@ -31,12 +31,21 @@ $deputy-color: nth($theme-color-list, 2) !default;
 
 
 // ========== Color ========== //
-$black: #0a0a0a !default;
+$black: #24292e !default;
 $white: #fefefe !default;
 $light-gray: #e6e6e6 !default;
 $gray: #cacaca !default;
 $dark-gray: #8a8a8a !default;
-
+$blue:    #007bff !default;
+$indigo:  #6610f2 !default;
+$purple:  #6f42c1 !default;
+$pink:    #e83e8c !default;
+$red:     #dc3545 !default;
+$orange:  #fb5300 !default;
+$yellow:  #ffc107 !default;
+$green:   #28a745 !default;
+$teal:    #20c997 !default;
+$cyan:    #17a2b8 !default;
 
 // ========== Global ========== //
 // Text color of the body.
@@ -183,17 +192,19 @@ $content-headings-anchor: "" !default;
 $content-link-border: 1px solid $theme-color !default;
 
 // Background color of the blockquote.
-$content-blockquote-backgroud: rgba($theme-color, 0.05) !default;
+// $content-blockquote-backgroud: rgba($theme-color, 0.05) !default;
+// chx 20200520 和 code 保持一致
+$content-blockquote-backgroud: rgb(247, 246, 243) !default;
  
 // Border left of the blockquote.
-$content-blockquote-border-left: 3px solid rgba($theme-color, 0.3) !default;
+$content-blockquote-border-left: 3px solid rgba($theme-color, 0.6) !default;
 
 // Border color of the table.
 $content-table-border-color: darken($deputy-color, 3%) !default;
 
 // ========== Code ========== //
 // Color of the code.
-$code-color: #c7254e !default;
+$code-color: $black !default;
 
 // Font size of code.
 $code-font-size: 0.9em !default;
@@ -263,7 +274,8 @@ $code-type-list: (
 ) !default;
 
 // Color of the code background.
-$code-background: $deputy-color !default;
+// $code-background: $deputy-color !default;
+$code-background: rgb(247, 246, 243) !default; // 紫色默认 #f5f4fa
 
 
 // ========== Pagination ========== //

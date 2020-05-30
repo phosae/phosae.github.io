@@ -16,7 +16,8 @@ body {
   color: $global-font-color;
   background: $global-background;
   scroll-behavior: smooth;
-  border-top: 3px solid $theme-color;
+  // 20200530 去掉顶部条
+  border-top: 2.5px solid $theme-color;
 }
 
 @include max-screen() {

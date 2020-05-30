@@ -6,10 +6,20 @@ code, pre {
 }
 
 code {
-  padding: 3px 5px;
+  display: inline-block; // add inline-block 20200530
+  padding: 3px 10px;
   border-radius: 4px;
   color: $code-color;
 }
+
+p > code, li > code {
+  //color: $orange;
+  color:#EB5757;
+  border-radius:3px;font-size:85%;
+  padding:0.2em 0.4em;
+  display: inline;
+}
+
 
 // highlight.js
 figure.highlight {

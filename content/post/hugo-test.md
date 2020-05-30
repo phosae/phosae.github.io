@@ -33,7 +33,7 @@ hideHeaderAndFooter: false
 #enableOutdatedInfoWarning: false
 
 flowchartDiagrams:
-  enable: true
+  enable: false
   options: "{
               'x': 0,
               'y': 0,
@@ -68,7 +68,7 @@ flowchartDiagrams:
             }"
 
 sequenceDiagrams: 
-  enable: true
+  enable: false
   options: "{theme: 'simple'}"
 ---
 
@@ -134,6 +134,9 @@ zeng: 你想要看什么？
 {{% admonition%}}
 xu: 林志玲。
 {{% /admonition %}}
+
+> 你想要什么
+> 林志玲
 
 ## Todo lists
 
