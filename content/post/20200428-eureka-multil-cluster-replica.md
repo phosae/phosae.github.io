@@ -3,8 +3,8 @@ title: "如何迁移 Spring Cloud Eureka 注册体系至 k8s"
 date: 2020-04-28T20:32:51+08:00
 lastmod: 2020-05-07T01:00:00+08:00
 draft: false
-keywords: ["Spring Cloud","Eureka","k8s","Spring","Java"]
-tags: ["Spring Cloud","Eureka","k8s","Spring","Java"]
+keywords: ["Spring Cloud","Eureka","Kubernetes","Spring","Java"]
+tags: ["Spring Cloud","Eureka","Kubernetes","Spring","Java"]
 
 summary: 优雅处理 Eureka 跨集群同步
 

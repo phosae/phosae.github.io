@@ -4,7 +4,7 @@ date: 2020-04-05T10:00:00+08:00
 lastmod: 2020-04-15T21:30:00
 draft: false
 
-tags: ["树莓派","k8s"]
+tags: ["树莓派","Kubernetes"]
 
 summary: 自己动手，丰衣足食，利用开发板搭建本地 k8s 集群
 ---

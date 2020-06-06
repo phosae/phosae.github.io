@@ -3,9 +3,11 @@ title: "containerd 手动导入镜像"
 date: 2020-04-15T21:40:48+08:00
 lastmod: 2020-04-15T21:40:48+08:00
 draft: false
-keywords: []
+keywords: ["Kubernetes","container","containerd"]
 description: ""
-tags: ["k8s","containerd"]
+tags: ["Kubernetes","container","containerd"]
+
+summary: "containerd ctr command"
 
 # You can also close(false) or open(true) something for this content.
 # P.S. comment can only be closed
