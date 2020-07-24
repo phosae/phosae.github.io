@@ -281,7 +281,7 @@ com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl  定时任务，属性
 * DiscoveryClient-CacheRefreshExecutor-0
 
 以下线程任务处理实例续租
-* DiscoveryClient-1
+* DiscoveryClient-0
 * DiscoveryClient-HeartbeatExecutor-0
 
 DiscoveryClient-InstanceInfoReplicator-0 处理服务状态更新，AsyncResolver-bootstrap-0 处理 Eureka Server 节点更新。

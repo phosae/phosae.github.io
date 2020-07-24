@@ -243,7 +243,7 @@ Storing signatures
 ```
 
 得到的 OCI 格式镜像由如下部分组成
-* index.json，故名思义，索引文件，指向了镜像 manifest 文件列表，如果镜像包含多个不同版本软件包，那么每个版本各对应一个 manifest 项
+* index.json，故名思义，索引文件，指向了镜像 manifest 文件列表，如果镜像包含多个不同平台版本软件包，那么每个版本各对应一个 manifest 项
 * oci-layout, json 格式文件，只有一个字段 `imageLayoutVersion`，指明了目前镜像组织形式的版本，当前为 `1.0.0`
 * blobs/sha256，sh256 表示每个文件签名（也即文件名）所用的算法，包含了镜像 mafifest 文件、镜像 config 文件和一系列 layer 压缩文件，和 docker client 导出的不同，这里的 layer 压缩文件是 .tar.gz 格式
 
@@ -379,7 +379,7 @@ $ ls oci-demo-app-bundle
 app.jar  bin  dev  etc  home lib  media mnt  opt  proc root run sbin srv sys tmp  usr  var
 ```
 
-### 镜像是什么
+### 理解定义
 经过上面的实操折腾，再来理解这段英文
 
 > At a high level the **image manifest** contains metadata about the contents and dependencies of the image including the content-addressable identity of **one or more filesystem serialization archives** that will be unpacked to make up the final runnable filesystem. The **image configuration** includes information such as application arguments, environments, etc. 
@@ -405,7 +405,7 @@ app.jar  bin  dev  etc  home lib  media mnt  opt  proc root run sbin srv sys tmp
 图来自 github opencontainers/image-spec
 {{% /center %}}
 
-按照 OCI 规范组合并解压这些压缩包，便组成了一个包含程序包包和程序依赖库的可运行文件系统。只要把该文件系统 (在 OCI 规范中叫做 rootfs) 和 json 配置文件交给 OCI 容器运行时，容器运行时便能够按照用户期望运行目标应用程序。
+按照 OCI 规范组合并解压这些压缩包，便组成了一个包含程序包和依赖库的可运行文件系统。只要把该文件系统 (在 OCI 规范中叫做 rootfs) 和 json 配置文件交给 OCI 容器运行时，容器运行时便能够按照用户期望运行目标应用程序。
 
 ## runC
 
@@ -519,7 +519,7 @@ ip netns exec runc-demo-contaienr ip route add default via 10.200.0.1
 }
 ```
 
-修改 config.json .linux.namespaces 的网络部分
+修改 config.json .linux.namespaces 的网络部分（注：最终的完整版配置放在 [这里](/file/oci-demo-app-config.json)）
 {{<highlight text "linenos=table,hl_lines=8-9,linenostart=1">}}
 {
   ...
@@ -575,9 +575,9 @@ lo        Link encap:Local Loopback
 
 有了 OCI 镜像标准之后，不同平台在沿着各自方向优化镜像的存储和传输，同时也能够使用同一套标准下实现互通，用户因此得以在不同平台自由迁移。
 
-借助 OCI Runtime 标准，客户端只需提供 rootfs 和 config.json 声明，便可借助不用的 OCI Runtime 实现，将应用跑到不同操作系统上，且达到不同的隔离效果。如只需达到 namespace 级别隔离，Linux 使用 runC，Windows 使用 runhcs，这也是传统容器的隔离级别，隔离资源但并不隔离内核。如果需要达到 VM 级的强隔离，可以使用 gVisor runsc 实现用户态内核隔离，也可以借助 hyper runV 实现 hypervisor VM 级别隔离。
+借助 OCI Runtime 标准，客户端只需提供 rootfs 和 config.json 声明，便可借助不用的 OCI Runtime 实现，将应用跑到不同操作系统上，且达到不同的隔离效果。如只需达到 namespace 级别隔离，Linux 使用 runC，Windows 使用 runhcs，这也是传统容器的隔离级别，隔离资源但并不隔离内核。如果需要达到 VM 级的强隔离，可以使用 gVisor runsc 实现用户态内核隔离，也可以使用 kata-runtime 实现 hypervisor VM 级别隔离。
 
-<img src="/img/2020567/oci2containers.jpg" width="666px">
+<img src="/img/2020567/oci2containers.png" width="666px">
 
 OCI 既没有定下网络标准，也没有定下存储标准，因为这都与平台实现关联。但如 runC 小结展示，使用方只要使用平台相关技术（示例是 Linux namespace network)，就能挂载好网络和存储。OCI Runtime 实现支持使用 create 和 start 2 阶段启动容器，使用方可以在 create 和 start 间隔准备网络、存储等资源。
 
@@ -587,12 +587,12 @@ OCI 既没有定下网络标准，也没有定下存储标准，因为这都与�
 
 现如今，它跨云平台、跨操作系统、跨硬件平台、支持各种隔离......
 
-## Reference
+## Resources
 * [runtime-spec](https://github.com/opencontainers/runtime-spec/blob/master/spec.md)
 * [image-spec](https://github.com/opencontainers/image-spec/blob/master/spec.md)
 * [Docker Registry Api](https://docs.docker.com/registry/spec/api/)
 * [runC](https://github.com/opencontainers/runc)
-* [runV](https://github.com/hyperhq/runv), [kata-containers](https://katacontainers.io/)
+* [kata-containers](https://katacontainers.io/), [kata-runtime](https://github.com/kata-containers/runtime)
 * [gVisor](https://gvisor.dev/), [runsc](https://github.com/google/gvisor/tree/master/runsc)
 * [Container platform tools on Windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/containerd)
 * [CNI](https://github.com/containernetworking/cni), [CSI](https://github.com/container-storage-interface)
