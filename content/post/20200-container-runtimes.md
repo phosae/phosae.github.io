@@ -43,8 +43,8 @@ sequenceDiagrams:
 
 低级运行时的特点是底层、轻量、灵活，限制也很明显：
 * 只认识 rootfs 和 config.json，不认识镜像 (下文简称 image)，不具备镜像存储功能，也不能执行镜像的构建、推送、拉取等（我们无法使用 runC, kata-runtime 处理镜像）
-* 不提供网络实现，所以真正使用时，往往需要利用 CNI[https://github.com/containernetworking/cni] 之类的实现为容器添加网络
-* 不提供持久实现，如果容器是有状态应用需要使用文件系统持久状态，单机环境可以挂载宿主机目录，分布式环境可以自搭 NFS，但多数会选择云平台提供的 CSI[https://github.com/container-storage-interface/spec] 存储实现
+* 不提供网络实现，所以真正使用时，往往需要利用 [CNI](https://github.com/containernetworking/cni) 之类的实现为容器添加网络
+* 不提供持久实现，如果容器是有状态应用需要使用文件系统持久状态，单机环境可以挂载宿主机目录，分布式环境可以自搭 NFS，但多数会选择云平台提供的 [CSI](https://github.com/container-storage-interface/spec) 存储实现
 * 与特定操作系统绑定无法跨平台，比如 runC 只能在 Linux 上使用；runhcs 只能在 Windows 上使用
  
 解决了这些限制中一项或者多项的容器运行时，就叫做高级容器运行时 (High level Container Runtime)。
