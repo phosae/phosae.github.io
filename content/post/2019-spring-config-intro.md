@@ -293,7 +293,7 @@ mapping.map.mapInMap={key3:'value3',key4:'value4'}
 ## 总结
 KV 是 YAML 超集这一点很容易发现，普通开发人员直接了解并合理混合文件即可避免。但如果你需要为公司开发远程配置中心，则需要格外小心。最好不要将所有配置存储在一个大配置源中，并支持用户在 KV 编辑器和 YAML 编辑器之间切换，而是要采用类似 Spring Boot 的方式，将 YAML 和 KV 分为两个配置源，在使用时将其统一为 KV 即可。当然，你也可以与同事约定远程配置中心只支持 KV 风格而不支持 YAML 风格。
 
-如果某个远程配置中心只支持 KV 配置（嗯，你同时真这么干了），而你又需要使用序列配置，Spring Boot 会将序列配置元素转换为 key[idx] 的小技巧可以帮助你解决一些烦恼。
+如果某个远程配置中心只支持 KV 配置（嗯，你同事真这么干了），而你又需要使用序列配置，Spring Boot 会将序列配置元素转换为 key[idx] 的小技巧可以帮助你解决一些烦恼。
 
 进一步讨论 @Value 和 @ConfigurationProperties：
 * @Value 其实只支持 String 标量，可以通过 Spring Boot 内置的转换逻辑（通常是 Converter 接口实现）或者 SpEL 转换到 Array, List, Set, Collection 和 Map，但无法注入配置到 POJO 对象。@ConfigurationProperties 对标量、序列和映射对支持都很好。
