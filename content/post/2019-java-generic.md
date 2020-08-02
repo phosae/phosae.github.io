@@ -7,9 +7,9 @@ keywords: ["java"]
 description: ""
 tags: ["java"]
 author: "Zeng Xu"
-summary: "文章摘要"
+summary: "类型擦除（Type Erasure）其实潜藏着 2 层概念：对于 JVM 而言，泛型参数被擦除了；对于 Java 语言来说，泛型信息得到了很大程度保留"
 
-comment: true
+comment: false
 toc: true
 autoCollapseToc: false
 postMetaInFooter: true
@@ -61,7 +61,9 @@ public class SimpleGeneric<T> {
         // T[] arr = new T[];
 
         // 无法针对泛型执行实例判断
-        //if(t instanceof T)
+        // if(t instanceof T){
+        //     ...
+        // }
     }
 
     T getTarget() {
@@ -124,7 +126,7 @@ Java 为保证泛型体系与 1.5 之前体系兼容，允许泛型 List<String>
 桥接方法是指针对涉及泛型类的实现或者继承情况，编译器会在子类中自动插入桥接类型方法，保证子类正常覆写父类方法，维续 Java 语言的多态特性，详细介绍见 [Oracle Java 泛型介绍#桥接方法] 和 [stackoverflow 讨论]。
 
 ## 泛型信息恢复
-上文提到，类型擦除更多只是针对 JVM 而言。事实上，Java 编译器仍在 class 文件以 Signature 属性的方式保留了泛型信息。Signature 并不属 JVM 的必须属性，对于 JVM 而言，它们类似标签。运行期间，Java 类库可以利用这些标签恢复泛型信息（Class 类和反射包）。
+上文提到，类型擦除更多只是针对 JVM 而言。事实上，Java 编译器仍在 class 文件以 Signature 属性的方式保留了泛型信息。对于 JVM 而言，Signature 并不是必须属性，其作用类似标签。运行期间，Java 类库可以利用这些标签恢复泛型信息（Class 类和反射包）。
 
 下面将以 Generic 类为例展示信息恢复：
 
@@ -137,6 +139,11 @@ public class Generic<T extends Comparable<T>> {
     }
 }
 ```
+使用 javap 查看 Generic.class 字节码可以找到这些 Signature 
+* class **Generic** signature: `<T::Ljava/lang/Comparable<TT;>;>Ljava/lang/Object;`
+* method **doSomething** signature: `<EX:Ljava/lang/NullPointerException;>(TT;)Ljava/util/List<+Ljava/lang/CharSequence;>;^TEX;`
+* field **list** signature: `Ljava/util/List<TT;>;`
+
 Java 泛型系统由 5  种类型构成
 * TypeVariable，对应 `<T extends Comparable<T>>` 中的 T 标识，它可以由 extends 设置 upper 限定，由 super 设置 lower 限定，这里 upper 限定为 Comparable。Java 可以在类、构造方法、普通方法三处声明 TypeVariable
 * ParameterizedType，对应 `List<T>`、`List<String>` 等格式
@@ -148,6 +155,7 @@ Java 泛型系统由 5  种类型构成
 Class 类提供的 getTypeParameters, getGenericSuperclass 和 getGenericInterfaces 可分别用于获取类声明泛型信息、类似声明中父类泛型信息和类声明中接口泛型信息。
 
 下面代码展示了如何获取 Generic 类声明中的 TypeVariable `T extends Comparable<T>` 信息
+
 ```java
 TypeVariable clzParam = (TypeVariable)  Generic.class.getTypeParameters()[0];
 System.out.println("class info : " + clzParam + ", class typeVariable bounds : " + Arrays.asList(clzParam.getBounds()));
@@ -155,7 +163,9 @@ System.out.println("class info : " + clzParam + ", class typeVariable bounds : "
 //~
 class typeVariable info : T, class typeVariable bounds : [java.lang.Comparable<T>]
 ```
-声明 SubGeneric 类继承类 Generic<String> 并实现接口 Consumer<String>，展示继承和实现声明泛型信息获取
+
+声明 SubGeneric 类继承类 `Generic<String>` 并实现接口 `Consumer<String>`，其字节码文件保留的 class Signature 为 `Ltype/Generic<Ljava/lang/String;>;Ljava/util/function/Consumer<Ljava/lang/String;>;`。对应泛型信息可按如下方式获取
+
 ```java
 class SubGeneric extends Generic<String> implements Consumer<String>{
   ...
@@ -278,8 +288,7 @@ Java 为保持对旧版本支持，1.5 以类型擦除这种比较讨巧的方�
 目前 OpenJDK [valhalla 项目] 正尝试采用包括引入值类型在内的多种尝试来解决 Java 泛型历史遗留问题，感兴趣可以关注。
 
 
-
-延伸阅读
+## 延伸阅读
 * [Baeldung: The Basics of Java Generics](https://www.baeldung.com/java-generics)
 * [Oracle Java 泛型介绍](https://docs.oracle.com/javase/tutorial/java/generics/ww)
 * 周志明《深入理解 Java 虚拟机 （第 2 版）》，第 6 章 类文件结构，第 10 章第 3 节 Java语法糖的味道
