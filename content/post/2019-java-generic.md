@@ -291,6 +291,7 @@ Java 为保持对旧版本支持，1.5 以类型擦除这种比较讨巧的方�
 ## 延伸阅读
 * [Baeldung: The Basics of Java Generics](https://www.baeldung.com/java-generics)
 * [Oracle Java 泛型介绍](https://docs.oracle.com/javase/tutorial/java/generics/ww)
+* [Wikipedia: Generics in Java](https://en.wikipedia.org/wiki/Generics_in_Java#Type_erasure)
 * 周志明《深入理解 Java 虚拟机 （第 2 版）》，第 6 章 类文件结构，第 10 章第 3 节 Java语法糖的味道
 * [The Java® Virtual Machine Specification, Java SE 8 Edition Chapter 4](https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.1) The class File Format
 * [The Java® Language Specification, Java SE 8 Edition Chapter 4](https://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html) Types, Values, and Variables
