@@ -120,7 +120,7 @@ public static void main(String[] args) throws Exception {
 }
 ```
 
-Go 并没有明显的 async-callback，如果需要用到类似 Future/Promise 之类的地方，应该使用 channel 替代。Go 代码不会有明显的同步、异步差别，请忘掉回调。
+Go 并没有明显的 async-callback，如果需要用到类似 Future/Promise 之类的地方，应该使用 channel 替代。Go 代码不会有明显的同步、异步差别，请忘记回调。
 
 ```go
 type ResultErr struct {
@@ -215,7 +215,7 @@ Thread-0 get null
 Thread-0 get sub hello
 Thread-main get main hello
 ```
-goroutine 并不支持本地存储，如果需传递上下文信息，可以使用 context.Context 接口，把其作为方法参数显式传递
+goroutine 并不支持本地存储，如果需传递上下文信息（比如链路追踪），可以使用 Context 接口，将其作为方法参数显式传递
 
 ```go
 func main() {
@@ -317,26 +317,61 @@ public static void main(String[] args) throws InterruptedException {
 Go 另一种常用的取消方式是使用 Context 接口
 ```go
 func main() {
-	ctx, cancel := context.WithCancel(context.TODO())
-	go func(ctx context.Context) {
-		time.Sleep(time.Millisecond)
-		select {
-		case <-ctx.Done():
-			fmt.Println("task canceled")
-		default:
-			fmt.Println("running")
-			// do business
-		}
-	}(ctx)
-	cancel()
-	time.Sleep(2 * time.Millisecond)
+  ctx, cancel := context.WithCancel(context.TODO())
+  go func(ctx context.Context) {
+    time.Sleep(time.Millisecond)
+    select {
+    case <-ctx.Done():
+      fmt.Println("task canceled")
+    default:
+      fmt.Println("running")
+      // do business
+    }
+  }(ctx)
+  cancel()
+  time.Sleep(2 * time.Millisecond)
 }//~
 task canceled
 ```
-Context 除支持直接取消外，还支持超时取消 (WithDeadline 和 withTimeout)。
+Context 除支持直接取消外，还支持超时取消 (WithDeadline，WithTimeout)。
 
 ### 优雅停机
+优雅停机的思路一般都较为类似：先改状态为停机，接收函数停止接收任务，等待任务队列排空后退出进程。
 
+Java 应用优雅停机一般只需做前 2 步即可，第 3 步通常利用线程池完成（shutdown，awaitTermination）。
+
+上文提到，Go 并没有线程池概念，但利用 WaitGroup 实现优雅停机非常简单，见如下代码：
+
+* 接收任务时，先检查 stop channnel 是否关闭，如果关闭则拒绝任务，反之WaitGroup 加 1 并新建 goroutine 执行任务，执行完成后，WaitGroup 减 1。
+* 停机时，关闭 stop channel，随后调用 WaitGroup Wait 等待所有任务完成。
+
+```go
+var wg = sync.WaitGroup{}
+var stop = make(chan struct{})
+
+func accept(task func()) error {
+  select {
+  case <-stop:
+    return errors.New("reject")
+  default:
+    wg.Add(1)
+    go func() {
+      defer wg.Done()
+      handle(task)
+    }()
+    return nil
+  }
+}
+
+func handle(task func()) {
+  task()
+}
+
+func shutdown() {
+  close(stop)
+  wg.Wait()
+}
+```
 
 ## 变量同步原语
 下表列出了 Java 和 Go 官方库中同步方式的对应关系，切记这只是一种粗略的对应关系，因为两者有着不同的并发哲学。
@@ -349,7 +384,7 @@ Context 除支持直接取消外，还支持超时取消 (WithDeadline 和 withT
 |信号量       |Semaphore                            |buffered channel, x/sync/semaphore.Weighted |
 |CAS/Atomic  |Varhandle、volatile，Atomic 类        |atomic.Value，atomic 包  |
 |once        |单例模式                              |sync.Once               |
-|BSP         |CountDownLatch，CyclicBarrier        | sync.WaitGroup         |
+|BSP 模型     |CountDownLatch，CyclicBarrier        | sync.WaitGroup         |
 
 注：BSP 指 [Bulk Synchronous Parallelism]
 
@@ -364,7 +399,7 @@ Java ReentrantLock、ReentrantReadWriteLock 锁，支持在构造函数中传递
 
 Go Mutex 不支持配置，但在运行期间自行在公平和非公平之间切换。Go Mutex 默认是非公平模式，如果在非公平模式检测到队尾 goroutine 发生饥饿（等待超过 1ms），会自动切换到公平模式；如果公平模式检测到队尾 goroutine 等待时间小于 1ms，则会且切回非公平模式。
 
-### 锁的可重入支持
+### 锁的可重入支持 ?
 Java synchronized 和带有 Reentrant 前缀的锁实现都能保护关键代码路径，同时支持可重入
 
 ```java
@@ -567,7 +602,7 @@ Java 较为接近这种需求的场景是懒加载单例模式，如
 
 如要获取一致的语义只需将对象创建改为 Runnable 执行即可。
 
-### Bulk Synchronous Parallelism
+### BSP 模型
 BSP 原语支持等待一组执行线程完成，等待线程和执行可以在完成点同步线程本地计算结果，然后继续下一步操作。以如下场景为例：
 1. 主线程向多个后台服务同时发起 HTTP 请求，主线程需等待其他线程返回后，才能继续执行
 2. 反复执行类 Map-Reduce 计算，每轮 Map 完成后在同步点执行 Reduce 操作，之后开始下一轮计算
@@ -600,12 +635,14 @@ all finish
 ```
 
 ## 内存模型
-内存模型指的是，Java 和 Go 之类的高级语言（相对 C）在各自语言层面实现的多线程内存同步规范。这些同步规范保证了多线程并发进入某一代码路径时，相应的读取和写入能按照预期的顺序发生。实现上，多采用禁止编译器重排指令和使用硬件指令强制同步缓存和主存（又称内存屏障）。这里仅在语言使用者而非语言开发者的角度讨论如何理解和应用内存模型，也即如何在边界内写好并发程序。
+内存模型指的是，Java 和 Go 之类的高级语言（相对 C）在各自语言层面实现的多线程内存同步规范。这些同步规范保证了多线程并发进入某一代码路径时，相应的读取和写入能按照预期的顺序发生。实现上，多采用禁止编译器重排指令和使用硬件指令强制同步缓存和主存（又称内存屏障）。下面仅在语言使用者而非语言开发者的角度讨论如何理解和应用内存模型，也即如何在边界内写好并发程序。
+ 
+注：下文描述「t2 时刻 线程 B 对 V 执行读取操作，线程 A 在 t1 时刻之前发生的所有写入均对线程 B 可见」与 `happened-before`、`happens-before` 等价，隐藏着一层含义是，语言编译器和运行时会禁止指令排，即保证在 t1 时刻不会有任何写入/读取操作被重排到 t1 之后，t2 时刻保证不会有任何写入/读取被重排到 t2 之前。
 
-### Java volatile // todo，补充指令重排
+### Java volatile
 线程 A 对 volatile 修饰变量 V 执行写入操作后（t1 时刻），随后若任意线程 B 对 V 执行读取操作（t2 时刻，t2 < t1），则线程 A 在 t1 时刻之前发生的所有写入均对 B 可见。
 
-Java 官方库 Lock 实现就利用了 volatile 语义：锁释放和锁获取对应了 volatile 的写和读，这样先发线程对受保护变量的写入就能顺利同步到后发线程。Atomic 类也是如此，先发尝试将更新 CAS 到 volatile 字段，后发线程立马能读取到最新值。
+Java 官方库 Lock 实现就利用了 volatile 语义：锁释放和锁获取分别对应 volatile 写和读，这样先发线程对受保护变量的写入就能顺利同步到后发线程。Atomic 类也是如此，先发尝试将更新 CAS 到 volatile 字段，后发线程立马能读取到最新值。
 
 ### Java synchronized
 线程 A 在 t1 时刻释放 JVM 锁后（monitor exit)，在随后的 t2 时刻，若任意线程 B 获取到 JVM 锁（monintor enter），则线程 A 在 t1 时刻之前发生的所有写入均对 B 可见。
@@ -677,49 +714,45 @@ Go channel 在语言层面是一种语法糖，无论是底层类似 Java ArrayB
 
 ## 总结
 
-系统线程仅内核 stack 就会占用 8 KB [[1]]，Java Thread 用户 stack 默认占用 1MB，goroutine stack 起始大小仅为 2 KB 并支持动态扩展 [[2]]。自然而然地，Java 应用一般需要使用标准库提供的线程池以实现线程复用和线程管理。在 Go 中，goroutine 则可以不断被创建和销毁，不需要任何显式管理（实际上应用也无法获取 goroutine 引用）。
+Java 开放了非常底层的内存模型，官方库在此基础上提供了丰富强大的并发工具。这种并发哲学，一方面留下了巨大的性能优化空间，另一方面则加大了编程难度，以任务中断为例，线程的 interrupt 状态便是一个不易理解的概念。这也导致了开发 Java 应用便离不开各种三方框架，新手 Java 程序员可能需要在各种别人写好的代码中摸爬滚打好些年，才能收发自如优化应用性能。
 
-Java Thread 由操作系统内核调度，切换时间通常在 2000 ns 往上，goroutine 由 Go 运行时调度器切换，耗时在 170 ns 左右，后者比前者快 10 倍以上 [[3]]。
+Go 提供的内存模型则相对高层，最底层的 Mutex 和 channel 在 Java 中可以对应到 Lock 层。另外，Go 为 channel 提供了简洁优雅的语法糖，Go 为 channel 提供了 select、range 等关键字特性，Go 不允许应用获取 goroutine 引用，Go 不提供 thread-local 存储，等等。这一切组合起来，产生了非常简单健壮的并发哲学。我在上文多处展示过，许多 Java 中需要相当技巧和代码才能实现的并发同步操作，Go 只需很少的代码就实现了。
 
-Java 应用可以利用 async-callback 模型减少上下文切换开销，标准库 CompletableFuture（8 之后）、google Guava 库 ListenableFuture [[4]] 均提供了非常好的 async-callback 模型。
+同时可以发现，Go sync 包提供的能力极为有限，且很多需要用锁的场景，用 channel 可以做得更简单易懂。这与 Go 相对年轻，且同时提倡 [CSP] 并发模型有关。[Go 编程箴言] 第一条 `Don't communicate by sharing memory, share memory by communicating` ，即提倡使用 channel 作为线程同步手段。
 
-反观 Go，因为 goroutine 切换成本极低、切换速度极快，所以基本不需要 async-callback 模型。以 Go 标准库为例，凡涉及系统调用，就会通过运行时调度器将调用方 goroutine 挂起并把 CPU 资源出让给其他 goroutine，系统调用返回之后，因阻塞挂起的 goroutine 会被重新调度，接着恢复运行，整个过程在调用方看起来是同步的。
+Java 平台中与 Go 并发哲学相似的是基于 [Actor] 并发模型的 [Akka] 和 [Vert.x]，不过类库实现的并发模型肯定不如语言级的并发模型简易好用。
+
+Java Thread 背后是系统线程，goroutine 是用户态线程，这带来了巨大的资源占用和切换速度差异：
+* Java Thread 用户 stack 默认占用 1 MB，内核 stack 占用 8 KB [[1]]，而 goroutine stack 起始大小仅为 2 KB 并支持动态扩展 [[2]]
+* Java Thread 由操作系统内核调度，切换时间通常在 2000 ns 往上，goroutine 由 Go 运行时调度器切换，耗时在 170 ns 左右，后者比前者快 10 倍以上 [[3]]
+
+在 Go 中，goroutine 则可以频繁被创建和销毁，不需要任何显式管理。Java 应用一般会使用标准库线程池以实现线程复用和线程管理。
+
+为减少上下文切换开销，Java 应用可以利用 async-callback 模型减少上下文切换开销，标准库 CompletableFuture（8 之后）、google Guava 库 ListenableFuture [[4]] 均提供了非常好的 async-callback 模型。
+
+反观 Go，因为 goroutine 切换速度极快，所以不需要 async-callback 模型，select channel 之类的阻塞切换代码往往随处可见。以 Go 标准库为例，凡涉及系统调用，就会通过运行时调度器将调用方 goroutine 挂起并把 CPU 资源出让给其他 goroutine，系统调用返回之后，因阻塞挂起的 goroutine 会被重新调度，接着恢复运行，整个过程在调用方看来完全是同步的。
 
 所以 Bob Nystrom 在他的博客中说，Go 消灭了同步和异步的区别 [[5]]
 > Go has eliminated the distinction between synchronous and asynchronous code.
 
-Go 的另一内建类型 channel 带来了 `sharing by communicating` 哲学。channel 有着类似 Java BlockQueue 的并发语义，但内存消耗更小，并有 select、range 等特性支持，常被用于 goroutine 同步。在拥抱 `sharing by communicating` 哲学书写的应用中，往往很少看到锁（Lock, Mutux）、条件变量（Condition）和由锁保护的代码块。
+## 延伸阅读
+* [go-hits-the-concurrency-nail-right-on-the-head](https://eli.thegreenplace.net/2018/go-hits-the-concurrency-nail-right-on-the-head)
+* [Go 内存模型](https://golang.org/ref/mem)
+* [Java 内存模型](https://en.wikipedia.org/wiki/Java_memory_model)
 
-<!-- 
-在 Java 中，如果 A 线程中 Runnable 代码块要干涉 B 线程中 Runnable 代码块执行，需要使用 Thread interrupt 方法或者 Future cancel 方法。也就是说，Runnable 代码块需要去处理
-
-Go 应用通常只需要关闭某个 channel 或者往 channel 写入某个特殊值即可实现类似逻辑， -->
-
-自 5 以来，Java 官方库并发类库一直异常强大，从最基础的 CAS 操作、volatile 关键字，到高层的线程池和 Stream 实现，应有尽有。Java 将尽可能底层的同步方式开放给了应用层，一方面，在此基础上产生了大量优秀的三方框架和应用；另一方面加大了编程难度。以任务中断为例，线程的 interrupt 状态便是一个非常不易理解的概念。
-
-对比两边官方库可以发现，Go 的并发库提供的能力极为有限。一则是 Go 相对年轻，二则与 Go 不鼓励用锁有关。[Go 编程箴言] 第一条 `Don't communicate by sharing memory, share memory by communicating` ，宣示了它鼓励 [CSP] 并发模型，即提倡使用 channel 作为线程同步手段。
-
-Java 平台中与 Go 并发哲学相似的是基于 [Actor] 并发模型的 [Akka] 和 [Vert.x]，不过类库实现的并发模型肯定不如语言级的并发模型简易好用。
+[x/sync/semaphore.Weighted]: https://github.com/golang/sync/blob/master/semaphore/semaphore.go
+[x/sync/errgroup.Group]: https://github.com/golang/sync/blob/master/errgroup/errgroup.go
+[Bulk Synchronous Parallelism]: https://en.wikipedia.org/wiki/Bulk_synchronous_parallel
 
 [1]: https://www.kernel.org/doc/html/latest/x86/kernel-stacks.html
-[2]: https://medium.com/a-journey-with-go/
+[2]: https://golang.org/src/runtime/stack.go?h=StackMin#L72
 [3]: https://eli.thegreenplace.net/2018/measuring-context-switching-and-memory-overheads-for-linux-threads/
 [4]: https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/ListenableFuture.java
 [5]: http://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/
 [6]: https://stackoverflow.com/questions/14670979/recursive-locking-in-go
-[x/sync/semaphore.Weighted]: https://github.com/golang/sync/blob/master/semaphore/semaphore.go
-[x/sync/errgroup.Group]: https://github.com/golang/sync/blob/master/errgroup/errgroup.go
-[Bulk Synchronous Parallelism]: https://en.wikipedia.org/wiki/Bulk_synchronous_parallel
-[AQS 类]: https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/locks/AbstractQueuedSynchronizer.html
+
 [Go 编程箴言]: https://go-proverbs.github.io/
 [CSP]: https://en.wikipedia.org/wiki/Communicating_sequential_processes
 [Actor]: https://en.wikipedia.org/wiki/Actor_model
 [Vert.x]: https://vertx.io/
 [Akka]: https://akka.io/
-[Go 内存模型]: https://golang.org/ref/mem
-[Java 内存模型]: https://en.wikipedia.org/wiki/Java_memory_model
-
-[100]: https://eli.thegreenplace.net/2018/go-hits-the-concurrency-nail-right-on-the-head/go-how-does-the-goroutine-stack-size-evolve-447fc02085e5
-[101]: https://stackoverflow.com/questions/54488284/attempting-to-acquire-a-lock-with-a-deadline-in-golang
-
-[Mutex 为什么没有 tryLock]: https://groups.google.com/forum/#!msg/golang-nuts/OM37bQ41n3Q/wtZgT5wwtUcJ
