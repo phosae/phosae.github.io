@@ -64,7 +64,7 @@ gcr.io/pause:3.1": failed to do request: Head https://k8s.gcr.io/v2/pause/manife
 177.97.82:443: i/o timeout
 ```
 
-仔细看文档才发现有 namespace 这回事时，才恍然大悟 k8s 只会使用 k8s.io namespace 中镜像。于是再往 k8s.io 导入镜像，containerd worker 终于能正常被调度了
+仔细看文档发现有 namespace 这回事时，才恍然大悟 k8s 只会使用 k8s.io namespace 中镜像。于是再往 k8s.io 导入镜像，containerd worker 终于能正常被调度了
 
 ```text
 $ ctr namespace ls
