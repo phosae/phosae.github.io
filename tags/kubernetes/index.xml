@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>kubernetes on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/kubernetes/</link>
+    <description>Recent content in kubernetes on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 01 Jul 2020 17:31:56 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>各种容器运行时都解决了什么问题</title>
+      <link>https://www.zeng.dev/post/2020-container-runtimes/</link>
+      <pubDate>Wed, 01 Jul 2020 17:31:56 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2020-container-runtimes/</guid>
+      <description>容器运行时原理小综述</description>
+    </item>
+    
+    <item>
+      <title>如何迁移 Spring Cloud Eureka 注册体系至 k8s</title>
+      <link>https://www.zeng.dev/post/20200428-eureka-multil-cluster-replica/</link>
+      <pubDate>Tue, 28 Apr 2020 20:32:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/20200428-eureka-multil-cluster-replica/</guid>
+      <description>优雅处理 Eureka 跨集群同步</description>
+    </item>
+    
+    <item>
+      <title>搭建树莓派 k8s 集群</title>
+      <link>https://www.zeng.dev/post/20200405-raspberry-pi-cluster/</link>
+      <pubDate>Sun, 05 Apr 2020 10:00:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/20200405-raspberry-pi-cluster/</guid>
+      <description>自己动手，丰衣足食，利用开发板搭建本地 k8s 集群</description>
+    </item>
+    
+    <item>
+      <title>containerd 手动导入镜像</title>
+      <link>https://www.zeng.dev/post/2020-containerd-image-import/</link>
+      <pubDate>Sun, 05 Jan 2020 21:40:48 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2020-containerd-image-import/</guid>
+      <description>注意 containerd namespace 概念</description>
+    </item>
+    
+  </channel>
+</rss>
