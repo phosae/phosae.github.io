@@ -1,0 +1,27 @@
+// ==============================
+// Custom style
+// ==============================
+// You can override the variables in _variables.scss to customize the style
+$theme-color-config: 'Dark Violet';
+
+
+// $logo-font-family: 'Special Elite', cursive, LiSu, sans-serif !default;
+
+$logo-font-family: 'Special Elite', 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif !default;
+
+
+@font-face {
+  font-family: 'Special Elite';
+  src: local('Special Elite'),
+  url(../fonts/specialelite/special-elite-webfont.woff2) format('woff2'),
+  url(../fonts/specialelite/SpecialElite-Regular.ttf) format('truetype');
+  //src: url(https://fonts.gstatic.com/s/specialelite/v11/XLYgIZbkc4JPUL5CVArUVL0ntnAOSFNuQsI.woff2) format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+$code-color: #24292e !default;
+
+$global-body-width: 1000px !default;
