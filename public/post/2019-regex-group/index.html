@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>正则组匹配 - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="Regex group puzzles" /><meta name="keywords" content="Regex, Java, Go" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.83.1 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2019-regex-group/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.8306ea4befeef1b7457e4c8a654cc6c01bcacb666789e1b84cd173c8cfafb0ac.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="正则组匹配" />
+<meta property="og:description" content="Regex group puzzles" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2019-regex-group/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-05-09T00:34:10&#43;08:00" />
+<meta property="article:modified_time" content="2019-05-09T00:50:10&#43;08:00" />
+
+<meta itemprop="name" content="正则组匹配">
+<meta itemprop="description" content="Regex group puzzles"><meta itemprop="datePublished" content="2019-05-09T00:34:10&#43;08:00" />
+<meta itemprop="dateModified" content="2019-05-09T00:50:10&#43;08:00" />
+<meta itemprop="wordCount" content="2075">
+<meta itemprop="keywords" content="Regex,Java,Go," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="正则组匹配"/>
+<meta name="twitter:description" content="Regex group puzzles"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">正则组匹配</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-05-09 00:34 </span>
+        
+        
+      </div>
+    </header>
+
+    
+    <div class="post-content">
+      <p>分组 (group) 和 捕获 (capture) 是正则中的常用概念，以表达式 <code>([a-z]+)(([0-9]+)([a-z]+))</code> 为例，被括号包起来的每一个子表达式 <code>(...)</code> 都为组，如这里的 <code>[a-z]+</code>、 <code>[0-9]+</code>和<code>[a-z]+</code>。发生匹配之后，对应的匹配文本便是捕获组（captured group)。</p>
+<p>在 Java 中，该表达式每完成一次匹配，都会产生 4 个捕获组，下面的代码展示了输入长度为 20 的字符串 <code>aaa123ccc/aaa123ccc/</code> 的情况：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Pattern</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;([a-z]+)([0-9]+)([a-z]+)&#34;</span><span class="o">);</span>
+<span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;aaa123ccc/aaa123ccc/&#34;</span><span class="o">);</span>
+
+<span class="k">while</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){</span>
+    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="o">.</span><span class="na">groupCount</span><span class="o">();</span><span class="n">i</span><span class="o">++){</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;group %d [%d,%d] : %s\n&#34;</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span><span class="n">m</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="n">i</span><span class="o">),</span> <span class="n">m</span><span class="o">.</span><span class="na">end</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="o">,</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="c1">//～
+</span><span class="c1"></span><span class="n">group</span> <span class="n">0</span> <span class="o">[</span><span class="n">0</span><span class="o">,</span><span class="n">9</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa123ccc</span>
+<span class="n">group</span> <span class="n">1</span> <span class="o">[</span><span class="n">0</span><span class="o">,</span><span class="n">3</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa</span>
+<span class="n">group</span> <span class="n">2</span> <span class="o">[</span><span class="n">3</span><span class="o">,</span><span class="n">6</span><span class="o">]</span> <span class="o">:</span> <span class="n">123</span>
+<span class="n">group</span> <span class="n">3</span> <span class="o">[</span><span class="n">6</span><span class="o">,</span><span class="n">9</span><span class="o">]</span> <span class="o">:</span> <span class="n">ccc</span>
+<span class="n">group</span> <span class="n">0</span> <span class="o">[</span><span class="n">10</span><span class="o">,</span><span class="n">19</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa123ccc</span>
+<span class="n">group</span> <span class="n">1</span> <span class="o">[</span><span class="n">10</span><span class="o">,</span><span class="n">13</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa</span>
+<span class="n">group</span> <span class="n">2</span> <span class="o">[</span><span class="n">13</span><span class="o">,</span><span class="n">16</span><span class="o">]</span> <span class="o">:</span> <span class="n">123</span>
+<span class="n">group</span> <span class="n">3</span> <span class="o">[</span><span class="n">16</span><span class="o">,</span><span class="n">19</span><span class="o">]</span> <span class="o">:</span> <span class="n">ccc</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>容易知道，0 号捕获组为整个表达式，余下则按照左括号出现的顺序编号。</p>
+<p>在正则环境中，Java 可通过 <code>$1</code>、<code>$2</code> 引用对应的 capture group，Go 使用 <code>${1}</code>、<code>${2}</code>。如，我们将整个匹配文本替换某几个特定捕获组和特殊字符的组合并作为结果返回</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">pattern</span> <span class="o">:=</span> <span class="nx">regexp</span><span class="p">.</span><span class="nf">MustCompile</span><span class="p">(</span><span class="s">&#34;([a-z]+)(([0-9]+)([a-z]+))&#34;</span><span class="p">)</span>
+<span class="nx">out</span> <span class="o">:=</span> <span class="nx">pattern</span><span class="p">.</span><span class="nf">ReplaceAllString</span><span class="p">(</span><span class="s">&#34;aaa123ccc/&#34;</span><span class="p">,</span><span class="s">&#34;${3}special${4}&#34;</span><span class="p">);</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">out</span><span class="p">)</span> 
+<span class="c1">//~
+</span><span class="c1"></span><span class="mi">123</span><span class="nx">specialccc</span><span class="o">/</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="分组别名">分组别名</h2>
+<p>可使用格式 <code>(?&lt;Name&gt;...)</code> 对分组取名，方便在 replace 函数中引用，比如我们要获取日期 <code>2019-05-09</code> 中的年。</p>
+<p>Java 可以这么做</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Pattern</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;(?&lt;year&gt;\\d{4})-(?&lt;month&gt;\\d{2})-(?&lt;day&gt;\\d{2})&#34;</span><span class="o">);</span>
+<span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;2019-05-09&#34;</span><span class="o">);</span>
+
+<span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){</span>
+    <span class="n">String</span> <span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="na">replaceFirst</span><span class="o">(</span><span class="s">&#34;${year}&#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">out</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">//~
+</span><span class="c1"></span><span class="n">2019</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Go 则需使用格式 <code>(?P&lt;Name&gt;...)</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">pattern</span> <span class="o">:=</span> <span class="nx">regexp</span><span class="p">.</span><span class="nf">MustCompile</span><span class="p">(</span><span class="s">&#34;(?P&lt;year&gt;\\d{4})-(?P&lt;month&gt;\\d{2})-(?P&lt;day&gt;\\d{2})&#34;</span><span class="p">)</span>
+<span class="nx">out</span> <span class="o">:=</span> <span class="nx">pattern</span><span class="p">.</span><span class="nf">ReplaceAllString</span><span class="p">(</span><span class="s">&#34;2019-05-09&#34;</span><span class="p">,</span> <span class="s">&#34;${year}&#34;</span><span class="p">)</span>
+<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">out</span><span class="p">)</span>
+<span class="c1">//~
+</span><span class="c1"></span><span class="mi">2019</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>别名可以提高正则可读性。</p>
+<h2 id="replace-captured-group">replace captured group</h2>
+<p>但通常，我们实际只需要针对特定 sub captured group 进行，有趣的是，无论是 Java(8)，还是 Go 提供的 replace 接口，都不能通过非常直观都方式进行，你必须反着来。</p>
+<p>比如，下面的 Go 代码展示如何将 <code>aaa</code> 替换为 <code>%</code>，实际是在每一次匹配中将 group 0 替换为了 group 2 和字符 % 的组合，并不是直接替换 group 1。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">pattern</span> <span class="o">:=</span> <span class="nx">regexp</span><span class="p">.</span><span class="nf">MustCompile</span><span class="p">(</span><span class="s">&#34;([a-z]+)(([0-9]+)([a-z]+))&#34;</span><span class="p">)</span>
+<span class="nx">out</span> <span class="o">:=</span> <span class="nx">pattern</span><span class="p">.</span><span class="nf">ReplaceAllString</span><span class="p">(</span><span class="s">&#34;aaa123ccc/aaa123ccc&#34;</span><span class="p">,</span><span class="s">&#34;%${2}&#34;</span><span class="p">)</span>
+<span class="c1">//~
+</span><span class="c1"></span><span class="o">%</span><span class="mi">123</span><span class="nx">ccc</span><span class="o">/%</span><span class="mi">123</span><span class="nx">ccc</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Java 代码如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;([a-z]+)(([0-9]+)([a-z]+))&#34;</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;aaa123ccc/aaa123ccc&#34;</span><span class="o">);</span>
+<span class="n">m</span><span class="o">.</span><span class="na">replaceAll</span><span class="o">(</span><span class="s">&#34;%$2&#34;</span><span class="o">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>为什么这样设计呢，主要是，如果 replace 支持声明删除某个 sub group，原有的 <code>$1</code>、<code>${1}</code> 势必要引入额外的标识，额外的语法会带来更大的使用负担；其次在 replace 的接口中声明去掉某个东西其实很奇怪。。。</p>
+<p>如果非要针对特定 sub captured group 做替换，可以写代码自己实现，毕竟捕获组结果其实只是一个字符串 index 集合而已，使用 Java 或者 Go 中的工具按照 index 替换即可。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestReplace</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">ret</span> <span class="o">:=</span> <span class="nf">replaceGroup</span><span class="p">(</span><span class="s">&#34;([a-z]+)(([0-9]+)([a-z]+))&#34;</span><span class="p">,</span> <span class="s">&#34;aaa123ccc/aaa123ccc&#34;</span><span class="p">,</span>
+    <span class="s">&#34;%&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ret</span><span class="p">)</span>
+  <span class="c1">//~
+</span><span class="c1"></span>  <span class="o">%</span><span class="mi">123</span><span class="nx">ccc</span><span class="o">/%</span><span class="mi">123</span><span class="nx">ccc</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">replaceGroup</span><span class="p">(</span><span class="nx">regex</span><span class="p">,</span> <span class="nx">input</span><span class="p">,</span> <span class="nx">replace</span> <span class="kt">string</span><span class="p">,</span>
+  <span class="nx">groupToReplace</span><span class="p">,</span> <span class="nx">groupOccurrence</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+
+  <span class="nx">pattern</span> <span class="o">:=</span> <span class="nx">regexp</span><span class="p">.</span><span class="nf">MustCompile</span><span class="p">(</span><span class="nx">regex</span><span class="p">)</span>
+  <span class="nx">indexes</span> <span class="o">:=</span> <span class="nx">pattern</span><span class="p">.</span><span class="nf">FindAllStringSubmatchIndex</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%v\n&#34;</span><span class="p">,</span> <span class="nx">indexes</span><span class="p">)</span> <span class="c1">//捕获组结果， [[0 9 0 3 3 9 3 6 6 9] [10 19 10 13 13 19 13 16 16 19]]
+</span><span class="c1"></span>
+  <span class="c1">// 如果要替换所有可以去掉 if 判断
+</span><span class="c1"></span>  <span class="c1">// 同时  strings.Replace 最后一个参数传 -1
+</span><span class="c1"></span>  <span class="k">if</span> <span class="nx">indexes</span> <span class="o">==</span> <span class="kc">nil</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="nx">indexes</span><span class="p">)</span> <span class="p">&lt;</span> <span class="nx">groupOccurrence</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">input</span>
+  <span class="p">}</span>
+  
+  <span class="nx">idx</span> <span class="o">:=</span> <span class="nx">groupToReplace</span> <span class="o">*</span> <span class="mi">2</span>
+
+  <span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Replace</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span> <span class="nx">input</span><span class="p">[</span><span class="nx">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nx">idx</span><span class="p">]:</span><span class="nx">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nx">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]],</span> <span class="nx">replace</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>关于 Java，可以使用 <a href="https://stackoverflow.com/questions/988655/can-i-replace-groups-in-java-regex">这里第二个答案</a> 提供的实现。</p>
+<h2 id="-non-capturing-group"><strong>(?:&hellip;) non-capturing group</strong></h2>
+<p>即匹配后不计入 match 编号集合，匹配后不能使用 <code>$1</code>, <code>$2</code> 引用。</p>
+<p>这种模式通常用来表达重复某种模式多次，例如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-fallback" data-lang="fallback">(?:foo)*
+(?:foo){3,}//重复出现 3 次以上
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="-non-backtracking-group-atomic-group"><strong>(?&gt;&hellip;)</strong> non-backtracking group (atomic group)</h3>
+<p>atomic group 是 non-capturing group 的一种。</p>
+<p>提示正则引擎，一旦该 group 匹配完成，游标不再回溯。如下面的例子所示，<code>a(?&gt;bc|b)c</code> 只能匹配 <code>abcc</code> 而不能匹配 <code>abc</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Pattern</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;a(?&gt;bc|b)c&#34;</span><span class="o">);</span>
+
+<span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;abc&#34;</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(!</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;not match&#34;</span><span class="o">);</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;abcc&#34;</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;matched&#34;</span><span class="o">);</span>
+<span class="c1">//～
+</span><span class="c1"></span><span class="n">not</span> <span class="n">match</span>
+<span class="n">matched</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>假设我们需要判断单词 <code>ints</code> 是否为 int、string 或者 intstring 其中一个，group 可以这样写 <code>\b(int|string|intstring)\b</code>，这是引擎会先判断 <code>ints</code> 不是 <code>int</code>，再判断 <code>ints</code> 不是 <code>string</code>，再判断 <code>ints</code> 不是 <code>intstring</code>，然后才断定不匹配。</p>
+<p>如果改为 atomic group <code>\b(?&gt;int|string|intstring)\b</code>，引擎直接将 <code>ints</code> 匹配到 <code>int</code> 后，再往后发现还存在 s 字符，直接就会断定不匹配。</p>
+<p>很多文章提到，atomic group 作用是提升正则引擎性能。不过笔者在 Java 环境中 benchmark 时发现，对于很多较短的文本匹配，atomic group 相较普通 non-capturing group， 并没有带来多少提升，甚至导致匹配变慢。</p>
+<p>reference</p>
+<ul>
+<li><a href="https://www.regular-expressions.info/atomic.html">https://www.regular-expressions.info/atomic.html</a></li>
+<li><a href="https://stackoverflow.com/questions/14411818/confusion-with-atomic-grouping-how-it-differs-from-the-grouping-in-regular-exp">https://stackoverflow.com/questions/14411818/confusion-with-atomic-grouping-how-it-differs-from-the-grouping-in-regular-exp</a></li>
+<li><a href="https://stackoverflow.com/questions/26093501/atomic-groups-clarity">https://stackoverflow.com/questions/26093501/atomic-groups-clarity</a></li>
+</ul>
+<h2 id="lookaround-group">LookAround group</h2>
+<p>注：Java 支持所有语法，go(截至 1.14) 不支持任何 LookAround group (<a href="https://github.com/google/re2/wiki/Syntax">查看支持情况</a>)</p>
+<blockquote>
+<p><a href="https://stackoverflow.com/questions/406230/regular-expression-to-match-a-line-that-doesnt-contain-a-word">LookAround 语义</a></p>
+<p>Look-arounds are also called zero-width-assertions because they don&rsquo;t consume any characters. They only assert/validate something.</p>
+</blockquote>
+<p><strong>(?=&hellip;)</strong> Lookahead、<strong>(?!&hellip;)</strong> Negative Lookahead</p>
+<p><code>(?=...)</code> 表示当前位置后面紧跟着某个 group 则匹配，<code>(?!...)</code> 反之，表示后面不跟着什么则匹配</p>
+<p>例如，a 后面紧跟着 foo 的情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;a(?=foo)(.*)&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;afoo&#34;</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;a(?=foo)(.*)&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;axoo&#34;</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
+<span class="k">else</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;not match&#34;</span><span class="o">);</span>
+<span class="c1">// afoo
+</span><span class="c1">// not match
+</span></code></pre></td></tr></table>
+</div>
+</div><p><strong>(?&lt;=&hellip;)</strong> Lookbehind、<strong>(?&lt;!&hellip;)</strong> Negative Lookbehind</p>
+<p>Lookbehind 类相反，是从 group 后一个位置往前看，如果与 group 匹配，则匹配该字符。
+与 LookAhead 区别是，group 本身不会被匹配，也即印证了 Around 类语法的属性，只做 assert 而不消费任何字符。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;(?&lt;=foo)a&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;fooa&#34;</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;(?&lt;!foo)a&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;fooa&#34;</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
+<span class="k">else</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;not found&#34;</span><span class="o">);</span>
+<span class="c1">// a
+</span><span class="c1">// not found
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="附-atomic-group-benchmark-测试结果">附 atomic group benchmark 测试结果</h2>
+<p>按照理论，如需判断 <code>tracker</code> 是否在单词集合 <code>\btra(?:ck|ce|ining|de|in|nsit|ns|uma)\b</code>，使用 atomic group 应该会有巨大性能提升，实际并不是。</p>
+<p>笔者在 Java 8 中分别测试了 100 万、1000 万和 1 亿次匹配，发现两者性能是相当的。</p>
+<p>如果你有不同结果或者能解我疑惑，欢迎 email 联系我。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-text" data-lang="text">--- benchmark 1000000 times ---
+normal group cost: 325 ms
+atomic group cost: 296 ms
+
+--- benchmark 10000000 times ---
+normal group cost: 2907 ms
+atomic group cost: 3002 ms
+
+--- benchmark 100000000 times ---
+normal group cost: 29488 ms
+atomic group cost: 30854 ms
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">in</span> <span class="o">=</span> <span class="s">&#34; tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker &#34;</span> <span class="o">+</span>
+            <span class="s">&#34; tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker&#34;</span><span class="o">;</span>
+
+    <span class="n">doBenchmark</span><span class="o">(</span><span class="n">1_000_000</span><span class="o">,</span> <span class="n">in</span><span class="o">);</span>
+    <span class="n">doBenchmark</span><span class="o">(</span><span class="n">10_000_000</span><span class="o">,</span> <span class="n">in</span><span class="o">);</span>
+    <span class="n">doBenchmark</span><span class="o">(</span><span class="n">100_000_000</span><span class="o">,</span> <span class="n">in</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">doBenchmark</span><span class="o">(</span><span class="kt">int</span> <span class="n">times</span><span class="o">,</span> <span class="n">String</span> <span class="n">input</span><span class="o">){</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;--- benchmark %d times ---\n&#34;</span><span class="o">,</span> <span class="n">times</span><span class="o">);</span>
+    <span class="kt">long</span> <span class="n">now</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">times</span><span class="o">;</span><span class="n">i</span><span class="o">++){</span>
+        <span class="n">benchmarkNormalMatch</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;normal group cost: %d ms\n&#34;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">now</span><span class="o">);</span>
+
+    <span class="n">now</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="n">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">times</span><span class="o">;</span><span class="n">i</span><span class="o">++){</span>
+        <span class="n">benchmarkAtomicMatch</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;atomic group cost: %d ms\n&#34;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">now</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span>  <span class="n">Pattern</span> <span class="n">_normal</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;\btra(?:ck|ce|ining|de|in|nsit|ns|uma)\b&#34;</span><span class="o">);</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">benchmarkNormalMatch</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">){</span>
+    <span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_normal</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span>  <span class="n">Pattern</span> <span class="n">_atomic</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;\btra(?&gt;ck|ce|ining|de|in|nsit|ns|uma)\b&#34;</span><span class="o">);</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">benchmarkAtomicMatch</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">){</span>
+    <span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_atomic</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+
+    <span class="k">while</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){}</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2019-05-09 00:50
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/regex/">Regex</a>
+          <a href="/tags/java/">Java</a>
+          <a href="/tags/go/">Go</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2019-spring-config-intro/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Spring Boot 配置探幽</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2021<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-149382924-1', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+</body>
+</html>
