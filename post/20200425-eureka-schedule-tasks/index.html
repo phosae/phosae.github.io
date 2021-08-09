@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.83.1 with theme even" />
+<meta name="generator" content="Hugo 0.87.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/20200425-eureka-schedule-tasks/" />
@@ -43,12 +43,12 @@
 <meta property="og:description" content="扒一扒 Eureka 中的定时任务" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.zeng.dev/post/20200425-eureka-schedule-tasks/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2020-04-25T20:40:29&#43;08:00" />
-<meta property="article:modified_time" content="2020-05-08T00:22:00&#43;08:00" />
+<meta property="article:published_time" content="2020-04-25T20:40:29+08:00" />
+<meta property="article:modified_time" content="2020-05-08T00:22:00+08:00" />
 
 <meta itemprop="name" content="从定时任务分析 Eureka 架构设计">
-<meta itemprop="description" content="扒一扒 Eureka 中的定时任务"><meta itemprop="datePublished" content="2020-04-25T20:40:29&#43;08:00" />
-<meta itemprop="dateModified" content="2020-05-08T00:22:00&#43;08:00" />
+<meta itemprop="description" content="扒一扒 Eureka 中的定时任务"><meta itemprop="datePublished" content="2020-04-25T20:40:29+08:00" />
+<meta itemprop="dateModified" content="2020-05-08T00:22:00+08:00" />
 <meta itemprop="wordCount" content="5007">
 <meta itemprop="keywords" content="Spring Cloud,Eureka,Spring,Java," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="从定时任务分析 Eureka 架构设计"/>
@@ -78,13 +78,15 @@
 <nav id="mobile-menu" class="mobile-menu slideout-menu">
   <ul class="mobile-menu-list">
     <a href="/">
-        <li class="mobile-menu-item">Home</li>
+        <li class="mobile-menu-item">主页</li>
       </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
+        <li class="mobile-menu-item">归档</li>
       </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
       </a><a href="/about">
-        <li class="mobile-menu-item">About</li>
+        <li class="mobile-menu-item">我</li>
       </a>
   </ul>
 
@@ -106,13 +108,15 @@
 <nav class="site-navbar">
   <ul id="menu" class="menu">
     <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
+        <a class="menu-item-link" href="/">主页</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
+        <a class="menu-item-link" href="/post/">归档</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
+        <a class="menu-item-link" href="/tags/">标签</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/about">About</a>
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
       </li>
   </ul>
 </nav>
@@ -183,7 +187,7 @@
 <p>启动 Eureka server，将其注册到某个集群，启动后，可通过 jstack <pid> 得到如下线程列表：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -214,7 +218,7 @@
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">// Eureka Server 任务线程
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">// Eureka Server 任务线程
 Eureka-CacheFillTimer
 Eureka-DeltaRetentionTimer
 Eureka-EvictionTimer
@@ -274,7 +278,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>默认情况下 Eureka， 开启使用 2 级缓存提高实例获取性能，只有当 2 层缓存均不存在实例信息时，才会从 InstanceRegistry 获取注册信息，路径 /{version}/apps/ 下的 GET 请求均会被缓存。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -284,7 +288,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 使用 java.util.Timer 定时执行
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 使用 java.util.Timer 定时执行
 </span><span class="c1">// 每 30s 从 readWriteCacheMap 同步
 </span><span class="c1"></span><span class="k">if</span> <span class="o">(</span><span class="n">shouldUseReadOnlyResponseCache</span><span class="o">)</span> <span class="o">{</span>
   <span class="n">timer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">getCacheUpdateTask</span><span class="o">(),</span>
@@ -299,7 +303,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>该定时任务对应配置如下，readOnlyCache 可以通过 <code>eureka.server.use-read-only-response-cache</code> 禁用（CacheFillTimer定时任务也随之被禁用），readwriteCache 无法被禁用。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -307,7 +311,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">    
 </span><span class="w">    </span><span class="nt">use-read-only-response-cache</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
 </span><span class="w">    </span><span class="nt">response-cache-auto-expiration-in-seconds</span><span class="p">:</span><span class="w"> </span><span class="m">180</span><span class="w"> </span><span class="c"># readWriteCache 180s 过期</span><span class="w">
@@ -323,7 +327,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>如果 <code>eureka.server.disable-delta=true</code>，定时任务仍旧照常执行，只不过，Eureka server 在接到  get delta 请求时，会把它重定向到 get all。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -341,7 +345,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 任务随 AbstractInstanceRegistry 构造函数启动调度
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 任务随 AbstractInstanceRegistry 构造函数启动调度
 </span><span class="c1"></span><span class="k">this</span><span class="o">.</span><span class="na">deltaRetentionTimer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">getDeltaRetentionTask</span><span class="o">(),</span>
       <span class="n">serverConfig</span><span class="o">.</span><span class="na">getDeltaRetentionTimerIntervalInMs</span><span class="o">(),</span>
       <span class="n">serverConfig</span><span class="o">.</span><span class="na">getDeltaRetentionTimerIntervalInMs</span><span class="o">());</span>
@@ -362,7 +366,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </div><p>相关配置如下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -372,7 +376,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">disable-delta</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
 </span><span class="w">    </span><span class="c"># 废弃功能配置，早期实现会在本地获取不到 delta 时，会向所有远程实例获取 delta</span><span class="w">
@@ -387,13 +391,13 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>线程组包含 1 个 Acceptor 线程加上若干 Worker 线程（默认 20，通过 <code>eureka.server.max-threads-for-peer-replication</code> 设置）</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">max-elements-in-peer-replication-pool</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="c"># pending task queue 最大容量</span><span class="w">
 </span><span class="w">    </span><span class="nt">max-threads-for-peer-replication</span><span class="p">:</span><span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="c"># batch 线程数量</span><span class="w">
@@ -412,13 +416,13 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>其对应配置如下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">max-threads-for-status-replication</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># batch 线程数量</span><span class="w">
 </span><span class="w">    </span><span class="nt">max-elements-in-status-replication-pool</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="c"># pending task queue 最大容量</span><span class="w">
@@ -434,12 +438,12 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>Eureka 实现了名为「自我保护」的功能，用来检测网络分裂（<a href="https://en.wikipedia.org/wiki/Network_partition">network partition</a>)这类问题。如果关闭了自我保护，直接执行清理；如果开启了自我保护，会使用结合辅助任务 RenewalThresholdUpdater 和 MeasureRateTimer → renewsLastMin 判断是否停止清理注册实例。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">sever</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">eviction-interval-timer-in-ms</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w"> </span><span class="c"># 默认 60s 一次</span><span class="w">
 </span></code></pre></td></tr></table>
@@ -453,7 +457,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>相关配置如下，值得注意的是，即使关闭自我保护，该任务仍旧会定时执行。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -461,7 +465,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
 </span><span class="w">     </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否开启自我保护</span><span class="w">
 </span><span class="w">     </span><span class="nt">renewal-percent-threshold</span><span class="p">:</span><span class="w"> </span><span class="m">0.85</span><span class="w"> </span><span class="c"># renew-interval 注册实例预期心跳比例</span><span class="w">
@@ -479,7 +483,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>作用是动态更新 Peer 节点列表，当配置 <code>eureka.client.serviceUrl</code> 和 <code>eureka.client.availability-zones</code> 发生变化时，动态更新通信集群节点，对应配置如下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -491,7 +495,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">peer-eureka-nodes-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">600000</span><span class="w"> </span><span class="c"># 10*60*1000，默认 10 分钟执行一次，启动延迟 10 分钟</span><span class="w">
 </span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
@@ -522,7 +526,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>Eureka client 核心类为 <strong>com.netflix.discovery.DiscoveryClient</strong>，它在构造时会根据配置启动一系列定时任务。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -530,7 +534,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">registerWithEureka</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否注册到 Eureka server</span><span class="w">
 </span><span class="w">    </span><span class="nt">fetchRegistry</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否向 Eureka server 获取注册实例</span><span class="w">
@@ -554,7 +558,7 @@ Eureka-JerseyClient-Conn-Cleaner
 <p>主要用于实例上下线</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -592,7 +596,7 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">36
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">setInstanceStatus</span><span class="o">(</span><span class="n">InstanceStatus</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">setInstanceStatus</span><span class="o">(</span><span class="n">InstanceStatus</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">InstanceStatus</span> <span class="n">next</span> <span class="o">=</span> <span class="n">instanceStatusMapper</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">return</span><span class="o">;</span>
@@ -710,6 +714,7 @@ Eureka-JerseyClient-Conn-Cleaner
       <div class="social-links">
       <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
       <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
   <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
 </div>
 
