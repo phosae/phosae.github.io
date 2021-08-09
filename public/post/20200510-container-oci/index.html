@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.83.1 with theme even" />
+<meta name="generator" content="Hugo 0.87.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/20200510-container-oci/" />
@@ -43,12 +43,12 @@
 <meta property="og:description" content="Dive into Open Container Initiative" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.zeng.dev/post/20200510-container-oci/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2020-05-10T22:43:15&#43;08:00" />
-<meta property="article:modified_time" content="2020-06-03T22:43:15&#43;08:00" />
+<meta property="article:published_time" content="2020-05-10T22:43:15+08:00" />
+<meta property="article:modified_time" content="2020-06-03T22:43:15+08:00" />
 
 <meta itemprop="name" content="理解 OCI">
-<meta itemprop="description" content="Dive into Open Container Initiative"><meta itemprop="datePublished" content="2020-05-10T22:43:15&#43;08:00" />
-<meta itemprop="dateModified" content="2020-06-03T22:43:15&#43;08:00" />
+<meta itemprop="description" content="Dive into Open Container Initiative"><meta itemprop="datePublished" content="2020-05-10T22:43:15+08:00" />
+<meta itemprop="dateModified" content="2020-06-03T22:43:15+08:00" />
 <meta itemprop="wordCount" content="4765">
 <meta itemprop="keywords" content="container,oci,docker," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="理解 OCI"/>
@@ -78,13 +78,15 @@
 <nav id="mobile-menu" class="mobile-menu slideout-menu">
   <ul class="mobile-menu-list">
     <a href="/">
-        <li class="mobile-menu-item">Home</li>
+        <li class="mobile-menu-item">主页</li>
       </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
+        <li class="mobile-menu-item">归档</li>
       </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
       </a><a href="/about">
-        <li class="mobile-menu-item">About</li>
+        <li class="mobile-menu-item">我</li>
       </a>
   </ul>
 
@@ -106,13 +108,15 @@
 <nav class="site-navbar">
   <ul id="menu" class="menu">
     <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
+        <a class="menu-item-link" href="/">主页</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
+        <a class="menu-item-link" href="/post/">归档</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
+        <a class="menu-item-link" href="/tags/">标签</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/about">About</a>
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
       </li>
   </ul>
 </nav>
@@ -166,13 +170,13 @@
 <p>写一个 Java HTTP 应用，启动后监听 8000 端口，执行 <code>curl localhost:8000/hello</code> 后返回 hello world。将其打包成可执行 jar 后，可通过如下 Dockerfile 将其镜像化：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">FROM openjdk:8-jdk-alpine
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">FROM openjdk:8-jdk-alpine
 WORKDIR /
 COPY app.jar .
 ENTRYPOINT [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;]
@@ -181,7 +185,7 @@ ENTRYPOINT [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;]
 </div><p>在独立文件夹中放置 app.jar 和 Dockerfile 并执行 docker 镜像构建命令</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -197,7 +201,7 @@ ENTRYPOINT [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;]
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ docker build -t oci-demo-app:v0 .
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ docker build -t oci-demo-app:v0 .
 Step 1/4 : FROM openjdk:8-jdk-alpine3.9
  ---&gt; a3562aa0b991
 Step 2/4 : WORKDIR /
@@ -217,7 +221,7 @@ Successfully tagged oci-demo-app:v0
 <p>使用 docker run 运行容器，随之就可以通过 HTTP 请求访问服务</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -228,7 +232,7 @@ Successfully tagged oci-demo-app:v0
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ docker run -p 8000:8000 oci-demo-app:v0
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ docker run -p 8000:8000 oci-demo-app:v0
 ...
 [main] o.z.o.OciImageDemoApplication : Starting OciImageDemoApplication v0.0.1-SNAPSHOT on c7b8e0f373bc with PID 1 (/app.jar started by root in /)
 [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8000 (http)
@@ -272,7 +276,7 @@ hello world
 <p>通过 docker image save 命令导出镜像，并使用 tar 命令解压，使用 tree 命令即可得到镜像文件结构。没错，镜像就是 tar 格式压缩包，而且压缩包中还包含着多个 layer.tar 压缩包。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -302,7 +306,7 @@ hello world
 </span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">{
 docker pull zengxu/oci-demo-app:v0
 docker image save zengxu/oci-demo-app:v0 -o oci-demo-app.tar
 mkdir oci-demo-app-docker-image
@@ -335,7 +339,7 @@ oci-demo-app-docker-image
 </div><p>manifest.json 声明了镜像的配置、tag 和包含的层级，同时每个 layer 文件夹包含了一个 json 文件，声明了当前层的配置和自己的 parent layer。其实每个 layer 都是一镜像，然后组合起来成了新的镜像。通过镜像分层，存储实现在处理 Push 和 Pull 只需传输不存在的层即可。<code>oci-demo-app:v0</code> 层次关系如下：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -347,7 +351,7 @@ oci-demo-app-docker-image
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">amd64/alpine:3.9.4
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">amd64/alpine:3.9.4
       |
       v 
    java_home
@@ -361,7 +365,7 @@ oci-demo-app-docker-image
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -378,7 +382,7 @@ oci-demo-app-docker-image
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ cat manifest.json  | jq
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ cat manifest.json  | jq
 [
   {
     &#34;Config&#34;: &#34;fa903e5799bb733ed874b5161bfaf6ec363b54ac9020541735305b5d515d6335.json&#34;,
@@ -398,7 +402,7 @@ oci-demo-app-docker-image
 </div><p>如果查看 json config 文件，就会找到之前在 Dockerfile 中声明的 EntryPoint，同时也包含了 Linux std、tty 以及熟悉的 Java 环境变量。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -433,7 +437,7 @@ oci-demo-app-docker-image
 </span><span class="lnt">33
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
   <span class="nt">&#34;architecture&#34;</span><span class="p">:</span> <span class="s2">&#34;amd64&#34;</span><span class="p">,</span>
   <span class="nt">&#34;config&#34;</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">&#34;Hostname&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
@@ -471,16 +475,16 @@ oci-demo-app-docker-image
 </div><p>如果我们按照压缩包中 layer 的关系，从顶层开始，逐级解压文件再合并组织到一个目录树，得到的就是容器运行时文件系统。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">app.jar	 bin  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">app.jar	 bin  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 </code></pre></td></tr></table>
 </div>
 </div><p>实际上，如果通过 <code>docker export</code> 命令将容器文件系统导出，也会得到该文件结构</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -488,7 +492,7 @@ oci-demo-app-docker-image
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ docker pull zengxu/oci-demo-app:v0
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ docker pull zengxu/oci-demo-app:v0
 $ docker export $(docker create zengxu/oci-demo-app:v0) &gt; oci-demo-app-container.tar
 $ mkdir oci-demo-app-container
 $ tar -C oci-demo-app-container -xvf oci-demo-app-container.tar
@@ -500,7 +504,7 @@ app.jar  bin  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  
 <p>使用 <a href="https://github.com/containers/skopeo">skopeo</a> 将远程镜像拷贝以 OCI 格式拷贝到本地</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -511,7 +515,7 @@ app.jar  bin  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ skopeo copy docker://zengxu/oci-demo-app:v0 oci:oci-demo-app:v0
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ skopeo copy docker://zengxu/oci-demo-app:v0 oci:oci-demo-app:v0
 Getting image source signatures
 Copying blob e7c96db7181b done
 Copying blob f910a506b6cb done
@@ -530,7 +534,7 @@ Storing signatures
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -559,7 +563,7 @@ Storing signatures
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo tree oci-demo-app
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo tree oci-demo-app
 oci-demo-app
 ├── blobs
 │   └── sha256
@@ -595,7 +599,7 @@ $ cat oci-demo-app/index.json | jq                                              
 </ul>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -628,7 +632,7 @@ $ cat oci-demo-app/index.json | jq                                              
 </span><span class="lnt">31
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ cat oci-demo-app/blobs/sha256/d45802acb2a6c862e2d5576bd9bb90d7a2a57cfcbc160b81cf44322c8e20ab73 | jq
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ cat oci-demo-app/blobs/sha256/d45802acb2a6c862e2d5576bd9bb90d7a2a57cfcbc160b81cf44322c8e20ab73 | jq
 {
   &#34;schemaVersion&#34;: 2,
   &#34;config&#34;: {
@@ -665,7 +669,7 @@ $ cat oci-demo-app/index.json | jq                                              
 <p>使用如下命令从 docker registry 获取镜像 zengxu/oci-demo-app:v0 的 Docker Image manifest V2，两边对比可以发现，OCI V1 Image manifest 的 layer 压缩文件与 Docker Image manifest V2 sha256 值完全一致，只是 OCI V1 Image config 文件小一些（因为 docker Image Config 会额外包含容器配置和 Docker 相关信息）。
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 0
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 0
 </span><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
@@ -707,7 +711,7 @@ $ cat oci-demo-app/index.json | jq                                              
 </span><span class="lnt">39
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">{
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">{
 TOKEN=&#34;Bearer $(curl -s \
     &#34;https://auth.docker.io/token?scope=repository%3Azengxu%2Foci-demo-app%3Apull&amp;service=registry.docker.io&#34; \
     | jq -r &#39;.token&#39;)&#34;
@@ -758,13 +762,13 @@ curl -s https://registry-1.docker.io/v2/zengxu/oci-demo-app/manifests/v0 \
 <p>这里直接使用工具 <a href="https://github.com/opencontainers/image-tools">oci-image-tool</a> 将下载压缩包转化为文件系统，结果也是同样</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ mkdir oci-demo-app-bundle
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ mkdir oci-demo-app-bundle
 $ oci-image-tool unpack --ref name=v0 oci-demo-app oci-demo-app-bundle
 $ ls oci-demo-app-bundle
 app.jar  bin  dev  etc  home lib  media mnt  opt  proc root run sbin srv sys tmp  usr  var
@@ -795,14 +799,14 @@ app.jar  bin  dev  etc  home lib  media mnt  opt  proc root run sbin srv sys tmp
 <p>经过上面铺垫，接着使用 OCI runC 从 bundle 文件夹创建容器。首先新建 rootfs 目录，把文件都拷贝到 rootfs 目录</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">{
 cd oci-demo-app-bundle
 mkdir rootfs
 mv -r * ./rootfs/
@@ -812,7 +816,7 @@ mv -r * ./rootfs/
 </div><p>使用 runC spec 生成 OCI 容器运行配置文件 config.json，稍做修改以与镜像配置保持一致</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -821,7 +825,7 @@ mv -r * ./rootfs/
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">{
 runc spec
 sed -i &#39;s;&#34;sh&#34;;&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;;&#39; config.json
 sed -i &#39;s;&#34;terminal&#34;: true;&#34;terminal&#34;: false;&#39; config.json
@@ -833,7 +837,7 @@ chmod -R 777 ./rootfs/tmp/
 </div><p>修改后的 config.json 如下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -851,7 +855,7 @@ chmod -R 777 ./rootfs/tmp/
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">{
   &#34;ociVersion&#34;: &#34;1.0.1-dev&#34;,
   &#34;process&#34;: {
     &#34;terminal&#34;: false,
@@ -872,7 +876,7 @@ chmod -R 777 ./rootfs/tmp/
 </div><p>使用 runc run 以 detach 模式运行容器，并通过 runc list 查看容器运行情况</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -886,7 +890,7 @@ chmod -R 777 ./rootfs/tmp/
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># runc run -d oci-demo-app &gt; oci-demo-app.out 2&gt;&amp;1
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># runc run -d oci-demo-app &gt; oci-demo-app.out 2&gt;&amp;1
 # runc list
 ID             PID         STATUS     ...   OWNER
 oci-demo-app   3054        running    ...   root
@@ -903,7 +907,7 @@ cat oci-demo-app.out
 </div><p>通过 runC  exec 进入容器 shell 控制台，运行 ifconfig 会发现，默认情况下 runC 容器只有一张 loop 网卡，只有 127.0.0.1 一个地址</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -916,7 +920,7 @@ cat oci-demo-app.out
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">runc exec -t oci-demo-app sh
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">runc exec -t oci-demo-app sh
 
 / # ifconfig
 lo  Link encap:Local Loopback
@@ -934,28 +938,28 @@ lo  Link encap:Local Loopback
 <p>先停止并移除容器</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># runc kill oci-demo-app
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># runc kill oci-demo-app
 # runc delete oci-demo-app
 </code></pre></td></tr></table>
 </div>
 </div><p>注: brctl 可能需自行安装，CentOS 可以通过如下命令</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">sudo yum install bridge-utils -y
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">sudo yum install bridge-utils -y
 </code></pre></td></tr></table>
 </div>
 </div><p>使用 brctl 生成在宿主机生成网桥 runc0 并往 runc0 上挂一张虚拟网卡，网卡的一端 veth-host 绑定在宿主机，网卡的另外一端 veth-guest 将绑定到容器（即容器里的 eth0）。</p>
 <p>同时使用 ip netns 针对 namespace 进行操作，我们赋予容器网卡（地址在 /var/run/netns/runc-demo-contaienr），同时给予它一个 IP 地址 10.200.0.2，如此一来即可访问容器。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -973,7 +977,7 @@ lo  Link encap:Local Loopback
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">{
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">{
 brctl addbr runc0
 ip link set runc0 up
 ip addr add 10.200.0.1/24 dev runc0
@@ -994,7 +998,7 @@ ip netns exec runc-demo-contaienr ip route add default via 10.200.0.1
 </div><p>修改 config.json .linux.namespaces 的网络部分（注：最终的完整版配置放在 <a href="/file/oci-demo-app-config.json">这里</a>）
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -1011,7 +1015,7 @@ ip netns exec runc-demo-contaienr ip route add default via 10.200.0.1
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">{
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">{
   ...
   &#34;linux&#34;: {
     ...
@@ -1031,12 +1035,12 @@ ip netns exec runc-demo-contaienr ip route add default via 10.200.0.1
 <p>运行容器，并使用 curl 访问容器服务，网络通了</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># runc run -d oci-demo-app &gt; oci-demo-app.out 2&gt;&amp;1
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># runc run -d oci-demo-app &gt; oci-demo-app.out 2&gt;&amp;1
 # curl 10.200.0.2:8000/hello
 hello world
 </code></pre></td></tr></table>
@@ -1044,7 +1048,7 @@ hello world
 </div><p>如果进入容器，可以发现多了一张 eth0 网卡</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -1065,7 +1069,7 @@ hello world
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">runc exec -t oci-demo-app sh
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">runc exec -t oci-demo-app sh
 / # ifconfig
 eth0      Link encap:Ethernet  HWaddr 66:25:83:FA:3D:27
           inet addr:10.200.0.2  Bcast:0.0.0.0  Mask:255.255.255.0
@@ -1179,6 +1183,7 @@ lo        Link encap:Local Loopback
       <div class="social-links">
       <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
       <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
   <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
 </div>
 

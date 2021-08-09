@@ -36,23 +36,28 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   filename = "sitemap.xml"
 
 [[menu.main]]             # config your menu              # 配置目录
-  name = "Home"
+  name = "主页"
   weight = 10
   identifier = "home"
   url = "/"
 [[menu.main]]
-  name = "Archives"
+  name = "归档"
   weight = 20
   identifier = "archives"
   url = "/post/"
 [[menu.main]]
-  name = "Tags"
+  name = "标签"
   weight = 30
   identifier = "tags"
   url = "/tags/"
 [[menu.main]]
-  name = "About"
+  name = "杂文"
   weight = 40
+  identifier = "notion"
+  url = "https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7"
+[[menu.main]]
+  name = "我"
+  weight = 50
   identifier = "about"
   url = "/about"
 
@@ -100,7 +105,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
 
   postMetaInFooter = true   # contain author, lastMod, markdown link, license   # 包含作者，上次修改时间，markdown链接，许可信息
   linkToMarkDown = false    # Only effective when hugo will output .md files.   # 链接到markdown原始文件（仅当允许hugo生成markdown文件时有效）
-  contentCopyright = ''  # e.g. '<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>'
+  contentCopyright = '本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。'  # e.g. '<a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">CC BY-NC-ND 4.0</a>'
 
   changyanAppid = ""        # Changyan app id             # 畅言
   changyanAppkey = ""       # Changyan app key
@@ -195,7 +200,7 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
     #e-linkedin = "http://localhost:1313"
     #f-google = "http://localhost:1313"
     g-github = "https://github.com/phosae"
-    #h-weibo = "http://localhost:1313"
+    h-weibo = "https://weibo.com/u/1566013967"
     #i-zhihu = "http://localhost:1313"
     #j-douban = "http://localhost:1313"
     #k-pocket = "http://localhost:1313"

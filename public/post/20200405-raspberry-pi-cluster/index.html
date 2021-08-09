@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.83.1 with theme even" />
+<meta name="generator" content="Hugo 0.87.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/20200405-raspberry-pi-cluster/" />
@@ -43,12 +43,12 @@
 <meta property="og:description" content="自己动手，丰衣足食，利用开发板搭建本地 k8s 集群" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.zeng.dev/post/20200405-raspberry-pi-cluster/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2020-04-05T10:00:00&#43;08:00" />
-<meta property="article:modified_time" content="2020-04-15T21:30:00&#43;00:00" />
+<meta property="article:published_time" content="2020-04-05T10:00:00+08:00" />
+<meta property="article:modified_time" content="2020-04-15T21:30:00+00:00" />
 
 <meta itemprop="name" content="搭建树莓派 k8s 集群">
-<meta itemprop="description" content="自己动手，丰衣足食，利用开发板搭建本地 k8s 集群"><meta itemprop="datePublished" content="2020-04-05T10:00:00&#43;08:00" />
-<meta itemprop="dateModified" content="2020-04-15T21:30:00&#43;00:00" />
+<meta itemprop="description" content="自己动手，丰衣足食，利用开发板搭建本地 k8s 集群"><meta itemprop="datePublished" content="2020-04-05T10:00:00+08:00" />
+<meta itemprop="dateModified" content="2020-04-15T21:30:00+00:00" />
 <meta itemprop="wordCount" content="1594">
 <meta itemprop="keywords" content="树莓派,Kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="搭建树莓派 k8s 集群"/>
@@ -78,13 +78,15 @@
 <nav id="mobile-menu" class="mobile-menu slideout-menu">
   <ul class="mobile-menu-list">
     <a href="/">
-        <li class="mobile-menu-item">Home</li>
+        <li class="mobile-menu-item">主页</li>
       </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
+        <li class="mobile-menu-item">归档</li>
       </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
       </a><a href="/about">
-        <li class="mobile-menu-item">About</li>
+        <li class="mobile-menu-item">我</li>
       </a>
   </ul>
 
@@ -106,13 +108,15 @@
 <nav class="site-navbar">
   <ul id="menu" class="menu">
     <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
+        <a class="menu-item-link" href="/">主页</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
+        <a class="menu-item-link" href="/post/">归档</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
+        <a class="menu-item-link" href="/tags/">标签</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/about">About</a>
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
       </li>
   </ul>
 </nav>
@@ -224,7 +228,7 @@
 <p>通过 arp -a 获取开发板硬件地址并使用 ssh 操作进入开发板系统 (默认用户名名字均为 ubuntu)，依次按照如下指令依次操作所有开发板</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -240,7 +244,7 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-shell" data-lang="shell">$ arp -a 
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ arp -a 
 ? <span class="o">(</span>192.168.2.2<span class="o">)</span> at b8:27:eb:51:6e:d7 on bridge100 ifscope <span class="o">[</span>bridge<span class="o">]</span>
 $ ssh ubuntu@192.168.2.2
 Welcome to Ubuntu 18.04.4 LTS <span class="o">(</span>GNU/Linux 5.3.0-1017-raspi2 aarch64<span class="o">)</span>
@@ -259,7 +263,7 @@ ubuntu@ubuntu:~$
 </div><p>使用 root 权限在 /etc/netplan/ 目录下新建 99_config.yaml 文件，配置开发板地址为 192.168.2.2(其他板依此类推为 192.168.2.3, 192.168.2.4, &hellip;)，配置静态 IP 地址并设置网关地址为 192.168.2.10(即你的 Mac)，之后使用 netplan apply 更改网络配置。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -277,7 +281,7 @@ ubuntu@ubuntu:~$
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml">{<span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml">{<span class="w">
 </span><span class="w"></span><span class="l">cat &lt;&lt;EOF | sudo tee /etc/netplan/99_config.yaml</span><span class="w">
 </span><span class="w"></span><span class="nt">network</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
@@ -303,7 +307,7 @@ ubuntu@ubuntu:~$
 <p>安装系统 Ubuntu Desktop 18.04 LTS，Desktop 版不带 open SSH，安装 OpenSSH 并开启以便远程登陆</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -311,7 +315,7 @@ ubuntu@ubuntu:~$
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">$ sudo apt update
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">$ sudo apt update
 $ sudo apt install --assume-yes openssh-server 
 $ sudo systemctl enable ssh
 $ sudo systemctl start ssh
@@ -322,7 +326,7 @@ $ sudo ufw allow ssh
 </div><p>Ubuntu Desktop 网络配置和树莓派 Ubuntu Server 不一样，它使用的是 network-manager, 先通过 <strong>ip a</strong> 获取网卡名 (这里是 enp1s0，很多是 eth0)，在  /etc/network/interfaces 文件设置静态 IP</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -332,7 +336,7 @@ $ sudo ufw allow ssh
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">auto lo
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">auto lo
 iface lo inet loopback
 
 auto enp1s0
@@ -345,12 +349,12 @@ auto enp1s0
 </div><p>重启 network-manager</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">$ sudo service network-manager restart
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">$ sudo service network-manager restart
 $ ps aux | grep -i -E &#34;(networkmanager|nm)&#34;
 root      2175  0.0  0.5 502676 18436 ?  Ssl  21:23   0:00 /usr/sbin/NetworkManager --no-daemon
 </code></pre></td></tr></table>
@@ -358,12 +362,12 @@ root      2175  0.0  0.5 502676 18436 ?  Ssl  21:23   0:00 /usr/sbin/NetworkMana
 </div><p>Ubuntu Desktop 使用 systemd-resolved 解析 DNS，打开 /etc/systemd/resolved.conf，加入 DNS 服务地址</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-text" data-lang="text">[Resolve]
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">[Resolve]
 DNS=8.8.8.8 114.114.114.114 192.168.2.10
 FallbackDNS=8.8.4.4
 </code></pre></td></tr></table>
@@ -371,25 +375,25 @@ FallbackDNS=8.8.4.4
 </div><p>重启服务</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ systemctl restart systemd-resolved
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ systemctl restart systemd-resolved
 </code></pre></td></tr></table>
 </div>
 </div><p>最后，切记链接文件</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
 </code></pre></td></tr></table>
 </div>
 </div><p>测试 DNS 解析</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -399,7 +403,7 @@ FallbackDNS=8.8.4.4
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">$ nslookup google.com nslookup google.com
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ nslookup google.com nslookup google.com
 Server:		8.8.8.8
 Address:	8.8.8.8#53
 
@@ -414,7 +418,7 @@ Address: 59.24.3.174
 <p>配置方式基本同上，不过在网络配置中我更改了默认的网卡名</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -433,7 +437,7 @@ Address: 59.24.3.174
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">network:
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">network:
   version: 2
   renderer: networkd
   ethernets:
@@ -471,7 +475,10 @@ Address: 59.24.3.174
     </span>
   </p>
   
-  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
 </div>
 <footer class="post-footer">
       <div class="post-tags">
@@ -522,6 +529,7 @@ Address: 59.24.3.174
       <div class="social-links">
       <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
       <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
   <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
 </div>
 

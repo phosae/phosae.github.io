@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.83.1 with theme even" />
+<meta name="generator" content="Hugo 0.87.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2019-spring-config-intro/" />
@@ -43,12 +43,12 @@
 <meta property="og:description" content="介绍 SpringBoot YAML 和 properties 的对应关系，以及@ConfigurationProperties 和 @Value 的差异" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.zeng.dev/post/2019-spring-config-intro/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2019-06-03T23:56:06&#43;08:00" />
-<meta property="article:modified_time" content="2019-06-07T23:56:06&#43;08:00" />
+<meta property="article:published_time" content="2019-06-03T23:56:06+08:00" />
+<meta property="article:modified_time" content="2019-06-07T23:56:06+08:00" />
 
 <meta itemprop="name" content="Spring Boot 配置探幽">
-<meta itemprop="description" content="介绍 SpringBoot YAML 和 properties 的对应关系，以及@ConfigurationProperties 和 @Value 的差异"><meta itemprop="datePublished" content="2019-06-03T23:56:06&#43;08:00" />
-<meta itemprop="dateModified" content="2019-06-07T23:56:06&#43;08:00" />
+<meta itemprop="description" content="介绍 SpringBoot YAML 和 properties 的对应关系，以及@ConfigurationProperties 和 @Value 的差异"><meta itemprop="datePublished" content="2019-06-03T23:56:06+08:00" />
+<meta itemprop="dateModified" content="2019-06-07T23:56:06+08:00" />
 <meta itemprop="wordCount" content="2681">
 <meta itemprop="keywords" content="spring,spring boot," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Spring Boot 配置探幽"/>
@@ -78,13 +78,15 @@
 <nav id="mobile-menu" class="mobile-menu slideout-menu">
   <ul class="mobile-menu-list">
     <a href="/">
-        <li class="mobile-menu-item">Home</li>
+        <li class="mobile-menu-item">主页</li>
       </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
+        <li class="mobile-menu-item">归档</li>
       </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
       </a><a href="/about">
-        <li class="mobile-menu-item">About</li>
+        <li class="mobile-menu-item">我</li>
       </a>
   </ul>
 
@@ -106,13 +108,15 @@
 <nav class="site-navbar">
   <ul id="menu" class="menu">
     <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
+        <a class="menu-item-link" href="/">主页</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
+        <a class="menu-item-link" href="/post/">归档</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
+        <a class="menu-item-link" href="/tags/">标签</a>
       </li><li class="menu-item">
-        <a class="menu-item-link" href="/about">About</a>
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
       </li>
   </ul>
 </nav>
@@ -174,7 +178,7 @@ three basic primitives: mappings (hashes/dictionaries), sequences (arrays/lists)
 <p>标量在 Java 语言中最终体现为 String 和 char, boolean, byte, short, int, long, float, double 及其对应包装类。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -183,7 +187,7 @@ three basic primitives: mappings (hashes/dictionaries), sequences (arrays/lists)
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># yaml
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># yaml
 spring:
   yaml:
     property: value
@@ -198,7 +202,7 @@ spring.yaml.property = value
 <p>值得一提的是，Spring Boot 运行期间以 key[idx] 形式存储序列配置各元素，所以也可以以 properties 风格逐个声明序列元素。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -214,7 +218,7 @@ spring.yaml.property = value
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback"># yaml 风格
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># yaml 风格
 sequenceOne: [&#34;a&#34;,&#34;b&#34;,&#34;c&#34;]
 
 sequenceTwo:
@@ -238,7 +242,7 @@ sequenceTwo[1]=2
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -256,7 +260,7 @@ sequenceTwo[1]=2
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">Map&lt;String, String&gt; map;
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">Map&lt;String, String&gt; map;
 Map&lt;String, Map&lt;String, String&gt;&gt; mapInMap;
 ---
 # yaml 风格
@@ -279,7 +283,7 @@ map.mapInMap.key4=value4
 </ol>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -304,7 +308,7 @@ map.mapInMap.key4=value4
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">class POJO {
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">class POJO {
   String name;
   String desc;
 }
@@ -335,7 +339,7 @@ pojoList[1].desc=descb
 <p>但是这种配置方式不符合 YAML 格式，所以无法转换到 YAML 格式。为什么会这样呢？因为这种表达方式在 YAML 中，key <code>logging.level.com.example</code> 存在歧义，它既可能为标量，也可能为映射。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -345,7 +349,7 @@ pojoList[1].desc=descb
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">logging.level.com.example=warn</span><span class="w">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">logging.level.com.example=warn</span><span class="w">
 </span><span class="w"></span><span class="l">logging.level.com.expamle.HelloController=error</span><span class="w">
 </span><span class="w"></span><span class="nn">---</span><span class="w">
 </span><span class="w"></span><span class="c">#logging:</span><span class="w">
@@ -394,7 +398,7 @@ pojoList[1].desc=descb
 <p><code>Meta-data support</code> 指的是，如果应用项目引入 spring-boot-configuration-processor 依赖，包内的 Java 注解处理器（annotation processor）会在编译时会生成一份配置 JSON 描述文件。该文件记录了编译生成的 配置项到 JavaBean 类映射，你可以在 target/classes/META-INF 目录找到它。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -402,7 +406,7 @@ pojoList[1].desc=descb
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">&lt;dependency&gt;
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">&lt;dependency&gt;
     &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
     &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;
     &lt;version&gt;2.0.4.RELEASE&lt;/version&gt;
@@ -417,7 +421,7 @@ pojoList[1].desc=descb
 <p>对 String 和 char, boolean, byte, short, int, long, float, double 及其对应包装类而言，两者没有差异。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -431,7 +435,7 @@ pojoList[1].desc=descb
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-fallback" data-lang="fallback">value:
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">value:
   maxValue: 0x7FFFFFFF # parse max value 2147483647
   nullValue: null # parse to String &#34;&#34;, Integer null
   trueValue: true # parse to true
@@ -452,7 +456,7 @@ pojoList[1].desc=descb
 <p>如果我们直接使用 properties 风格配置，无需使用 SpEL 即可完成转换。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -491,7 +495,7 @@ pojoList[1].desc=descb
 </span><span class="lnt">37
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="nl">sequence:</span>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nl">sequence:</span>
   <span class="n">strs</span><span class="o">:</span> <span class="o">[</span><span class="s">&#34;a&#34;</span><span class="o">,</span><span class="s">&#34;b&#34;</span><span class="o">,</span><span class="s">&#34;c&#34;</span><span class="o">]</span>
 <span class="o">---</span>
 <span class="n">properties</span><span class="o">.</span><span class="na">strs</span> <span class="o">=</span> <span class="n">a</span><span class="o">,</span><span class="n">b</span><span class="o">,</span><span class="n">c</span>
@@ -534,7 +538,7 @@ pojoList[1].desc=descb
 <p>对于映射类配置，@ConfigurationProperties 可以很自然绑定到 Map 对象 和 POJO 对象。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt"> 1
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
 </span><span class="lnt"> 2
 </span><span class="lnt"> 3
 </span><span class="lnt"> 4
@@ -565,7 +569,7 @@ pojoList[1].desc=descb
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="nl">mapping:</span>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nl">mapping:</span>
   <span class="n">map</span><span class="o">:</span>
     <span class="n">key1</span><span class="o">:</span> <span class="n">value1</span>
     <span class="n">key2</span><span class="o">:</span> <span class="n">value2</span>
@@ -599,7 +603,7 @@ pojoList[1].desc=descb
 </div><p>与序列类似，@Value 映射类配置绑定，需要将配置处理成 String 标量，只支持 Map 而不支持 POJO。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre class="chroma"><code><span class="lnt">1
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
 </span><span class="lnt">4
@@ -607,7 +611,7 @@ pojoList[1].desc=descb
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">={</span><span class="n">key1</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value1</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key2</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value2</span><span class="err">&#39;</span><span class="o">}</span>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">={</span><span class="n">key1</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value1</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key2</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value2</span><span class="err">&#39;</span><span class="o">}</span>
 <span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">.</span><span class="na">mapInMap</span><span class="o">={</span><span class="n">key3</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value3</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key4</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value4</span><span class="err">&#39;</span><span class="o">}</span>
 
 <span class="c1">// 无法绑定
@@ -685,6 +689,7 @@ pojoList[1].desc=descb
       <div class="social-links">
       <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
       <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
   <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
 </div>
 
