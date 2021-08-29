@@ -212,7 +212,12 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
 # See https://gohugo.io/about/hugo-and-gdpr/
 [privacy]
   [privacy.googleAnalytics]
-    anonymizeIP = true      # 12.214.31.144 -> 12.214.31.0
+    # Enabling this will make it so the users' IP addresses are anonymized within Google Analytics.
+    anonymizeIP = false      # 12.214.31.144 -> 12.214.31.0
+    disable = false
+    # Enabling this will make the GA templates respect the “Do Not Track” HTTP header.
+    respectDoNotTrack = false
+    useSessionStorage = false
   [privacy.youtube]
     privacyEnhanced = true
 

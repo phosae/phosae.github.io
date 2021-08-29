@@ -21,6 +21,11 @@ p > code {
   // color: #EB5757;
 }
 
+li > code {
+  color: $theme-color;
+  background: rgba(135,131,120,0.15);
+}
+
 // highlight.js
 figure.highlight {
   margin: 1em 0;

@@ -1,14 +1,14 @@
 ---
-title: "Kubernetes admission webhook server 开发"
+title: "Kubernetes admission webhook server 开发教程"
 date: 2021-08-08T21:11:28+08:00
-lastmod: 2021-08-10T02:05:00+08:00
+lastmod: 2021-08-29T15:05:00+08:00
 draft: false
 
 keywords: ["kubernetes", "container"]
 description: ""
 tags: ["kubernetes", "container"]
 author: "Zeng Xu"
-summary: "implement a simple validating admission webhook"
+summary: "how to implement a Kubernetes validating admission webhook"
 
 comment: true
 toc: true
@@ -36,7 +36,7 @@ Error from server (NotFound): namespaces "ns-not-exist" not found
 
 实现自定义 admission webhook，可以灵活地修改或校验 Kubernetes 资源（尤其是 Custom Resources），满足各种定制化需求。
 
-下文将以 validating admission webhook 为例，展示如何开发并部署 admission webhook server，所有代码均出自我的项目 [denyenv-validating-admission-webhook](https://github.com/phosae/denyenv-validating-admission-webhook)。
+下文将以 validating admission webhook 为例，展示如何开发、部署和调试 admission webhook server，所有代码均出自我的项目 [denyenv-validating-admission-webhook](https://github.com/phosae/denyenv-validating-admission-webhook)。
 
 
 ## 思路及实现
@@ -62,7 +62,9 @@ kubectl cluster-info --context kind-kind
 Have a nice day! 👋
 ```
 
-首先，我们的服务会在 Pod 创建时，收到 apiserver POST 请求，HTTP Body 包含如下 JSON 数据，即序列化后的 [AdmissionReview](https://github.com/kubernetes/api/blob/499b6f90564cff48dc1fba56d974de2e5ec98bb4/admission/v1beta1/types.go#L34-L42)
+首先，构建一个 HTTP/HTTPS 服务，监听 8000 端口，通过 path /validate 接收认证请求。
+
+按照设想，我们的服务会在 Kubernetes 集群发生 Pod 创建时，收到 apiserver 发起的 HTTP POST 请求，其 Body 包含如下 JSON 数据，即序列化后的 [AdmissionReview](https://github.com/kubernetes/api/blob/499b6f90564cff48dc1fba56d974de2e5ec98bb4/admission/v1beta1/types.go#L34-L42)
 
 ```json
 {
@@ -117,7 +119,7 @@ Have a nice day! 👋
 
 ## 部署
 
-### TLS 证书
+### 使用 Kubernetes CertificateSigningRequest 签发 TLS 证书
 由于 Kubernetes 只支持 HTTPS 协议的 admission webhook，所以关键在于 HTTPS 化我们的服务。Kubernetes 本身就有自己的 CA 证书体系，且支持 TLS 证书签发。我们要做的就是使用 openssl 生成服务私钥、服务证书请求并巧用 Kubernetes CA 签名服务证书
 1. 使用 openssl 生成服务的私钥（server-key）
 2. 结合 server-key，使用 openssl 生成证书请求 server.csr
@@ -126,7 +128,16 @@ Have a nice day! 👋
 
 [过程脚本传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/webhook-create-signed-cert.sh)
 
-注：Kubernetes 证书有效期为 1 年，复杂的生产环境可以考虑使用 [cert-manager](https://github.com/jetstack/cert-manager) 维护证书生命周期。
+### 使用 cert-manager 签发 TLS 证书
+
+Kubernetes 证书有效期为 1 年，复杂的生产环境可以考虑使用 [cert-manager](https://github.com/jetstack/cert-manager) ，因为它具有证书自动更新、自动注入等一系列生命周期管理功能。
+1. 安装 cert-manager 相关依赖，如 CRD/Controller、RABC、Webhook (`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml`)
+2. 创建 cert-manager Issuer CR（这里用 selfSigned Issuer）
+3. 创建 cert-manager Certificate CR，引用 Issuer 签发证书（可以在 .Spec.ipAddresses 指定机器 IP 方便本地调试）
+
+[步骤 2、3 Yaml 声明传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/k-cert-manager.yaml)
+
+最终，签发的证书会持久到 Certificate CR 中声明的 Secret（这里是 denyenv-tls-secret）。接着，在 admission webhook 配置中，我们会利用 cert-manager ca-injector（ mutate webhook 实现）注入证书。
 
 ### 部署和暴露方式
 
@@ -136,8 +147,8 @@ denyenv webhook server 以 Deployment 形式部署到 Kubernetes 集群，将 Se
 
 ### admission webhook 协议配置
 
-通过 ValidatingWebhookConfiguration 向集群中的 ValidatingAdmissionWebhook controller 声明我们的 webhook，注意以下两点：
-1. clientConfig.caBundle 用于证书认证，进入任意 Pod，拷贝文件 /run/secrets/kubernetes.io/serviceaccount/ca.crt，base64 格式化再写入即可
+通过 ValidatingWebhookConfiguration 向 apiserver 中的 ValidatingAdmissionWebhook controller 声明我们的 webhook，注意以下两点：
+1. clientConfig.caBundle 用于证书认证，如果使用 Kubernetes CertificateSigningRequest 签发证书，则进入任意 Pod，拷贝文件 /run/secrets/kubernetes.io/serviceaccount/ca.crt，base64 格式化再写入 `clientConfig.caBundle`; 如果使用 cert-manager 签发证书，cert-manager ca-injector 组件会自动帮忙注入证书。
 2. 为防止自己拦截自己的情形，使用 objectSelector 将 server Pod 排除。
 
 ```yaml
@@ -145,11 +156,14 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: denyenv
+  annotations:
+    ## for cert-manager CA injection
+    cert-manager.io/inject-ca-from: default/denyenv-tls-secret
 webhooks:
   - admissionReviewVersions:
       - v1
     clientConfig:
-      caBundle: "<Kubernetes CA>"
+      caBundle: "<Kubernetes CA> or <cert-manager CA>"
       service:
         name: denyenv
         namespace: default
@@ -184,6 +198,8 @@ webhooks:
 
 如果是本地开发，可以采用 `make linux` 构建镜像，使用 `kind load` 加载镜像，最后使用 `make clear && make deploy` 一键部署。
 
+如果使用 cert-manager，用 `make deploy-cm`、`make clear-cm` 替代 `make deploy`、`make clear`。
+
 ## 测试结果
 
 尝试创建不含环境变量的 Pod，成功
@@ -208,3 +224,4 @@ Error from server (nginx is using env vars): admission webhook "denyenv.zeng.dev
 ](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 * [Certificate Trust Chain](https://en.wikipedia.org/wiki/File:Chain_Of_Trust.svg)
 * [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security)
+* [cert-manager](https://cert-manager.io/docs/configuration/selfsigned/)
