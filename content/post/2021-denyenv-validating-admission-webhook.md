@@ -1,7 +1,7 @@
 ---
 title: "Kubernetes admission webhook server 开发教程"
 date: 2021-08-08T21:11:28+08:00
-lastmod: 2021-08-29T15:05:00+08:00
+lastmod: 2021-10-15T22:05:00+08:00
 draft: false
 
 keywords: ["kubernetes", "container"]
@@ -119,37 +119,14 @@ Have a nice day! 👋
 
 ## 部署
 
-### 使用 Kubernetes CertificateSigningRequest 签发 TLS 证书
-由于 Kubernetes 只支持 HTTPS 协议的 admission webhook，所以关键在于 HTTPS 化我们的服务。Kubernetes 本身就有自己的 CA 证书体系，且支持 TLS 证书签发。我们要做的就是使用 openssl 生成服务私钥、服务证书请求并巧用 Kubernetes CA 签名服务证书
-1. 使用 openssl 生成服务的私钥（server-key）
-2. 结合 server-key，使用 openssl 生成证书请求 server.csr
-3. 使用 Kubernetes CertificateSigningRequest 和 kubectl approve 签名服务证书
-4. 将服务私钥和证书，存储到 Kubernetes Secret 中
+### 向 apiserver 注册 admission webhook
 
-[过程脚本传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/webhook-create-signed-cert.sh)
-
-### 使用 cert-manager 签发 TLS 证书
-
-Kubernetes 证书有效期为 1 年，复杂的生产环境可以考虑使用 [cert-manager](https://github.com/jetstack/cert-manager) ，因为它具有证书自动更新、自动注入等一系列生命周期管理功能。
-1. 安装 cert-manager 相关依赖，如 CRD/Controller、RABC、Webhook (`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml`)
-2. 创建 cert-manager Issuer CR（这里用 selfSigned Issuer）
-3. 创建 cert-manager Certificate CR，引用 Issuer 签发证书（可以在 .Spec.ipAddresses 指定机器 IP 方便本地调试）
-
-[步骤 2、3 Yaml 声明传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/k-cert-manager.yaml)
-
-最终，签发的证书会持久到 Certificate CR 中声明的 Secret（这里是 denyenv-tls-secret）。接着，在 admission webhook 配置中，我们会利用 cert-manager ca-injector（ mutate webhook 实现）注入证书。
-
-### 部署和暴露方式
-
-denyenv webhook server 以 Deployment 形式部署到 Kubernetes 集群，将 Secret Volume 挂载到容器目录，通过 ENV 将证书、私钥所在目录传递给应用。
-
-以 Service 方式向 apiserver 暴露服务接口，以 443 端口映射 denyenv 8000。
-
-### admission webhook 协议配置
-
-通过 ValidatingWebhookConfiguration 向 apiserver 中的 ValidatingAdmissionWebhook controller 声明我们的 webhook，注意以下两点：
-1. clientConfig.caBundle 用于证书认证，如果使用 Kubernetes CertificateSigningRequest 签发证书，则进入任意 Pod，拷贝文件 /run/secrets/kubernetes.io/serviceaccount/ca.crt，base64 格式化再写入 `clientConfig.caBundle`; 如果使用 cert-manager 签发证书，cert-manager ca-injector 组件会自动帮忙注入证书。
-2. 为防止自己拦截自己的情形，使用 objectSelector 将 server Pod 排除。
+或曰，apiserver 如何知晓服务存在，如何调用接口，答案是 ValidatingWebhookConfiguration。通过往 Kubernetes 集群写入该协议，最终 apiserver 会在其 ValidatingAdmissionWebhook controller 模块注册好我们的 webhook，注意以下几点：
+1. apiserver 只支持 HTTPS webhook，因此必须准备 TLS  证书，一般使用 Kubernetes CertificateSigningRequest 或者 cert-manager 获取，下文会详细介绍
+2. clientConfig.caBundle 用于指定签发 TLS 证书的 CA 证书，如果使用 Kubernetes CertificateSigningRequest 签发证书，自 kube-public namespace clusterinfo 获取集群 CA，base64 格式化再写入 `clientConfig.caBundle` 即可; 如果使用 cert-manager 签发证书，cert-manager ca-injector 组件会自动帮忙注入证书。
+3. 为防止自己拦截自己的情形，使用 objectSelector 将 server Pod 排除。
+4. 集群内部署时，使用 service ref 指定服务
+5. 集群外部署时，使用 url 指定 HTTPS 接口
 
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1
@@ -164,11 +141,12 @@ webhooks:
       - v1
     clientConfig:
       caBundle: "<Kubernetes CA> or <cert-manager CA>"
-      service:
-        name: denyenv
-        namespace: default
-        port: 443
-        path: /validate
+      url: 'https://192.168.1.10:8000/validate' # 集群外部署，使用此方式时，注释 service ref
+      service:                                  #---------------------#             
+        name: denyenv                           #---------------------#             
+        namespace: default                      #       集群内部署      #            
+        port: 443                               # 使用此方式时，注释 url #            
+        path: /validate                         #---------------------#            
     failurePolicy: Fail
     matchPolicy: Exact
     name: denyenv.zeng.dev
@@ -192,13 +170,57 @@ webhooks:
     timeoutSeconds: 3
 ```
 
+### Kubernetes CertificateSigningRequest 签发 TLS 证书
+Kubernetes 本身就有自己的 CA 证书体系，且支持 TLS 证书签发。我们要做的就是使用 openssl 生成服务私钥、服务证书请求并巧用 Kubernetes CA 签名服务证书
+1. 使用 openssl 生成服务的私钥（server-key）
+2. 结合 server-key，使用 openssl 生成证书请求 server.csr
+3. 使用 Kubernetes CertificateSigningRequest 和 kubectl approve 签名服务证书
+4. 将服务私钥和证书，存储到 Kubernetes Secret 中
+5. 如果采用集群外部署，注意在 csr.conf 中指定好域名或 IP 地址
+
+[过程脚本传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/webhook-create-signed-cert.sh)
+
+### cert-manager 签发 TLS 证书
+
+Kubernetes 证书有效期为 1 年，复杂的生产环境可以考虑使用 [cert-manager](https://github.com/jetstack/cert-manager) ，因为它具有证书自动更新、自动注入等一系列生命周期管理功能。
+1. 安装 cert-manager 相关依赖，如 CRD/Controller、RABC、Webhook (`kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml`)
+2. 创建 cert-manager Issuer CR（这里用 selfSigned Issuer）
+3. 创建 cert-manager Certificate CR，引用 Issuer 签发证书
+4. 如果是集群外部署，可以在 .spec.ipAddresses 指定机器 IP，可以在 .spec.dnsNames 指定域名
+
+[步骤 2、3 Yaml 声明传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/k-cert-manager.yaml)
+
+最终，签发的证书会持久到 Certificate CR 中声明的 Secret（这里是 denyenv-tls-secret）。接着，在 admission webhook 配置中，我们会利用 cert-manager ca-injector（ mutate webhook 实现）注入证书。
+
+### 集群内部署
+
+denyenv webhook server 以 Deployment 形式部署到 Kubernetes 集群，将 Secret Volume 挂载到容器目录，通过 ENV 将证书、私钥所在目录传递给应用。
+
+以 Service 方式向 apiserver 暴露服务接口，以 443 端口映射 denyenv 8000。
+
 注: 
 
 你可以 clone 我的 [代码]((https://github.com/phosae/denyenv-validating-admission-webhook))，使用 `make deploy` 一键自动化所有部署过程。
 
-如果是本地开发，可以采用 `make linux` 构建镜像，使用 `kind load` 加载镜像，最后使用 `make clear && make deploy` 一键部署。
+可以采用 `make linux` 构建镜像，使用 `kind load` 加载镜像，最后使用 `make clear && make deploy` 一键部署。
 
 如果使用 cert-manager，用 `make deploy-cm`、`make clear-cm` 替代 `make deploy`、`make clear`。
+
+### 集群外部署
+
+denyenv webhook server 部署在某台机器上，对 Kubernetes 而言，它表现为一个可以调用的 HTTPS 链接。
+
+你可以从 Secret 中取出证书，放到习惯的目录，在启动时，将证书、私钥所在目录通过 ENV 传递给应用。
+
+注: 
+
+你可以 clone 我的 [代码]((https://github.com/phosae/denyenv-validating-admission-webhook))
+
+如果使用 Kubernetes CertificateSigningRequest 签发证书，可使用 `make setup-kube-for-outcluster` 设置 Kubernetes 环境，使用 `make clear-kube-for-outcluster` 清理。
+
+如果使用 cert-manager，用 `make setup-kube-for-outcluster-cm` 设置 Kubernetes 环境，用 `make clear-kube-for-outcluster-cm` 清理。
+
+可以使用 `make save-cert` 保存证书到本地文件。
 
 ## 测试结果
 
