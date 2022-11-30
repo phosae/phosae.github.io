@@ -17,7 +17,7 @@ postMetaInFooter: true
 hiddenFromHomePage: false
 ---
 
-## 问题背景
+## 问题及现象
 
 K8s 网络，OpenStack 网络或者其他 SDN 网络会使用各种各样的封包技术，结果便是 Host Pod 或者 Host VM 网卡 MTU 会小于 1500。
 
@@ -72,7 +72,7 @@ PING baidu.com (39.156.66.10): 1400 data bytes
 
 方式一、修改 `daemon.json` 文件
 
-```yaml
+```bash
 $ vim /etc/docker/daemon.json
 {
   "mtu": 1400
@@ -83,7 +83,7 @@ $ systemctl restart docker
 
 方式二、修改 systemd unit file 指明启动参数 `--mtu` （不同系统位置可能不同
 
-```yaml
+```bash
 $ vim /lib/systemd/system/docker.service 
 
 ExecStart=/usr/bin/dockerd --mtu 1400 -H fd:// --containerd=/run/containerd/containerd.sock
@@ -128,9 +128,9 @@ $ docker run --rm -it --name test --network mybridge alpine
 
 ## 参考
 
-1. [https://www.civo.com/learn/fixing-networking-for-docker](https://www.civo.com/learn/fixing-networking-for-docker)
-2. [https://mlohr.com/docker-mtu/](https://mlohr.com/docker-mtu/)
-3. [https://sylwit.medium.com/how-we-spent-a-full-day-figuring-out-a-mtu-issue-with-docker-4d81fdfe2caf](https://sylwit.medium.com/how-we-spent-a-full-day-figuring-out-a-mtu-issue-with-docker-4d81fdfe2caf)
+1. [Fixing networking for Docker by Andy Jeffries](https://www.civo.com/learn/fixing-networking-for-docker)
+2. [Docker MTU issues and solutions by Matthias Lohr](https://mlohr.com/docker-mtu/)
+3. [How we spent a full day figuring out a MTU issue with docker by Sylvain Witmeyer](https://sylwit.medium.com/how-we-spent-a-full-day-figuring-out-a-mtu-issue-with-docker-4d81fdfe2caf)
 4. [https://github.com/moby/moby/pull/18108](https://github.com/moby/moby/pull/18108)
 5. [https://github.com/moby/moby/issues/34981](https://github.com/moby/moby/issues/34981)
-6. [https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files](https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files)
+6. [understanding systemd units and unit files](https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files)
