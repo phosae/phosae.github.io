@@ -6,7 +6,16 @@
     <description>Recent content in Posts on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 18 Nov 2022 18:11:28 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 27 Feb 2023 08:00:59 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Terminate Container in Responsive and Gracefule Way</title>
+      <link>https://www.zeng.dev/post/2023-handle-container-terminating/</link>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-handle-container-terminating/</guid>
+      <description>Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want.</description>
+    </item>
+    
     <item>
       <title>虚拟网络环境中 Docker MTU 问题及解决方式</title>
       <link>https://www.zeng.dev/post/2022-the-docker-mtu-problem/</link>

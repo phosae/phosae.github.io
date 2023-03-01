@@ -1,5 +1,5 @@
 ---
-title: "Terminate Container in Responsive and Gracefule Way"
+title: "Terminate Container in Responsive and Graceful Way"
 date: 2023-02-27T08:00:59+08:00
 lastmod: 2023-02-27T08:00:59+08:00
 draft: false
