@@ -6,11 +6,11 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 18 Nov 2022 18:11:28 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 27 Feb 2023 08:00:59 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>container</title>
       <link>https://www.zeng.dev/tags/container/</link>
-      <pubDate>Fri, 18 Nov 2022 18:11:28 +0800</pubDate>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/container/</guid>
       <description></description>
@@ -19,18 +19,45 @@
     <item>
       <title>docker</title>
       <link>https://www.zeng.dev/tags/docker/</link>
-      <pubDate>Fri, 18 Nov 2022 18:11:28 +0800</pubDate>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/docker/</guid>
       <description></description>
     </item>
     
     <item>
+      <title>init</title>
+      <link>https://www.zeng.dev/tags/init/</link>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/init/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>kubernetes</title>
       <link>https://www.zeng.dev/tags/kubernetes/</link>
-      <pubDate>Sun, 08 Aug 2021 21:11:28 +0800</pubDate>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>pid1</title>
+      <link>https://www.zeng.dev/tags/pid1/</link>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/pid1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rust</title>
+      <link>https://www.zeng.dev/tags/rust/</link>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/rust/</guid>
       <description></description>
     </item>
     
