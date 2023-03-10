@@ -6,7 +6,52 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 27 Feb 2023 08:00:59 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 08 Mar 2023 10:51:20 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>byte serving</title>
+      <link>https://www.zeng.dev/tags/byte-serving/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/byte-serving/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go</title>
+      <link>https://www.zeng.dev/tags/go/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>http</title>
+      <link>https://www.zeng.dev/tags/http/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/http/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>range request</title>
+      <link>https://www.zeng.dev/tags/range-request/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/range-request/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>web</title>
+      <link>https://www.zeng.dev/tags/web/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/web/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>container</title>
       <link>https://www.zeng.dev/tags/container/</link>
@@ -139,15 +184,6 @@
       <pubDate>Mon, 15 Jul 2019 16:55:32 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/concurrency/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Go</title>
-      <link>https://www.zeng.dev/tags/go/</link>
-      <pubDate>Mon, 15 Jul 2019 16:55:32 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/go/</guid>
       <description></description>
     </item>
     

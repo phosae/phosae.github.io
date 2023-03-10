@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>range request on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/range-request/</link>
+    <description>Recent content in range request on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 08 Mar 2023 10:51:20 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/range-request/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Http Range Request and MP4 Video Play in Browser</title>
+      <link>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</guid>
+      <description>HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. Serveral sample HTTP servers written in Golang are used to trick browsers.</description>
+    </item>
+    
+  </channel>
+</rss>
