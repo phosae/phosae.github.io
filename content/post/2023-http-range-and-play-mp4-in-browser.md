@@ -7,7 +7,7 @@ keywords: ["http","go","range request", "byte serving", "web"]
 description: ""
 tags: ["http","go","range request", "byte serving", "web"]
 author: "Zeng Xu"
-summary: "HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. Serveral sample HTTP servers written in Golang are used to trick browsers."
+summary: "HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. several sample HTTP servers written in Golang are used to trick browsers."
 
 comment: true
 toc: true

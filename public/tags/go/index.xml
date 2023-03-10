@@ -6,7 +6,16 @@
     <description>Recent content in Go on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 15 Jul 2019 16:55:32 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 08 Mar 2023 10:51:20 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Http Range Request and MP4 Video Play in Browser</title>
+      <link>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</guid>
+      <description>HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. Serveral sample HTTP servers written in Golang are used to trick browsers.</description>
+    </item>
+    
     <item>
       <title>Java &amp; Go 并发编程对比</title>
       <link>https://www.zeng.dev/post/2019-java2go-concurrency/</link>
