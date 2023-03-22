@@ -50,8 +50,9 @@ But `PID 1` is treated specially by Linux[[3]][[4]][[5]]:
 - Indeed, it is unkillable, meaning that it doesn't get killed by signals which would terminate regular processes.
 - When the process with pid 1 die for any reason, all other processes are killed with `KILL` signal
 - When any process having children dies for any reason, its children are reparented to process with PID 1
+- PID 1 has a unique responsibility, which is to reap zombie processes
 
-The following Rust code build a basic application that print its PID and lives for 60 seconds.
+The following Rust code build a basic application that print its PID and lives for 60 seconds. The full code is [here](https://github.com/phosae/samples/blob/main/2023/pid1-in-container/sleep/src/sleep.rs).
 
 ```rust
 // sleep.rs
@@ -82,7 +83,8 @@ pid 41                                                               #    41 roo
 . 2                                                                  # $ docker exec sleep kill -s -SIGTERM 41
 . 3                                                                  #       
 . 4                                                                  #          
-. 5                                                                  #                                                                  # 
+. 5                                                                  #
+
 Terminated
 /src # echo $?
 143
@@ -160,7 +162,7 @@ RUN chmod +x /dumb-init
 
 Above solution can work in any runtime context, including Containerd, Docker, Podman, or Kubernetes.
 
-In runtime context is Docker, [tini] is included in it. Adding arg `--init` in run command will ovveride target's entrypoint as `/sbin/docker-init -- /src/sleep`.
+In runtime context is Docker, [tini] is included in it. Adding arg `--init` in run command will override target's entrypoint as `/sbin/docker-init -- /src/sleep`.
 
 ```shell
 # docker run --rm --name sleep --init -v $PWD:/src zengxu/alpine:init /src/sleep
@@ -203,7 +205,9 @@ SIG_INT/SIG_TERM ---> PID 1, /bin/sh /src/start.sh  (won't forward signals to ch
               |                                                           
               +--------------------------------------------------------------
 ```
-As point out by answers in [[6]], exec process and let it replace shell process solve this problem. Writing signal handler in script do the best, but can be a litte complex.
+
+As pointed out by answers in [[6]], exec process and let it replace shell process solve this problem. Writing signal handler in script do the best, but can be a litte complex.
+
 ```
 # cat exec.sh 
 #!/bin/sh                                                                         
@@ -228,6 +232,59 @@ SIG_INT/SIG_TERM ---> PID 1, /tini -- /src/sleep   (/tini replace /bin/sh as PID
               |                                                           
               +--------------------------------------------------------------
 ```
+## child reaping
+In some cases, application use unix fork to do specific tasks. Then the duty of reaping children comes to the entrypoint process. Since not all application will carefully reaping child processes by installing `SIGCHILD` signal hander, calling the wait syscall in parent process, these child processes may become longer lived zombie processes. Large sized, long lived zombie processes are harmful to Unix system, it will exhaust pid resource and process table[[7]].
+
+Below Golang samaples try to create zombies every 1 second
+
+```go
+for i := 1; i <= 60; i++ {
+  fmt.Println(pid, ".", i)
+  if _, isChild := os.LookupEnv("CHILD_ID"); !isChild {
+    pwd, err := os.Getwd()
+    if err != nil {
+      log.Fatalf("getwd err: %s", err)
+    }
+    args := append(os.Args, fmt.Sprintf("#child_%d_of_%d", i, os.Getpid()))
+    childENV := []string{
+      fmt.Sprintf("CHILD_ID=%d", i),
+    }
+    syscall.ForkExec(args[0], args, &syscall.ProcAttr{
+      Dir: pwd,
+      Env: append(os.Environ(), childENV...),
+      Sys: &syscall.SysProcAttr{
+        Setsid: true,
+      },
+      Files: []uintptr{0, 1, 2}, // print message to the same pty
+    })
+  } else {
+    os.Exit(0) // child exit directly, become zombie
+  }
+  time.Sleep(time.Second)
+}
+```
+
+If application don't reap children, in the end there're 60 zombies. The full code is [here](https://github.com/phosae/samples/blob/main/2023/pid1-in-container/sleep-zombie/sleep.go). You can play it with
+
+```shell
+-- at window/panel 1
+docker run --rm --name sleep -w /src  -it -v $PWD:/src ubuntu:jammy  
+---at window/panel 2
+docker exec sleep ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.2  0.0 710720  1992 pts/0    Ssl+ 11:48   0:00 ./sleep-zombie
+...
+root       349  0.0  0.0      0     0 ?        Zs   11:49   0:00 [sleep-zombie] <defunct>
+root       355  0.0  0.0   6408  1652 ?        Rs   11:49   0:00 ps aux
+```
+Rust version demo is [here](https://github.com/phosae/samples/blob/main/2023/pid1-in-container/sleep/src/main.rs).
+
+For such cases, container init-system such as [tini] and [dumb-init] are good choice. More at [what-is-advantage-of-Tini?]
+
+As previous pointed, in Docker you can simplely use `docker run --init` to solve this problem. In K8s, the pause process can help reaping child processes with `spec.shareProcessNamespace: true`, More details at [share-process-namespace], [the-almighty-pause-container].
+
+Comparing to leverage runtime, building it into the container are better choice. Things will be handled by default without reliance on properly configuring things at runtime.
+
 ## graceful shutdown guides
 For application should shutdown gracefully, it should be coded to catch `SIGTERM` or `SIGINT`, do cleanup such as closing connections, and finally exit with 0. For Rust this guide ([handling-unix-kill-signals-in-rust]) can be followed. For Golang this ([how-to-stop-http-listenandserve]) can be followed. Other languages are your own, but solution are quite common.
 
@@ -237,7 +294,11 @@ For application should shutdown gracefully, it should be coded to catch `SIGTERM
 [4]: https://github.com/tailhook/vagga/blob/275b540cec12a1c721c121be58cf5a6d63fa8863/docs/pid1mode.rst?plain=1#L8-L20
 [5]: https://github.com/torvalds/linux/blob/49697335e0b441b0553598c1b48ee9ebb053d2f1/include/linux/sched/signal.h#L262
 [6]: https://unix.stackexchange.com/questions/146756/forward-sigterm-to-child-in-bash
+[7]: https://www.baeldung.com/cs/process-lifecycle-zombie-state
 [tini]: https://github.com/krallin/tini
 [dumb-init]: https://github.com/Yelp/dumb-init
 [handling-unix-kill-signals-in-rust]: https://dev.to/talzvon/handling-unix-kill-signals-in-rust-55g6
 [how-to-stop-http-listenandserve]: https://stackoverflow.com/questions/39320025/how-to-stop-http-listenandserve
+[what-is-advantage-of-Tini?]: https://github.com/krallin/tini/issues/8
+[share-process-namespace]: https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/
+[the-almighty-pause-container]: https://www.ianlewis.org/en/almighty-pause-container

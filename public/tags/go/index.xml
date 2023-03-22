@@ -13,7 +13,7 @@
       <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
       
       <guid>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</guid>
-      <description>HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. Serveral sample HTTP servers written in Golang are used to trick browsers.</description>
+      <description>HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. several sample HTTP servers written in Golang are used to trick browsers.</description>
     </item>
     
     <item>
