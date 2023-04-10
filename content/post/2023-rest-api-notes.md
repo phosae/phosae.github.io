@@ -3,11 +3,11 @@ title: "REST API 设计备忘"
 date: 2023-04-05T15:28:41+08:00
 lastmod: 2023-04-05T15:28:41+08:00
 draft: true
-keywords: []
+keywords: ["REST","HTTP"]
 description: ""
-tags: []
+tags: ["REST","HTTP"]
 author: "Zeng Xu"
-summary: "文章摘要"
+summary: "HTTP REST API 通用设计思路摘录"
 
 comment: true
 toc: true
@@ -149,7 +149,9 @@ https://<tenant>.<region>.<service>.<cloud>/<service-root>/<resource-collection>
 - 如果服务只是单机房部署，则无此必要
 - 用户信息可以放置在 Header 中，采用 Bearer Token, API keys, OAuth 之类的方式
 
-Google 选择用 URL Path 存放 API Version，具有强制性，对代码来说路由友好。Microsoft Azure 则将 API Version 放到了 URL Query，变为可选参数，类似地还可放到 HTTP Header，如 [Github](https://docs.github.com/en/rest/overview/api-versions) `X-GitHub-Api-Version: 2022-11-28`。看起来，URL Path 方式简单好实践一些，具体依团队风格而定。
+Google 选择用 URL Path 存放 API Version，具有强制性，对代码来说路由友好。Microsoft Azure 则将 API Version 放到了 URL Query，变为可选参数，类似地还可放到 HTTP Header，如 [Github](https://docs.github.com/en/rest/overview/api-versions) `X-GitHub-Api-Version: 2022-11-28`。
+
+看起来，URL Path 方式简单好实践一些。切记 URL Path 方式和 URL Query 方式更加缓存友好（同一 URL 指向同一资源），尤其在使用了缓存代理的大型系统中。
 
 再谈 Resources 层级，[Azure/Architecture/Best Practices: RESTful web API design] 提倡
 > Avoid requiring resource URIs more complex than collection/item/collection.
@@ -260,21 +262,21 @@ $ curl 127.0.0.1:8001/apis/autoscaling/v2
 ## Methods
 [Microsoft REST API Guidelines] 总结了各 HTTP Method 的语义描述和幂等性，对应 [RFC 7231]/(POST, GET, PUT, DELETE, HEAD, OPTIONS) 和 [RFC 5789]/PATCH
 
-Method  | Description                                                          | Success Status Code    | Is Idempotent
-------- | -------------------------------------------------------------------- | ---------------------- | -------------
-GET     | Get the resource or List a resource collection                       | 200-OK                 | True
-HEAD    | Return metadata of an object for a GET response.                     | 200-OK                 | True
-OPTIONS | Get information about a request                                      | 200-OK                 | True
-POST    | Create a new object based on the data provided, or submit a command  | 201-Created with URL of created resource, 200-OK for Action | False
-PUT     | Replace an object, or create a named object, when applicable         | 200-OK, 201-Created, 204-No Content | True
-PATCH   | Apply a partial update to an object                                  | 200-OK, 204-No Content | False
-DELETE  | Delete an object                                                     | 200-OK, 204-No Content | True
+| Method  | Description                                                         | Success Status Code                                         | Is Idempotent |
+| ------- | ------------------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
+| GET     | Get the resource or List a resource collection                      | 200-OK                                                      | True          |
+| HEAD    | Return metadata of an object for a GET response.                    | 200-OK                                                      | True          |
+| OPTIONS | Get information about a request                                     | 200-OK                                                      | True          |
+| POST    | Create a new object based on the data provided, or submit a command | 201-Created with URL of created resource, 200-OK for Action | False         |
+| PUT     | Replace an object, or create a named object, when applicable        | 200-OK, 201-Created, 204-No Content                         | True          |
+| PATCH   | Apply a partial update to an object                                 | 200-OK, 204-No Content                                      | False         |
+| DELETE  | Delete an object                                                    | 200-OK, 204-No Content                                      | True          |
 
 对于 POST/PUT/DELETE，如果处理时间过长需异步处理，可以返回 202 (Accepted)
 
-对于 PUT/PATCH/DELETE，如果响应 Body 为空，建议返回 204 (No Content)。 [Azure/Architecture/Best Practices: RESTful web API design] 则建议 GET 结果为 empty sets, 如应用过滤条件之后结果为空集，也应该返回 204 (No Content)，而不是 200 (OK)。
+对于 PUT/PATCH/DELETE，如果响应 Body 为空，建议返回 204 (No Content)。 [Azure/Architecture/Best Practices: RESTful web API design] 则建议即便是 GET，只要结果为 empty sets (如应用过滤条件之后结果为空集)，也应返回 204 (No Content)，而不是 200 (OK)。
 
-**Get/List <---> HTTP GET/HEAD/OPTIONS**
+### Get/List <---> HTTP GET/HEAD/OPTIONS
 获取某一资源
 ```shell
 GET /resources/{name}?p1=v1&p2=v2&p3=v3
@@ -289,18 +291,194 @@ GET /resources?p1=v1&p2=v2&p3=v3
    sending a payload body on a GET request might cause some existing
    implementations to reject the request.
 
-如果 List 结果条数过多，可以引入分页，客户端驱动分页如下，limit 表示返回条数，offset 表示 starting offset  
+[Google Cloud API design guide] 提供了 List Sub-Collections 的思路（使用 `-` 匹配所有资源名），如获取所有书架下的书籍
 
 ```shell
-/orders?limit=25&offset=50
+GET https://library.googleapis.com/v1/shelves/-/books?filter=xxx
+```
+或者获取所有书架下的单本书籍
+```shell
+GET https://library.googleapis.com/v1/shelves/-/books/{id}
 ```
 
-//todo range
+如果 List 结果条数过多，按照复杂度可以添加分页、过滤、排序功能
 
-//todo cache
+**分页**
+
+典型的客户端驱动分页如下，limit 表示返回单页条数，offset 表示 starting offset。服务端应返回包含集合总条数 (total number) 的 Metadata。
+
+```shell
+GET /orders?limit=25&offset=50
+```
+
+Google 引入 page token 并移除了 offset，改由服务端驱动分页。[Google Calendar](https://developers.google.com/calendar/api/guides/pagination) 示例: 客户端通过 maxResults 声明单次响应条数，服务端返回 nextPageToken 字段声明还有下一页可供获取
+
+```shell
+GET /calendars/primary/events?maxResults=10
+
+//Result contains
+
+"nextPageToken": "CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA"
+```
+
+客户端下一请求中送入 pageToken 参数，对应上一响应中返回的 nextPageToken
+
+```shell
+GET /calendars/primary/events?maxResults=10&pageToken=CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA
+```
+
+类似地，[Google Cloud API design guide] design_patterns/List Pagination 将 maxResults 换成了 page_size，其他没有变化。
+
+**过滤**
+
+[Microsoft REST API Guidelines] 提供了非常好的过滤规范
+
+| Operator             | Description           | Example                                               |
+| -------------------- | --------------------- | ----------------------------------------------------- |
+| Comparison Operators |                       |
+| eq                   | Equal                 | city eq 'Redmond'                                     |
+| ne                   | Not equal             | city ne 'London'                                      |
+| gt                   | Greater than          | price gt 20                                           |
+| ge                   | Greater than or equal | price ge 10                                           |
+| lt                   | Less than             | price lt 20                                           |
+| le                   | Less than or equal    | price le 100                                          |
+| Logical Operators    |                       |
+| and                  | Logical and           | price le 200 and price gt 3.5                         |
+| or                   | Logical or            | price le 3.5 or price gt 200                          |
+| not                  | Logical negation      | not price le 3.5                                      |
+| Grouping Operators   |                       |
+| ( )                  | Precedence grouping   | (priority eq 1 or city eq 'Redmond') and price gt 100 |
+
+注：MS 推荐用 `$` 前缀表示操作，实践中可以去除
+
+Example: all products with a name equal to 'Milk'
+
+```http
+GET https://api.contoso.com/v1.0/products?$filter=name eq 'Milk'
+```
+
+Example: all products with a name not equal to 'Milk'
+
+```http
+GET https://api.contoso.com/v1.0/products?$filter=name ne 'Milk'
+```
+
+Example: all products with the name 'Milk' that also have a price less than 2.55:
+
+```http
+GET https://api.contoso.com/v1.0/products?$filter=name eq 'Milk' and price lt 2.55
+```
+
+Example: all products that either have the name 'Milk' or have a price less than 2.55:
+
+```http
+GET https://api.contoso.com/v1.0/products?$filter=name eq 'Milk' or price lt 2.55
+```
+
+Example: all products that have the name 'Milk' or 'Eggs' and have a price less than 2.55:
+
+```http
+GET https://api.contoso.com/v1.0/products?$filter=(name eq 'Milk' or name eq 'Eggs') and price lt 2.55
+```
+
+filter 优先级
+
+| Group           | Operator | Description           |
+| :-------------- | :------- | :-------------------- |
+| Grouping        | ( )      | Precedence grouping   |
+| Unary           | not      | Logical Negation      |
+| Relational      | gt       | Greater Than          |
+|                 | ge       | Greater than or Equal |
+|                 | lt       | Less Than             |
+|                 | le       | Less than or Equal    |
+| Equality        | eq       | Equal                 |
+|                 | ne       | Not Equal             |
+| Conditional AND | and      | Logical And           |
+| Conditional OR  | or       | Logical Or            |
+
+**排序**
+
+[Microsoft REST API Guidelines] 提供了非常好的排序规范，即使用 orderBy 字段
+
+注：MS 推荐用 `$` 前缀表示操作，实践中可以去除
+
+示例：返回 people list，按照 name 升序排列
+```shell
+GET https://api.contoso.com/v1.0/people?$orderBy=name
+```
+
+示例：返回 people list，按照 name 降序排列
+```shell
+GET https://api.contoso.com/v1.0/people?$orderBy=name desc
+```
+
+示例：返回 people list，先按照 name 降序排列，再按照 hireDate 降序排列
+
+```shell
+GET https://api.contoso.com/v1.0/people?$orderBy=name desc,hireDate
+```
+
+示例：filter 与 orderBy 联合使用
+```shell
+GET https://api.contoso.com/v1.0/people?$filter=name eq 'david'&$orderBy=hireDate
+```
+
+**Range-分段返回大对象**
+
+如果资源过大，如视频大文件，服务端可引入 Range 支持 [[5]]。
+
+HEAD 请求专门用于获取资源元信息（Headers），除了 Body 为空外，其响应内容和 GET 请求相同。
+
+> The HEAD method is identical to GET except that the server MUST NOT
+   send a message body in the response (i.e., the response terminates at
+   the end of the header section).  The server SHOULD send the same
+   header fields in response to a HEAD request as it would have sent if
+   the request had been a GET, except that the payload header fields
+   (Section 3.3) MAY be omitted.  This method can be used for obtaining
+   metadata about the selected representation without transferring the
+   representation data and is often used for testing hypertext links for
+   validity, accessibility, and recent modification.
+> --- RFC 7231
+
+客户端可先发起 HEAD 请求，发现资源对象过大后再发起 Range
+
+```shell
+HEAD https://adventure-works.com/products/10?fields=productImage HTTP/1.1
+```
+使用 HEAD 获取元数据
+
+```shell
+HTTP/1.1 200 OK
+
+Accept-Ranges: bytes
+Content-Type: image/jpeg
+Content-Length: 4580
+```
+
+客户端根据响应结果使用 Range 获取部分数据
+
+```shell
+GET https://adventure-works.com/products/10?fields=productImage HTTP/1.1
+Range: bytes=0-2499
+```
+服务端根据声明，返回字节流 0-2499/4580
+
+```shell
+HTTP/1.1 206 Partial Content
+
+Accept-Ranges: bytes
+Content-Type: image/jpeg
+Content-Length: 2500
+Content-Range: bytes 0-2499/4580
+
+[...]
+
+```
+
+**Cache**
 
 
-**Create <---> HTTP POST/PUT**
+### Create <---> HTTP POST/PUT
 
 规范建议使用 POST 或 PUT 表达创建语义。它们之间区别见 [RFC 7231 4.3.4](https://www.rfc-editor.org/rfc/rfc7231#section-4.3.4)
 
@@ -354,7 +532,7 @@ PUT https://example.com/resources/hellomsg
 - POST /resources
 - PUT /resources/{name}
 
-**Update <---> HTTP PUT/PATCH**
+### Update <---> HTTP PUT/PATCH
 
 对于资源全局更新，使用 HTTP PUT。对于资源部分更新，使用 HTTP PATCH (see [RFC 5789])。
 
@@ -379,19 +557,23 @@ Content-Type: application/strategic-merge-patch+json
 - 404 (Not Found)（仅限 PATCH
 - 409 (Conflict)（请求字段不存在-PATCH、并发冲突
 
-**Delete <---> HTTP DELETE**
+### Delete <---> HTTP DELETE
 
 HTTP DELETE 用于删除资源。
 
 服务端实现可以视情况返回如下响应
 - 202 (Accepted)，表异步删除
 - 204 (No Content)，删除完成且 Response Body 为空
-- 200 (OK)，删除完成且在 Response Body 包含删除状态描述（比如资源对象带上删除时间戳
+- 200 (OK)，删除完成且在 Response Body 包含删除状态描述
+
+关于 200 (OK) 返回的删除状态描述，最简单实现是给原先的资源对象带上删除时间戳，复杂场景可以添加状态字段展现更多细节。
 
 注，DELETE 不要使用 Request Body [RFC 7231 section-4.3.5](https://www.rfc-editor.org/rfc/rfc7231#section-4.3.5) 指出
 >  A payload within a DELETE request message has no defined semantics;
    sending a payload body on a DELETE request might cause some existing
    implementations to reject the request.
+
+### custom methods/actions
 
 ## 错误处理
 //todo dapr handling pr
@@ -399,13 +581,13 @@ HTTP DELETE 用于删除资源。
 - 409 Conflicting modification
 - 409 Concurrent modification
 
-Standard Method | HTTP Mapping                 | HTTP Request Body | HTTP Response Body
---------------- | ---------------------------- | ----------------- | ------------------
-List            | GET <collection URL>	       | N/A	             | Resource* list
-GET             | GET <resource URL>           | N/A	             | Resource*
-Create          | POST <collection URL>	       | Resource	         | Resource* 
-Update          | PUT or PATCH <resource URL>	 | Resource	         | Resource*
-Delete          | DELETE <resource URL>	       | N/A	             | google.protobuf.Empty**
+| Standard Method | HTTP Mapping                | HTTP Request Body | HTTP Response Body      |
+| --------------- | --------------------------- | ----------------- | ----------------------- |
+| List            | GET <collection URL>        | N/A               | Resource* list          |
+| GET             | GET <resource URL>          | N/A               | Resource*               |
+| Create          | POST <collection URL>       | Resource          | Resource*               |
+| Update          | PUT or PATCH <resource URL> | Resource          | Resource*               |
+| Delete          | DELETE <resource URL>       | N/A               | google.protobuf.Empty** |
 
 **The response returned from a Delete method that doesn't immediately remove the resource (such as updating a flag or creating a long-running delete operation) should contain either the long-running operation or the modified resource.
 
@@ -414,17 +596,25 @@ Delete          | DELETE <resource URL>	       | N/A	             | google.proto
 [2]: https://aws.amazon.com/what-is/restful-api/
 [3]: https://developers.google.com/gmail/api
 [4]: https://cloud.google.com/pubsub/docs/reference/rest
-
-
-[REST on Wikipedia]: https://en.wikipedia.org/wiki/Representational_state_transfer
-[REST Dissertation]: https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
-
-[Codecademy: What is REST?]: https://www.codecademy.com/article/what-is-rest
-[AWS: What Is A RESTful API?]: https://aws.amazon.com/what-is/restful-api/
+[5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 [RFC 5789]: https://www.rfc-editor.org/rfc/rfc5789
 [RFC 7231]: https://www.rfc-editor.org/rfc/rfc7231
-[Google API design guide]: https://cloud.google.com/apis/design
+[Google Cloud API design guide]: https://cloud.google.com/apis/design
 [Microsoft Azure REST API Guidelines]: https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md
 [Microsoft REST API Guidelines]: https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods
 [Azure/Architecture/Best Practices: RESTful web API design]: https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
 [Kubernetes]: https://kubernetes.io/docs/home/
+
+## 参考链接
+- [RFC 7231: Hypertext Transfer Protocol (HTTP/1.1)](https://www.rfc-editor.org/rfc/rfc7231)
+- [RFC 5789: PATCH Method for HTTP](https://www.rfc-editor.org/rfc/rfc5789)
+- [REST on Wikipedia](https://en.wikipedia.org/wiki/Representational_state_transfer)
+- [Codecademy: What is REST?](https://www.codecademy.com/article/what-is-rest)
+- [Roy Fielding's REST Dissertation](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm)
+- [AWS: What Is A RESTful API?](https://aws.amazon.com/what-is/restful-api/)
+- [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods)
+- [Google Cloud API design guide](https://cloud.google.com/apis/design)
+- [Joshua Bloch: How to Design a Good API and Why it Matters](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/32713.pdf)
+- [Increasing Application Performance with HTTP Cache Headers](https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers)
+- [Things Caches Do](https://tomayko.com/blog/2008/things-caches-do)
+- [RFC 7234: Hypertext Transfer Protocol (HTTP/1.1): Caching](https://www.rfc-editor.org/rfc/rfc7234)
