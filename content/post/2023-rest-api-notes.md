@@ -260,7 +260,7 @@ $ curl 127.0.0.1:8001/apis/autoscaling/v2
 注: [Kubernetes] 所用 REST library 是 [emicklei/go-restful](https://github.com/emicklei/go-restful)。
 
 ## Methods
-[Microsoft REST API Guidelines] 总结了各 HTTP Method 的语义描述和幂等性，对应 [RFC 7231]/(POST, GET, PUT, DELETE, HEAD, OPTIONS) 和 [RFC 5789]/PATCH
+[Microsoft REST API Guidelines] 总结了各 HTTP Method 的语义描述和幂等性，对应 [RFC 9110]/(POST, GET, PUT, DELETE, HEAD, OPTIONS) 和 [RFC 5789]/PATCH
 
 | Method  | Description                                                         | Success Status Code                                         | Is Idempotent |
 | ------- | ------------------------------------------------------------------- | ----------------------------------------------------------- | ------------- |
@@ -325,6 +325,54 @@ GET /calendars/primary/events?maxResults=10
 
 ```shell
 GET /calendars/primary/events?maxResults=10&pageToken=CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA
+```
+
+Google 主导的 [Kubernetes] apiserver 使用 limit（对应 maxResults） 和 continue（对应 pageToken) 语义分页
+
+客户端申请分页，单页数量 5。apiserver 返回第 1 页 5 条内容，返回 continue 并提示剩余 15 条
+```shell
+kubectl get --raw '/api/v1/configmaps?limit=5'
+
+{
+  "kind": "ConfigMapList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "21796695",
+    "continue": "eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTI1ODEsInN0YXJ0IjoiZGVmYXVsdC9teS1kYXByLWRiLXJlZGlzLWhlYWx0aFx1MDAwMCJ9",
+    "remainingItemCount": 15
+  },
+  "items": [...]
+}
+```
+调整 limit 为 10，送入 continue 参数获取下一页。apiserver 返回第 2 页 10 条内容，返回 continue 并提示剩余 5 条
+
+```shell
+kubectl get --raw '/api/v1/configmaps?limit=10&continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTI1ODEsInN0YXJ0IjoiZGVmYXVsdC9teS1kYXByLWRiLXJlZGlzLWhlYWx0aFx1MDAwMCJ9'
+
+{
+  "kind": "ConfigMapList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "21796695",
+    "continue": "eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTY2OTUsInN0YXJ0Ijoia3ViZS1zeXN0ZW0va3ViZS1wcm94eVx1MDAwMCJ9",
+    "remainingItemCount":5
+  },
+  "items": [...]
+}
+```
+客户端获取最后 5 条。服务端返回不再返回 continue 和 remainingItemCount。
+
+```shell
+kubectl get --raw '/api/v1/configmaps?limit=10&continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTY2OTUsInN0YXJ0Ijoia3ViZS1zeXN0ZW0va3ViZS1wcm94eVx1MDAwMCJ9'
+
+{
+  "kind": "ConfigMapList",
+  "apiVersion": "v1",
+  "metadata": {
+    "resourceVersion": "21796695"
+  },
+  "items": [...]
+}
 ```
 
 类似地，[Google Cloud API design guide] design_patterns/List Pagination 将 maxResults 换成了 page_size，其他没有变化。
@@ -429,16 +477,9 @@ GET https://api.contoso.com/v1.0/people?$filter=name eq 'david'&$orderBy=hireDat
 
 HEAD 请求专门用于获取资源元信息（Headers），除了 Body 为空外，其响应内容和 GET 请求相同。
 
-> The HEAD method is identical to GET except that the server MUST NOT
-   send a message body in the response (i.e., the response terminates at
-   the end of the header section).  The server SHOULD send the same
-   header fields in response to a HEAD request as it would have sent if
-   the request had been a GET, except that the payload header fields
-   (Section 3.3) MAY be omitted.  This method can be used for obtaining
-   metadata about the selected representation without transferring the
-   representation data and is often used for testing hypertext links for
-   validity, accessibility, and recent modification.
-> --- RFC 7231
+> The HEAD method is identical to GET except that the server MUST NOT send content in the response. 
+> HEAD is used to obtain metadata about the [selected representation](https://www.rfc-editor.org/rfc/rfc9110#selected.representation) without transferring its representation data, often for the sake of testing hypertext links or finding recent modifications.
+> --- RFC 9110
 
 客户端可先发起 HEAD 请求，发现资源对象过大后再发起 Range
 
@@ -475,20 +516,17 @@ Content-Range: bytes 0-2499/4580
 
 ```
 
-**Cache**
-
-
 ### Create <---> HTTP POST/PUT
 
-规范建议使用 POST 或 PUT 表达创建语义。它们之间区别见 [RFC 7231 4.3.4](https://www.rfc-editor.org/rfc/rfc7231#section-4.3.4)
+规范建议使用 POST 或 PUT 表达创建语义。它们之间区别见 [RFC 9110 4.3.4](https://www.rfc-editor.org/rfc/rfc9110#section-4.3.4)
 
-> The fundamental difference between the POST and PUT methods is
-   highlighted by the different intent for the enclosed representation.
-   The target resource in a POST request is intended to handle the
-   enclosed representation according to the resource's own semantics,
-   whereas the enclosed representation in a PUT request is defined as
-   replacing the state of the target resource. Hence, the intent of PUT
-   is idempotent and visible to intermediaries, even though the exact
+> The fundamental difference between the POST and PUT methods is 
+   highlighted by the different intent for the enclosed representation. 
+   The target resource in a POST request is intended to handle the 
+   enclosed representation according to the resource's own semantics, 
+   whereas the enclosed representation in a PUT request is defined as 
+   replacing the state of the target resource. Hence, the intent of PUT 
+   is idempotent and visible to intermediaries, even though the exact 
    effect is only known by the origin server.
 
 对于如下 POST 请求
@@ -536,8 +574,8 @@ PUT https://example.com/resources/hellomsg
 
 对于资源全局更新，使用 HTTP PUT。对于资源部分更新，使用 HTTP PATCH (see [RFC 5789])。
 
-按照 [RFC 7231] 定义，PUT 可执行创建或者整体更新操作
-> The PUT method requests that the state of the target resource be created or replaced with the state defined by the representation enclosed in the request message payload.
+按照 [RFC 9110] 定义，PUT 可执行创建或者整体更新操作
+> The PUT method requests that the state of the [target resource](https://www.rfc-editor.org/rfc/rfc9110#target.resource) be created or replaced with the state defined by the representation enclosed in the request message content.
 
 - 如果创建了资源，返回 201 (Created)
 - 如果更新成功且响应 Body 包含资源对象，返回 200 (OK)
@@ -568,12 +606,130 @@ HTTP DELETE 用于删除资源。
 
 关于 200 (OK) 返回的删除状态描述，最简单实现是给原先的资源对象带上删除时间戳，复杂场景可以添加状态字段展现更多细节。
 
-注，DELETE 不要使用 Request Body [RFC 7231 section-4.3.5](https://www.rfc-editor.org/rfc/rfc7231#section-4.3.5) 指出
->  A payload within a DELETE request message has no defined semantics;
-   sending a payload body on a DELETE request might cause some existing
-   implementations to reject the request.
+注，DELETE 不要使用 Request Body [RFC 9110 section-9.3.5](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.5) 指出
+>  Although request message framing is independent of the method used, 
+  content received in a DELETE request has no generally defined semantics, 
+  cannot alter the meaning or target of the request, and might lead some implementations to reject the request and close the connection because of its potential as a request smuggling attack ([Section 11.2 of HTTP/1.1](https://www.rfc-editor.org/rfc/rfc9112.html#section-11.2)). 
 
 ### custom methods/actions
+
+## Caches
+在 REST 设计中使用缓存可以缩短响应时间、节约网络带宽。
+
+> A "cache" is a local store of previous response messages and the
+   subsystem that controls its message storage, retrieval, and deletion.
+   A cache stores cacheable responses in order to reduce the response
+   time and network bandwidth consumption on future, equivalent
+   requests.  Any client or server MAY employ a cache, though a cache
+   cannot be used while acting as a tunnel.
+> —— [RFC9110#section-3.8](https://www.rfc-editor.org/rfc/rfc9110#section-3.8)
+
+HTTP 缓存契合 REST Cacheability 原则。
+
+> The effect of a cache is that the request/response chain is shortened
+   if one of the participants along the chain has a cached response
+   applicable to that request.  The following illustrates the resulting
+   chain if B has a cached copy of an earlier response from O (via C)
+   for a request that has not been cached by UA or A.
+> —— [RFC9110#section-3.8](https://www.rfc-editor.org/rfc/rfc9110#section-3.8)
+
+               >             >
+          UA =========== A =========== B - - - - - - C - - - - - - O
+                     <             <
+
+                                  Figure 3
+
+[RFC 9111: HTTP Caching] 提供了 HTTP 缓存标准，也可以翻阅文章快速了解控制原理 [MDN: HTTP caching]，[Increasing Application Performance with HTTP Cache Headers] 和 [Things Caches Do]。
+
+以 Figure 3 为例，当 B 首次通过 C 访问 O 某资源时，O 在响应中包含 `Cache-Control` Header 时，触发 HTTP 中间服务器（如 Proxy、CDN）的缓存功能
+
+```shell
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1024
+Date: Tue, 22 Feb 2022 22:22:22 GMT
+Cache-Control: max-age=604800
+```
+示例响应提示 HTTP 客户端缓存内容，假设 C 没有实现缓存功能，按照 [RFC 9111: HTTP Caching Section-5.2](https://www.rfc-editor.org/rfc/rfc9111#section-5.2#section-5.2) 要求，会将 `Cache-Control` Header 透传给 B。B 收到响应后，会缓存结果 1 星期（max-age 单位为秒）。
+
+后续 A 访问 B 时，会收到这样的响应
+
+```shell
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 1024
+Date: Tue, 22 Feb 2022 22:22:22 GMT
+Cache-Control: max-age=604800
+Age: 86400
+```
+多出的 `Age` Header 字段表示 B 已缓存资源对象 86400 秒，`604800 - 86400 = 518400` 表示在 518400 秒内对象为 `fresh`，即缓存状态有效、未过期。
+
+老的 HTTP 缓存服务器可能使用 `Expires: Tue, 28 Feb 2022 22:22:22 GMT` 控制缓存有效期，原理和 `Cache-Control: max-age` 类似，也表示缓存 1 星期，但会有更难解析和系统时钟不准确的问题。
+
+从客户端到服务端方向，HTTP 同样提供了一套缓存检验机制，分别是 
+- If-Modified-Since 和 Last-Modified
+- ETag/If-None-Match
+
+> A proxy, whether or not it implements a cache, 
+> MUST pass cache directives through in forwarded messages, 
+> regardless of their significance to that application, 
+> since the directives might apply to all recipients along the request/response chain. 
+> It is not possible to target a directive to a specific cache.
+
+缓存由资源对象和指向资源对象的 cache key 组成，cache key
+- 最小限度 = Method + URI，但由于大部分缓存实现仅缓存 GET 响应，因此最短 cache key 也可能等同于 URI
+- 单个 URI 可能有多种表现形式（如 json, yaml, text），Response 可以使用 Vary Header 声明应包含在 cache key 中的 Headers，如
+  ```
+  Vary: accept-encoding, accept-language
+  ```
+- 云服务如 [AWS API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-caching.html) 支持用户自由选择 custom headers, URL paths, or query strings 组成 cache key
+
+> The "cache key" is the information a cache uses to choose a response
+   and is composed from, at a minimum, the request method and target URI
+   used to retrieve the stored response; the method determines under
+   which circumstances that response can be used to satisfy a subsequent
+   request.  However, many HTTP caches in common use today only cache
+   GET responses and therefore only use the URI as the cache key.
+
+> A cache might store multiple responses for a request target that is
+   subject to content negotiation.  Caches differentiate these responses
+   by incorporating some of the original request's header fields into
+   the cache key as well, using information in the Vary response header
+   field, as per [Section 4.1](https://www.rfc-editor.org/rfc/rfc9111#section-4.1).
+
+[RFC9110#section-9.2.3](https://www.rfc-editor.org/rfc/rfc9110#section-9.2.3) 指出 GET，HEAD 和 POST 可支持缓存。
+
+> This specification defines caching semantics for GET, HEAD, and POST, although the overwhelming majority of cache implementations only support GET and HEAD.
+
+规范提及，被缓存的 POST 响应可以服务于接下来的 GET 或 HEAD 请求（但不一定所有的 HTTP 客户端都支持了该特性）。
+
+> Responses to POST requests are only cacheable when they include explicit freshness information (see [Section 4.2.1 of RFC9111](https://www.rfc-editor.org/rfc/rfc9111#section-4.2.1)) 
+   and a Content-Location header field that has the same value as the POST's target URI ([Section 8.7](https://www.rfc-editor.org/rfc/rfc9110#section-8.7)). 
+   A cached POST response can be reused to satisfy a later GET or HEAD request. 
+   In contrast, a POST request cannot be satisfied by a cached POST response because POST is potentially unsafe; 
+   see [Section 4 of RFC9111](https://www.rfc-editor.org/rfc/rfc9111#section-4).
+
+大多实现只缓存状态码为 200 (OK) 的 GET 请求响应。小部分实现也可能支持缓存 206 (Partial Content)、3xx（redirects）、404 (Not Found)，也可能支持 POST 和 HEAD。
+  
+> Most commonly, caches store the successful result of a retrieval
+   request: i.e., a 200 (OK) response to a GET request, which contains a
+   representation of the target resource ([Section 9.3.1 of HTTP](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.1)).
+   However, it is also possible to store redirects, negative results
+   (e.g., 404 (Not Found)), incomplete results (e.g., 206 (Partial
+   Content)), and responses to methods other than GET if the method's
+   definition allows such caching and defines something suitable for use
+   as a cache key.
+
+> There is a wide variety of architectures and configurations of caches
+   deployed across the World Wide Web and inside large organizations.
+   These include national hierarchies of proxy caches to save bandwidth
+   and reduce latency, content delivery networks that use gateway
+   caching to optimize regional and global distribution of popular
+   sites, collaborative systems that broadcast or multicast cache
+   entries, archives of pre-fetched cache entries for use in off-line or
+   high-latency environments, and so on.
+>
+> —— [RFC9110#section-3.8](https://www.rfc-editor.org/rfc/rfc9110#section-3.8)
 
 ## 错误处理
 //todo dapr handling pr
@@ -598,7 +754,11 @@ HTTP DELETE 用于删除资源。
 [4]: https://cloud.google.com/pubsub/docs/reference/rest
 [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 [RFC 5789]: https://www.rfc-editor.org/rfc/rfc5789
-[RFC 7231]: https://www.rfc-editor.org/rfc/rfc7231
+[RFC 9110]: https://www.rfc-editor.org/rfc/rfc9110
+[RFC 9111: HTTP Caching]: https://www.rfc-editor.org/rfc/rfc9111
+[MDN: HTTP caching]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching
+[Increasing Application Performance with HTTP Cache Headers]: https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers
+[Things Caches Do]: https://tomayko.com/blog/2008/things-caches-do
 [Google Cloud API design guide]: https://cloud.google.com/apis/design
 [Microsoft Azure REST API Guidelines]: https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md
 [Microsoft REST API Guidelines]: https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods
@@ -606,8 +766,10 @@ HTTP DELETE 用于删除资源。
 [Kubernetes]: https://kubernetes.io/docs/home/
 
 ## 参考链接
-- [RFC 7231: Hypertext Transfer Protocol (HTTP/1.1)](https://www.rfc-editor.org/rfc/rfc7231)
+- [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
+- [RFC 9112: HTTP/1.1](https://www.rfc-editor.org/rfc/rfc9112.html)
 - [RFC 5789: PATCH Method for HTTP](https://www.rfc-editor.org/rfc/rfc5789)
+- [RFC 9111: HTTP Caching](https://www.rfc-editor.org/rfc/rfc9111)
 - [REST on Wikipedia](https://en.wikipedia.org/wiki/Representational_state_transfer)
 - [Codecademy: What is REST?](https://www.codecademy.com/article/what-is-rest)
 - [Roy Fielding's REST Dissertation](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm)
@@ -615,6 +777,6 @@ HTTP DELETE 用于删除资源。
 - [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods)
 - [Google Cloud API design guide](https://cloud.google.com/apis/design)
 - [Joshua Bloch: How to Design a Good API and Why it Matters](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/32713.pdf)
+- [MDN: HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
 - [Increasing Application Performance with HTTP Cache Headers](https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers)
 - [Things Caches Do](https://tomayko.com/blog/2008/things-caches-do)
-- [RFC 7234: Hypertext Transfer Protocol (HTTP/1.1): Caching](https://www.rfc-editor.org/rfc/rfc7234)
