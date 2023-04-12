@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>REST on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/rest/</link>
+    <description>Recent content in REST on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 07 Apr 2023 14:59:31 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/rest/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>REST: Part 2 - HTTP 缓存</title>
+      <link>https://www.zeng.dev/post/2023-rest-part2-cache/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part2-cache/</guid>
+      <description>HTTP REST 缓存简述</description>
+    </item>
+    
+    <item>
+      <title>REST: Part 1 - HTTP API 设计思路</title>
+      <link>https://www.zeng.dev/post/2023-rest-part1-api/</link>
+      <pubDate>Wed, 05 Apr 2023 15:28:41 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part1-api/</guid>
+      <description>HTTP REST API 通用设计思路</description>
+    </item>
+    
+  </channel>
+</rss>
