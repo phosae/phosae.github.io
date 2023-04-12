@@ -1,13 +1,13 @@
 ---
-title: "REST API 设计备忘"
+title: "REST: Part 1 - HTTP API 设计思路"
 date: 2023-04-05T15:28:41+08:00
-lastmod: 2023-04-05T15:28:41+08:00
-draft: true
-keywords: ["REST","HTTP"]
+lastmod: 2023-04-12T15:28:41+08:00
+draft: false
+keywords: ["REST","HTTP","API"]
 description: ""
-tags: ["REST","HTTP"]
+tags: ["REST","HTTP","API"]
 author: "Zeng Xu"
-summary: "HTTP REST API 通用设计思路摘录"
+summary: "HTTP REST API 通用设计思路"
 
 comment: true
 toc: true
@@ -35,6 +35,10 @@ sequenceDiagrams:
   enable: true
   options: "{theme: 'hand'}"
 ---
+
+本文为 REST 系列第一篇
+- Part 1 - HTTP API 设计思路 (本文)
+- [Part 2 - 缓存](../2023-rest-part2-cache)
 
 ## What is REST
 
@@ -121,7 +125,7 @@ REST 中 URI + HTTP verbs 的方式约定化了资源定位及资源操作，基
 ```
 一套达到 Level 3 的 REST API，只需对某几 URI 执行 GET 操作，而无需要任何文档，即可以探索出所有 URIs 及其所有操作方式。
 
-## URL 设计
+## URI 设计
 
 Google API 格式
 ```
@@ -451,23 +455,23 @@ filter 优先级
 注：MS 推荐用 `$` 前缀表示操作，实践中可以去除
 
 示例：返回 people list，按照 name 升序排列
-```shell
+```http
 GET https://api.contoso.com/v1.0/people?$orderBy=name
 ```
 
 示例：返回 people list，按照 name 降序排列
-```shell
+```http
 GET https://api.contoso.com/v1.0/people?$orderBy=name desc
 ```
 
 示例：返回 people list，先按照 name 降序排列，再按照 hireDate 降序排列
 
-```shell
+```http
 GET https://api.contoso.com/v1.0/people?$orderBy=name desc,hireDate
 ```
 
 示例：filter 与 orderBy 联合使用
-```shell
+```http
 GET https://api.contoso.com/v1.0/people?$filter=name eq 'david'&$orderBy=hireDate
 ```
 
@@ -483,7 +487,7 @@ HEAD 请求专门用于获取资源元信息（Headers），除了 Body 为空�
 
 客户端可先发起 HEAD 请求，发现资源对象过大后再发起 Range
 
-```shell
+```http
 HEAD https://adventure-works.com/products/10?fields=productImage HTTP/1.1
 ```
 使用 HEAD 获取元数据
@@ -530,7 +534,7 @@ Content-Range: bytes 0-2499/4580
    effect is only known by the origin server.
 
 对于如下 POST 请求
-```shell
+```http
 POST https://example.com/resources
 
 {"msg": "hello"}
@@ -611,142 +615,137 @@ HTTP DELETE 用于删除资源。
   content received in a DELETE request has no generally defined semantics, 
   cannot alter the meaning or target of the request, and might lead some implementations to reject the request and close the connection because of its potential as a request smuggling attack ([Section 11.2 of HTTP/1.1](https://www.rfc-editor.org/rfc/rfc9112.html#section-11.2)). 
 
-### custom methods/actions
+### Custom Methods/Actions
 
-## Caches
-在 REST 设计中使用缓存可以缩短响应时间、节约网络带宽。
+并非所有的资源动词都能对应 CRUD，比如
 
-> A "cache" is a local store of previous response messages and the
-   subsystem that controls its message storage, retrieval, and deletion.
-   A cache stores cacheable responses in order to reduce the response
-   time and network bandwidth consumption on future, equivalent
-   requests.  Any client or server MAY employ a cache, though a cache
-   cannot be used while acting as a tunnel.
-> —— [RFC9110#section-3.8](https://www.rfc-editor.org/rfc/rfc9110#section-3.8)
+- Cancel，取消任务
+- Move，移动资源
+- Search，搜索
+- Undelete，撤销删除
+- Start/Stop/Resume，开始/停止/恢复运行
+- Execute，执行某项操作
+- Reboot，重启虚拟机/容器
 
-HTTP 缓存契合 REST Cacheability 原则。
+于是需要引入自定义操作。[Google Cloud API design guide] 推荐这样表达
+```
+POST https://service.name/v1/some/resource/name:customVerb
+```
 
-> The effect of a cache is that the request/response chain is shortened
-   if one of the participants along the chain has a cached response
-   applicable to that request.  The following illustrates the resulting
-   chain if B has a cached copy of an earlier response from O (via C)
-   for a request that has not been cached by UA or A.
-> —— [RFC9110#section-3.8](https://www.rfc-editor.org/rfc/rfc9110#section-3.8)
+[Microsoft Azure REST API Guidelines] 也类似
+```
+POST https://.../<resource-collection>/<resource-id>:<action>?<input parameters>
+```
 
-               >             >
-          UA =========== A =========== B - - - - - - C - - - - - - O
-                     <             <
+自定义操作一律应该使用 POST 方法，且成功响应一律为 200（OK）。
 
-                                  Figure 3
-
-[RFC 9111: HTTP Caching] 提供了 HTTP 缓存标准，也可以翻阅文章快速了解控制原理 [MDN: HTTP caching]，[Increasing Application Performance with HTTP Cache Headers] 和 [Things Caches Do]。
-
-以 Figure 3 为例，当 B 首次通过 C 访问 O 某资源时，O 在响应中包含 `Cache-Control` Header 时，触发 HTTP 中间服务器（如 Proxy、CDN）的缓存功能
+实践中，不一定需要严格这么来。Azure 自家的[MySQL 启动 API](https://learn.microsoft.com/en-us/rest/api/mysql/singleserver/servers/start) 就未遵守该建议
 
 ```shell
-HTTP/1.1 200 OK
-Content-Type: text/html
-Content-Length: 1024
-Date: Tue, 22 Feb 2022 22:22:22 GMT
-Cache-Control: max-age=604800
+POST https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DBforMySQL/servers/{serverName}/start?api-version=2020-01-01
 ```
-示例响应提示 HTTP 客户端缓存内容，假设 C 没有实现缓存功能，按照 [RFC 9111: HTTP Caching Section-5.2](https://www.rfc-editor.org/rfc/rfc9111#section-5.2#section-5.2) 要求，会将 `Cache-Control` Header 透传给 B。B 收到响应后，会缓存结果 1 星期（max-age 单位为秒）。
 
-后续 A 访问 B 时，会收到这样的响应
+[Kubernetes] 中许多 API 也是如此
+- watch 通用于所有 K8s 资源，放到了 GroupVersion 后面和具体资源前面，GET /api/v1/watch/pods
+- portforward 放到了资源末尾，POST /api/v1/namespaces/{namespace}/pods/{name}/portforward
+
+因此实践中，采用 URI/action 的方式也无妨。
+
+## 子资源 URI 和 Methods
+
+针对某项资源，最简单是仅实现 HTTP POST/GET/PUT/DELETE 对应 CRUD API。获取和更新操作应用于整个对象。
+
+大资源如对象字段较多，会有只获取部分字段和只更新部分字段的需求，以 [Kubernetes] 为例，所有的对象都符合如下格式
+
+```yaml
+apiVersion: <groupVersion>
+kind: <resourceKind>
+metadata: {...}
+spec: {...}
+status: {...}
+```
+spec 存放声明，status 存放状态。status 有单独读取和更新的需求，所以一般都会在标准 Resource URI 上衍生出 status URI，如
 
 ```shell
-HTTP/1.1 200 OK
-Content-Type: text/html
-Content-Length: 1024
-Date: Tue, 22 Feb 2022 22:22:22 GMT
-Cache-Control: max-age=604800
-Age: 86400
+/apis/autoscaling/v2/namespaces/{namespace}/horizontalpodautoscalers/{name}/status
 ```
-多出的 `Age` Header 字段表示 B 已缓存资源对象 86400 秒，`604800 - 86400 = 518400` 表示在 518400 秒内对象为 `fresh`，即缓存状态有效、未过期。
 
-老的 HTTP 缓存服务器可能使用 `Expires: Tue, 28 Feb 2022 22:22:22 GMT` 控制缓存有效期，原理和 `Cache-Control: max-age` 类似，也表示缓存 1 星期，但会有更难解析和系统时钟不准确的问题。
+Status subresource 一般只支持 3 类请求，GET 用于获取整个 subresource，PUT 用于更新整个 subresource，PATCH 用于局部更新某些字段。
 
-从客户端到服务端方向，HTTP 同样提供了一套缓存检验机制，分别是 
-- If-Modified-Since 和 Last-Modified
-- ETag/If-None-Match
+类似地 [Kubernetes] 还有 scale subresource。
 
-> A proxy, whether or not it implements a cache, 
-> MUST pass cache directives through in forwarded messages, 
-> regardless of their significance to that application, 
-> since the directives might apply to all recipients along the request/response chain. 
-> It is not possible to target a directive to a specific cache.
+总结子资源 URI 和 Methods
 
-缓存由资源对象和指向资源对象的 cache key 组成，cache key
-- 最小限度 = Method + URI，但由于大部分缓存实现仅缓存 GET 响应，因此最短 cache key 也可能等同于 URI
-- 单个 URI 可能有多种表现形式（如 json, yaml, text），Response 可以使用 Vary Header 声明应包含在 cache key 中的 Headers，如
-  ```
-  Vary: accept-encoding, accept-language
-  ```
-- 云服务如 [AWS API Gateway](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-caching.html) 支持用户自由选择 custom headers, URL paths, or query strings 组成 cache key
+    GET/PUT/PATCH /resources/resource/subresource
 
-> The "cache key" is the information a cache uses to choose a response
-   and is composed from, at a minimum, the request method and target URI
-   used to retrieve the stored response; the method determines under
-   which circumstances that response can be used to satisfy a subsequent
-   request.  However, many HTTP caches in common use today only cache
-   GET responses and therefore only use the URI as the cache key.
+这么干的好处
+1. 增强了资源的表达能力
+2. 操作更细出错影响小、传输体积更小
+3. 基于 URI 可以实现出更细化的权限控制
 
-> A cache might store multiple responses for a request target that is
-   subject to content negotiation.  Caches differentiate these responses
-   by incorporating some of the original request's header fields into
-   the cache key as well, using information in the Vary response header
-   field, as per [Section 4.1](https://www.rfc-editor.org/rfc/rfc9111#section-4.1).
-
-[RFC9110#section-9.2.3](https://www.rfc-editor.org/rfc/rfc9110#section-9.2.3) 指出 GET，HEAD 和 POST 可支持缓存。
-
-> This specification defines caching semantics for GET, HEAD, and POST, although the overwhelming majority of cache implementations only support GET and HEAD.
-
-规范提及，被缓存的 POST 响应可以服务于接下来的 GET 或 HEAD 请求（但不一定所有的 HTTP 客户端都支持了该特性）。
-
-> Responses to POST requests are only cacheable when they include explicit freshness information (see [Section 4.2.1 of RFC9111](https://www.rfc-editor.org/rfc/rfc9111#section-4.2.1)) 
-   and a Content-Location header field that has the same value as the POST's target URI ([Section 8.7](https://www.rfc-editor.org/rfc/rfc9110#section-8.7)). 
-   A cached POST response can be reused to satisfy a later GET or HEAD request. 
-   In contrast, a POST request cannot be satisfied by a cached POST response because POST is potentially unsafe; 
-   see [Section 4 of RFC9111](https://www.rfc-editor.org/rfc/rfc9111#section-4).
-
-大多实现只缓存状态码为 200 (OK) 的 GET 请求响应。小部分实现也可能支持缓存 206 (Partial Content)、3xx（redirects）、404 (Not Found)，也可能支持 POST 和 HEAD。
-  
-> Most commonly, caches store the successful result of a retrieval
-   request: i.e., a 200 (OK) response to a GET request, which contains a
-   representation of the target resource ([Section 9.3.1 of HTTP](https://www.rfc-editor.org/rfc/rfc9110#section-9.3.1)).
-   However, it is also possible to store redirects, negative results
-   (e.g., 404 (Not Found)), incomplete results (e.g., 206 (Partial
-   Content)), and responses to methods other than GET if the method's
-   definition allows such caching and defines something suitable for use
-   as a cache key.
-
-> There is a wide variety of architectures and configurations of caches
-   deployed across the World Wide Web and inside large organizations.
-   These include national hierarchies of proxy caches to save bandwidth
-   and reduce latency, content delivery networks that use gateway
-   caching to optimize regional and global distribution of popular
-   sites, collaborative systems that broadcast or multicast cache
-   entries, archives of pre-fetched cache entries for use in off-line or
-   high-latency environments, and so on.
->
-> —— [RFC9110#section-3.8](https://www.rfc-editor.org/rfc/rfc9110#section-3.8)
+如果以下条件都不满足，没必要不实现子资源 API
+1. 对象是否足够大
+2. 业务是否复杂
 
 ## 错误处理
-//todo dapr handling pr
-- 409 Conflicting state
-- 409 Conflicting modification
-- 409 Concurrent modification
+自定义 HTTP Code 会增加理解成本和维护成本，应极力避免。
 
-| Standard Method | HTTP Mapping                | HTTP Request Body | HTTP Response Body      |
-| --------------- | --------------------------- | ----------------- | ----------------------- |
-| List            | GET <collection URL>        | N/A               | Resource* list          |
-| GET             | GET <resource URL>          | N/A               | Resource*               |
-| Create          | POST <collection URL>       | Resource          | Resource*               |
-| Update          | PUT or PATCH <resource URL> | Resource          | Resource*               |
-| Delete          | DELETE <resource URL>       | N/A               | google.protobuf.Empty** |
+最佳实践是仅使用 HTTP 规范 [RFC 9110] 定义的错误码，并在响应 Body 中进一步提供详细的错误描述。
 
-**The response returned from a Delete method that doesn't immediately remove the resource (such as updating a flag or creating a long-running delete operation) should contain either the long-running operation or the modified resource.
+[Google API Errors Model in the Design Guide](https://cloud.google.com/apis/design/errors#error_model) 给出了 JSON [样例](https://translate.googleapis.com/language/translate/v2?key=invalid&q=hello&source=en&target=es&format=text&$.xgafv=2)
 
+```json
+{
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "status": "INVALID_ARGUMENT",
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+        "reason": "API_KEY_INVALID",
+        "domain": "googleapis.com",
+        "metadata": {
+          "service": "translate.googleapis.com"
+        }
+      }
+    ]
+  }
+}
+```
+其中 code 与 HTTP Status Code 保持一致，status 提供简短描述（可以复用 HTTP Status Code 描述），message 提供具体错误信息。details 提供更详细信息。用 Google 出品的 [Kubernetes] 错误来做说明会更具体一些（注意 reason 提供简短描述）
+
+```json
+{
+  #... ignore apiVersion, kind, status fields
+  "code": 409,
+  "reason": "Conflict",
+  "message": "Operation cannot be fulfilled on configmaps \"my-db-redis-scripts\": the object has been modified; please apply your changes to the latest version and try again",
+  "details": {
+    "name": "my-db-redis-scripts",
+    "kind": "configmaps"
+  }
+}
+---
+{
+  #... ignore apiVersion, kind, status fields
+  "code": 409,
+  "reason": "AlreadyExists",
+  "message": "pods \"x\" already exists",
+  "details": {
+    "name": "x",
+    "kind": "pods"
+  }
+}
+```
+
+同样是 409 (Conflict)，第一个错误信息表示对象 configmaps/my-db-redis-scripts 修改冲突 (版本控制并发冲突)，第二个表示 pods/x 已经存在。
+
+客户端仅凭 HTTP Status Code 无法知道具体原因，但是根据 Body 提供的详细描述可以知悉具体原因。
+
+实践中，建议至少提供 code/reason|status/message 字段，可以省略 details。从编程语言序列化反序列化码简便性考量
+- 可以自定义错误对象/结构体，类似 [Kubernetes API Response Status Kind](https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#response-status-kind)
+- 也可以像前文 [样例](https://translate.googleapis.com/language/translate/v2?key=invalid&q=hello&source=en&target=es&format=text&$.xgafv=2)，在响应 JSON 中保留 error 字段存放这些错误信息
 
 [1]: https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
 [2]: https://aws.amazon.com/what-is/restful-api/
@@ -755,21 +754,16 @@ Age: 86400
 [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests
 [RFC 5789]: https://www.rfc-editor.org/rfc/rfc5789
 [RFC 9110]: https://www.rfc-editor.org/rfc/rfc9110
-[RFC 9111: HTTP Caching]: https://www.rfc-editor.org/rfc/rfc9111
-[MDN: HTTP caching]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching
-[Increasing Application Performance with HTTP Cache Headers]: https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers
-[Things Caches Do]: https://tomayko.com/blog/2008/things-caches-do
 [Google Cloud API design guide]: https://cloud.google.com/apis/design
 [Microsoft Azure REST API Guidelines]: https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md
 [Microsoft REST API Guidelines]: https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods
 [Azure/Architecture/Best Practices: RESTful web API design]: https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
-[Kubernetes]: https://kubernetes.io/docs/home/
+[Kubernetes]: https://kubernetes.io/docs/reference/using-api/api-concepts/
 
 ## 参考链接
 - [RFC 9110: HTTP Semantics](https://www.rfc-editor.org/rfc/rfc9110)
 - [RFC 9112: HTTP/1.1](https://www.rfc-editor.org/rfc/rfc9112.html)
 - [RFC 5789: PATCH Method for HTTP](https://www.rfc-editor.org/rfc/rfc5789)
-- [RFC 9111: HTTP Caching](https://www.rfc-editor.org/rfc/rfc9111)
 - [REST on Wikipedia](https://en.wikipedia.org/wiki/Representational_state_transfer)
 - [Codecademy: What is REST?](https://www.codecademy.com/article/what-is-rest)
 - [Roy Fielding's REST Dissertation](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm)
@@ -777,6 +771,3 @@ Age: 86400
 - [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods)
 - [Google Cloud API design guide](https://cloud.google.com/apis/design)
 - [Joshua Bloch: How to Design a Good API and Why it Matters](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/32713.pdf)
-- [MDN: HTTP caching](https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching)
-- [Increasing Application Performance with HTTP Cache Headers](https://devcenter.heroku.com/articles/increasing-application-performance-with-http-cache-headers)
-- [Things Caches Do](https://tomayko.com/blog/2008/things-caches-do)
