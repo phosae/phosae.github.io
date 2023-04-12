@@ -6,7 +6,43 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 08 Mar 2023 10:51:20 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 07 Apr 2023 14:59:31 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cache</title>
+      <link>https://www.zeng.dev/tags/cache/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/cache/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>http</title>
+      <link>https://www.zeng.dev/tags/http/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/http/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>REST</title>
+      <link>https://www.zeng.dev/tags/rest/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/rest/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>API</title>
+      <link>https://www.zeng.dev/tags/api/</link>
+      <pubDate>Wed, 05 Apr 2023 15:28:41 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/api/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>byte serving</title>
       <link>https://www.zeng.dev/tags/byte-serving/</link>
@@ -22,15 +58,6 @@
       <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/go/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>http</title>
-      <link>https://www.zeng.dev/tags/http/</link>
-      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/http/</guid>
       <description></description>
     </item>
     

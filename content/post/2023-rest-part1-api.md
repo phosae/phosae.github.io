@@ -768,6 +768,6 @@ Status subresource 一般只支持 3 类请求，GET 用于获取整个 subresou
 - [Codecademy: What is REST?](https://www.codecademy.com/article/what-is-rest)
 - [Roy Fielding's REST Dissertation](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm)
 - [AWS: What Is A RESTful API?](https://aws.amazon.com/what-is/restful-api/)
-- [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md#74-supported-methods)
+- [Microsoft REST API Guidelines](https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md)
 - [Google Cloud API design guide](https://cloud.google.com/apis/design)
 - [Joshua Bloch: How to Design a Good API and Why it Matters](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/32713.pdf)

@@ -6,7 +6,25 @@
     <description>Recent content in http on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 08 Mar 2023 10:51:20 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/http/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 07 Apr 2023 14:59:31 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/http/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>REST: Part 2 - HTTP 缓存</title>
+      <link>https://www.zeng.dev/post/2023-rest-part2-cache/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part2-cache/</guid>
+      <description>HTTP REST 缓存简述</description>
+    </item>
+    
+    <item>
+      <title>REST: Part 1 - HTTP API 设计思路</title>
+      <link>https://www.zeng.dev/post/2023-rest-part1-api/</link>
+      <pubDate>Wed, 05 Apr 2023 15:28:41 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part1-api/</guid>
+      <description>HTTP REST API 通用设计思路</description>
+    </item>
+    
     <item>
       <title>Http Range Request and MP4 Video Play in Browser</title>
       <link>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</link>

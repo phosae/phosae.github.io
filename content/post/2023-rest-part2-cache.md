@@ -170,7 +170,7 @@ Cache 端实现在资源到期后收到请求，会向上游服务器发起校�
     Pragma: no-cache
     Expires: 0
 
-不是所有的服务都有低延迟高吞吐需求，使用分布式缓存会提高系统复杂度。很多情况下，仅使用服务进程内的 In-Memory Cache 或者 DiskCache，甚至乎利用好数据库实现的缓存功能，写出服务就已足够快速。
+不是所有的服务都有低延迟高吞吐需求，使用分布式缓存会提高系统复杂度。很多情况下，仅使用服务进程内的 In-Memory Cache 或者 DiskCache，甚至乎利用好数据库实现的缓存功能，写出的服务就已足够快速。
 
 
 [1]: https://cloud.google.com/storage/docs/caching
