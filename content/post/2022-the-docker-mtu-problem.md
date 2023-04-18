@@ -8,7 +8,7 @@ keywords: ["docker", "container"]
 description: ""
 tags: ["docker", "container"]
 author: "Zeng Xu"
-summary: "在 SDN 网络环境中，如果 docker0 bridge MTU 大于 Host MTU 时，会出现「即小包可通，大包不通」的情况，直观来说就是能简单 ping 通，但是网站打不开、文件下载失败。本文将复现并教你如何解决该问题"
+summary: "在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题"
 
 comment: true
 toc: true
@@ -21,7 +21,7 @@ hiddenFromHomePage: false
 
 K8s 网络，OpenStack 网络或者其他 SDN 网络会使用各种各样的封包技术，结果便是 Host Pod 或者 Host VM 网卡 MTU 会小于 1500。
 
-而 docker0 bridge 默认 MTU 为 1500，当 docker0 bridge MTU 大于 Host MTU 时，会出现「即小包可通，大包不通」的情况，直观来说就是能简单 ping 通，但是网站打不开、文件下载失败
+而 docker0 bridge 默认 MTU 为 1500，当 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件
 
 如
 ```
@@ -68,7 +68,7 @@ PING baidu.com (39.156.66.10): 1400 data bytes
 3 packets transmitted, 0 packets received, 100% packet loss
 ```
 
-## 直接解决 —— 修改docker0 MTU 配置后重启 docker
+## 直接解决 —— 修改 docker0 MTU 配置后重启 docker
 
 方式一、修改 `daemon.json` 文件
 
