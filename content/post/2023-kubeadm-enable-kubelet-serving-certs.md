@@ -39,7 +39,11 @@ As highlighted in [the official Kubernetes documentation](https://kubernetes.io/
 
 > By default the kubelet serving certificate deployed by kubeadm is self-signed. This means a connection from external services like the metrics-server to a kubelet cannot be secured with TLS.
 
-Setting up a testing cluster with a newly deployed metrics server often results in the following error message: "Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn't contain any IP SANs node=kind-worker". This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD. The solution I present is applicable to any Kubernetes cluster set up using Kubeadmin.
+Setting up a testing cluster with a newly deployed metrics server often results in the following error message: "Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn't contain any IP SANs node=kind-worker". This can be frustrating. 
+
+For more information, I recommend checking out the discussion on [Issue 196](https://github.com/kubernetes-sigs/metrics-server/issues/196).
+
+In this post, I will demonstrate how to solve this problem in KinD. The solution I present is applicable to any Kubernetes cluster set up using Kubeadmin.
 
 ## Reproduce
 <img src="/img/2023/kubelet-selfsigned-cert-reproduce.gif" width="700px"/>

@@ -49,7 +49,7 @@
 <meta itemprop="name" content="Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin">
 <meta itemprop="description" content="Setting up a Kubernetes cluster with a newly deployed metrics server often results in the following error message: `Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs node=kind-worker`. This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD."><meta itemprop="datePublished" content="2023-04-22T10:01:25+08:00" />
 <meta itemprop="dateModified" content="2023-04-23T17:53:00+08:00" />
-<meta itemprop="wordCount" content="736">
+<meta itemprop="wordCount" content="748">
 <meta itemprop="keywords" content="Kubernetes,mTLS,metrics-server," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin"/>
 <meta name="twitter:description" content="Setting up a Kubernetes cluster with a newly deployed metrics server often results in the following error message: `Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs node=kind-worker`. This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD."/>
@@ -155,7 +155,9 @@
 <blockquote>
 <p>By default the kubelet serving certificate deployed by kubeadm is self-signed. This means a connection from external services like the metrics-server to a kubelet cannot be secured with TLS.</p>
 </blockquote>
-<p>Setting up a testing cluster with a newly deployed metrics server often results in the following error message: &ldquo;Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&rsquo;t contain any IP SANs node=kind-worker&rdquo;. This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD. The solution I present is applicable to any Kubernetes cluster set up using Kubeadmin.</p>
+<p>Setting up a testing cluster with a newly deployed metrics server often results in the following error message: &ldquo;Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&rsquo;t contain any IP SANs node=kind-worker&rdquo;. This can be frustrating.</p>
+<p>For more information, I recommend checking out the discussion on <a href="https://github.com/kubernetes-sigs/metrics-server/issues/196">Issue 196</a>.</p>
+<p>In this post, I will demonstrate how to solve this problem in KinD. The solution I present is applicable to any Kubernetes cluster set up using Kubeadmin.</p>
 <h2 id="reproduce">Reproduce</h2>
 <img src="/img/2023/kubelet-selfsigned-cert-reproduce.gif" width="700px"/>
 <p>Setup Kubernetes without additional Kubeadm init configuration.</p>
