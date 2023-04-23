@@ -2,6 +2,55 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/kubernetes/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/metrics-server/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/mtls/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/post/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/</loc>
+    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://www.zeng.dev/tags/cache/</loc>
     <lastmod>2023-04-12T14:59:31+08:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -10,13 +59,6 @@
   
   <url>
     <loc>https://www.zeng.dev/tags/http/</loc>
-    <lastmod>2023-04-12T15:28:41+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/post/</loc>
     <lastmod>2023-04-12T15:28:41+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -32,20 +74,6 @@
   <url>
     <loc>https://www.zeng.dev/post/2023-rest-part2-cache/</loc>
     <lastmod>2023-04-12T14:59:31+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/tags/</loc>
-    <lastmod>2023-04-12T15:28:41+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/</loc>
-    <lastmod>2023-04-12T15:28:41+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -115,13 +143,6 @@
   
   <url>
     <loc>https://www.zeng.dev/tags/init/</loc>
-    <lastmod>2023-02-27T08:00:59+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/tags/kubernetes/</loc>
     <lastmod>2023-02-27T08:00:59+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
