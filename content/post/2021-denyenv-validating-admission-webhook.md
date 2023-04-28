@@ -1,14 +1,14 @@
 ---
 title: "Kubernetes admission webhook server 开发教程"
 date: 2021-08-08T21:11:28+08:00
-lastmod: 2021-10-15T22:05:00+08:00
+lastmod: 2023-04-28T11:25:00+08:00
 draft: false
 
 keywords: ["kubernetes", "container"]
 description: ""
 tags: ["kubernetes", "container"]
 author: "Zeng Xu"
-summary: "how to implement a Kubernetes validating admission webhook"
+summary: "How to implement a Kubernetes validating admission webhook"
 
 comment: true
 toc: true
@@ -36,7 +36,7 @@ Error from server (NotFound): namespaces "ns-not-exist" not found
 
 实现自定义 admission webhook，可以灵活地修改或校验 Kubernetes 资源（尤其是 Custom Resources），满足各种定制化需求。
 
-下文将以 validating admission webhook 为例，展示如何开发、部署和调试 admission webhook server，所有代码均出自我的项目 [denyenv-validating-admission-webhook](https://github.com/phosae/denyenv-validating-admission-webhook)。
+下文将以 validating admission webhook 为例，展示如何开发、部署和调试 admission webhook server，所有代码均出自我的项目 [denyenv-validating-admission-webhook](https://github.com/phosae/denyenv-validating-admission-webhook/tree/v0)。
 
 
 ## 思路及实现
@@ -46,10 +46,22 @@ Error from server (NotFound): namespaces "ns-not-exist" not found
 如果是本地开发测试，建议安装 [Kind](https://kind.sigs.k8s.io/)，只需一行命令即可创建 Kubernetes 测试环境
 
 ```
-$ kind create cluster
+$ kind create cluster --config -<<EOF
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.21.14
+  - role: worker
+    image: kindest/node:v1.21.14
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+EOF
+---
 Creating cluster "kind" ...
- ✓ Ensuring node image (kindest/node:v1.20.2) 🖼
- ✓ Preparing nodes 📦
+ ✓ Ensuring node image (kindest/node:v1.21.14) 🖼
+ ✓ Preparing nodes 📦 📦
  ✓ Writing configuration 📜
  ✓ Starting control-plane 🕹️
  ✓ Installing CNI 🔌
@@ -62,7 +74,7 @@ kubectl cluster-info --context kind-kind
 Have a nice day! 👋
 ```
 
-首先，构建一个 HTTP/HTTPS 服务，监听 8000 端口，通过 path /validate 接收认证请求。
+首先，构建一个 HTTP/HTTPS 服务，监听 8000 端口，通过 path `/validate` 接收认证请求。
 
 按照设想，我们的服务会在 Kubernetes 集群发生 Pod 创建时，收到 apiserver 发起的 HTTP POST 请求，其 Body 包含如下 JSON 数据，即序列化后的 [AdmissionReview](https://github.com/kubernetes/api/blob/499b6f90564cff48dc1fba56d974de2e5ec98bb4/admission/v1beta1/types.go#L34-L42)
 
@@ -126,7 +138,7 @@ Have a nice day! 👋
 2. clientConfig.caBundle 用于指定签发 TLS 证书的 CA 证书，如果使用 Kubernetes CertificateSigningRequest 签发证书，自 kube-public namespace clusterinfo 获取集群 CA，base64 格式化再写入 `clientConfig.caBundle` 即可; 如果使用 cert-manager 签发证书，cert-manager ca-injector 组件会自动帮忙注入证书。
 3. 为防止自己拦截自己的情形，使用 objectSelector 将 server Pod 排除。
 4. 集群内部署时，使用 service ref 指定服务
-5. 集群外部署时，使用 url 指定 HTTPS 接口
+5. 集群外部署时，使用 URL 指定 HTTPS 接口
 
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1
@@ -178,7 +190,9 @@ Kubernetes 本身就有自己的 CA 证书体系，且支持 TLS 证书签发。
 4. 将服务私钥和证书，存储到 Kubernetes Secret 中
 5. 如果采用集群外部署，注意在 csr.conf 中指定好域名或 IP 地址
 
-[过程脚本传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/webhook-create-signed-cert.sh)
+[过程脚本传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0/webhook-create-signed-cert.sh)
+
+注: 使用 Kubernetes CA 为 Webhook Server 签发证书的方式仅适用于 1.22 之前。1.22 及以后只能使用指定 CA 签发证书，可移步[这里](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/hack/create-csr-cert.sh)
 
 ### cert-manager 签发 TLS 证书
 
@@ -188,7 +202,7 @@ Kubernetes 证书有效期为 1 年，复杂的生产环境可以考虑使用 [c
 3. 创建 cert-manager Certificate CR，引用 Issuer 签发证书
 4. 如果是集群外部署，可以在 .spec.ipAddresses 指定机器 IP，可以在 .spec.dnsNames 指定域名
 
-[步骤 2、3 Yaml 声明传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/k-cert-manager.yaml)
+[步骤 2、3 Yaml 声明传送门](https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0/k-cert-manager.yaml)
 
 最终，签发的证书会持久到 Certificate CR 中声明的 Secret（这里是 denyenv-tls-secret）。接着，在 admission webhook 配置中，我们会利用 cert-manager ca-injector（ mutate webhook 实现）注入证书。
 
@@ -200,7 +214,11 @@ denyenv webhook server 以 Deployment 形式部署到 Kubernetes 集群，将 Se
 
 注: 
 
-你可以 clone 我的 [代码]((https://github.com/phosae/denyenv-validating-admission-webhook))，使用 `make deploy` 一键自动化所有部署过程。
+你可以 clone 我的 [代码](https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0) 
+
+`git clone --branch v0 https://github.com/phosae/denyenv-validating-admission-webhook.git`
+
+使用 `make deploy` 一键自动化所有部署过程
 
 可以采用 `make linux` 构建镜像，使用 `kind load` 加载镜像，最后使用 `make clear && make deploy` 一键部署。
 
@@ -214,7 +232,9 @@ denyenv webhook server 部署在某台机器上，对 Kubernetes 而言，它表
 
 注: 
 
-你可以 clone 我的 [代码]((https://github.com/phosae/denyenv-validating-admission-webhook))
+你可以 clone 我的 [代码](https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0) 
+
+`git clone --branch v0 https://github.com/phosae/denyenv-validating-admission-webhook.git`
 
 如果使用 Kubernetes CertificateSigningRequest 签发证书，可使用 `make setup-kube-for-outcluster` 设置 Kubernetes 环境，使用 `make clear-kube-for-outcluster` 清理。
 
