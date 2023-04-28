@@ -31,7 +31,7 @@
       <pubDate>Sun, 08 Aug 2021 21:11:28 +0800</pubDate>
       
       <guid>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</guid>
-      <description>how to implement a Kubernetes validating admission webhook</description>
+      <description>How to implement a Kubernetes validating admission webhook</description>
     </item>
     
     <item>
