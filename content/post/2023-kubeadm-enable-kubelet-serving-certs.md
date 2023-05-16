@@ -56,11 +56,11 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
-    image: kindest/node-amd64:v1.26.2
+    image: kindest/node:v1.26.2
   - role: worker
-    image: kindest/node-amd64:v1.26.2
+    image: kindest/node:v1.26.2
   - role: worker
-    image: kindest/node-amd64:v1.26.2
+    image: kindest/node:v1.26.2
 networking:
   podSubnet: "10.244.0.0/16"
   serviceSubnet: "10.96.0.0/12"
