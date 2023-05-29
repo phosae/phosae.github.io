@@ -1,7 +1,7 @@
 ---
 title: "拓展 K8s API: CustomResourceDefinitions (CRD)"
 date: 2023-05-19T10:09:09+08:00
-lastmod: 2023-05-19T10:09:09+08:00
+lastmod: 2023-05-27T17:29:00+08:00
 draft: true
 keywords: ["kubernetes", "rest"]
 description: "K8s CustomResourceDefinition internals"
@@ -37,10 +37,10 @@ sequenceDiagrams:
 ---
 
 本文为 **拓展 K8s API** 系列文章之一
-- K8s API 拓展: CustomResourceDefinitions (CRD) (本文)
- <!-- - [Part 2 - 缓存](../2023-rest-part2-cache) -->
+- 拓展 K8s API: CustomResourceDefinitions (CRD) (本文)
+- [拓展 K8s API: 手撕 K8s apiserver](../2023-k8s-api-from-scratch)
 
-## Goals
+## 🎯 Goals
 这里假定你已经熟悉 Kubernetes 的基本组件，尤其是 Control Plane 之核心 kube-apiserver，如不然，可以移步[这里](https://kubernetes.io/docs/concepts/overview/components/)。
 
 kube-apiserver 的所有资源都归属于不同组，以 API Group 方式对外暴露 [[1]](https://kubernetes.io/docs/reference/using-api/#api-groups)
@@ -68,7 +68,7 @@ kube-apiserver 的所有资源都归属于不同组，以 API Group 方式对外
 | kubectl apply -f ./foos.yml | kubectl apply -f ./foos.yml              | update or create |
 | kubectl delete foo myfoo    | kubectl delete hello.zeng.dev.foos myfoo | delete           |
 
-## Hands on API by CRD
+## 🎮 Hands on API by CRD
 
 最简单的方式是在集群中创建 CustomResourceDefinition 对象
 
@@ -112,11 +112,15 @@ spec:
 EOF
 ```
 
-创建 crd/foos.hello.zeng.dev 之后，即可用 kubectl 直接操作 foo 资源。操作体验和官方资源 Pod，Service 并无二致。
+创建 crd/foos.hello.zeng.dev 之后，即可用 kubectl 直接操作 foo 资源。操作体验和官方资源 Pod，Service 等相比并无二致。
 
 <img src="/img/2023/api-crd-crudfoo.gif" width="700px"/>
 
-这是如何做到的呢？调整日志级别可以看到， kubectl 在向 apiserver 发起 `GET /apis/hello.zeng.dev/v1/namespaces/default/foos` 之前，先 `GET /api` 和 `GET /apis` 进行 API Discovery
+## 🔍 API Discovery
+
+kubectl 如何知道 kube-apiserver 存在某项资源 fo？如何知道 fo 是资源 foos 的简称？如何知道 foos 属于哪个资源 Group？如何知道 foos 支持什么操作？这就涉及到 Kubernetes 的 API Discovery 机制。
+
+调整日志级别可以发现：kubectl 在向 kube-apiserver 发起 `GET /apis/hello.zeng.dev/v1/namespaces/default/foos` 之前。会先查询 /api 和 /apis
 
 ```bash
 kubectl get fo --cache-dir $(mktemp -d) -v 6
@@ -128,7 +132,7 @@ I0524 02:24:45.829483 1446906 round_trippers.go:553] GET https://127.0.0.1:41485
 No resources found in default namespace.
 ```
 
-调整日志级别为 kubectl level 8 拿到 Accept Header 更改输出 application/json -> application/yaml，curl kube-apiserver /apis
+调整 kubectl 日志级别为 8 拿到 Accept Header 更改输出 application/json -> application/yaml，curl kube-apiserver /apis
 
 ```bash
 # on top terminal
@@ -170,22 +174,28 @@ items:
 ```
 可以看到如下 REST API 信息
 - kube-apiserver 有一个 API Group `hello.zeng.dev`
-- Group `hello.zeng.dev` 有一个版本列表 `versions`
+- Group `hello.zeng.dev` 含有许多 `versions`
 - 版本 `v1` 内含资源 `foos`，scope 级别为 `Namespaced`
 - `foos` 资源简称为 `fo`
-- `foos` 资源支持动词为 `delete`, `deletecollection`, `get`, `list`, `patch`, `create`, `update`, `watch`
+- `foos` 资源支持操作动词为 `delete`, `deletecollection`, `get`, `list`, `patch`, `create`, `update`, `watch`
 
-获取对应 REST API 信息后，kubectl 才会接着发起请求 `GET /apis/hello.zeng.dev/v1/namespaces/default/foos` 并输出 `No resources found in default namespace.` 而非直接报错 `error: the server doesn't have a resource type "fo"`
+获取对应 REST API 信息后，kubectl 发现 fo 是资源复数为 `foos` 的简称，其对应 group 为 `hello.zeng.dev`，其默认版本为 `v1`，于是发起请求 `GET/POST/PATCH/DELETE /apis/hello.zeng.dev/v1/namespaces/default/foos`，而抛出错误 `error: the server doesn't have a resource type "fo"`
 
 ⚠️😵 注意 😵⚠️ 
 
-返回类型 `application/yaml;g=apidiscovery.k8s.io;v=v2beta1;as=APIGroupDiscoveryList` 由 [Feature Aggregated Discovery](https://github.com/kubernetes/enhancements/issues/3352) 实现，提供聚合性的 API Discovery，于 1.26 进入 alpha 状态（默认关闭），1.27 进入 beta（默认开启）
+返回类型 `application/yaml;g=apidiscovery.k8s.io;v=v2beta1;as=APIGroupDiscoveryList` 由 [Feature Aggregated Discovery](https://github.com/kubernetes/enhancements/issues/3352) 实现，支持一次调用获取所有 API Group/Resource 信息，于 1.26 进入 alpha 状态（默认关闭），1.27 进入 beta（默认开启）
 
-1.27 之前 kubectl API Discovery 需要遍历所有 groups 接口
+一般地，kube-apiserver 中所有 REST API resouces 均可按照如下层次发现（核心/默认组放在特殊路径 `/api`，它没有 Group（或者说 Group 是空字符串）
+1. GET `/api` ➡️ APIVersions or APIGroupDiscoveryList (1.27+)
+2. GET `/apis` ➡️ APIGroupList or APIGroupDiscoveryList (1.27+)
+3. GET `/apis/{group}` ➡️ APIGroup (optional, contained in `/apis`)
+4. GET `/apis/{group}/{version}` or `/api/v1` ➡️ APIResourceList
+
+kubectl api-resources 包含了整个发现过程
 
 ```bash
-# Kubernetes 1.26.4 or below
-kubectl get fo --cache-dir $(mktemp -d) -v 6
+# Kubernetes 1.26.4 (1.27-
+kubectl api-resources --cache-dir $(mktemp -d) -v 6 | awk 'NR==1 || /pods|fo|deploy/'
 
 I0524 08:05:12.629151 1472208 loader.go:373] Config loaded from file:  /root/.kube/config
 I0524 08:05:12.645780 1472208 round_trippers.go:553] GET https://127.0.0.1:34779/api?timeout=32s 200 OK in 14 milliseconds
@@ -196,53 +206,93 @@ I0524 08:05:12.655935 1472208 round_trippers.go:553] GET https://127.0.0.1:34779
 ...
 I0524 08:05:12.659065 1472208 round_trippers.go:553] GET https://127.0.0.1:34779/apis/hello.zeng.dev/v1?timeout=32s 200 OK in 6 milliseconds
 I0524 08:05:12.721295 1472208 round_trippers.go:553] GET https://127.0.0.1:34779/apis/hello.zeng.dev/v1/namespaces/default/foos?limit=500 200 OK in 43 milliseconds
-No resources found in default namespace.
-```
-
-## API by CRD internals
-
-一般地，kube-apiserver 中所有 REST API resouces 均可按照如下层次发现
-
-1. GET `/apis` ➡️ APIGroupList or APIGroupDiscoveryList (1.26+)
-2. GET `/apis/{group}` ➡️ APIGroup (optional)
-3. GET `/apis/{group}/{version}` or `/api/v1` ➡️ APIResourceList
-
-kubectl 子命令 api-resources 包含了整个发现过程（也可以结合 kubectl proxy + localhost:8001 再使用 HTTP URL 研究
-
-```bash
-kubectl api-resources | awk 'NR==1 || /pods|fo|deploy/'
 NAME                              SHORTNAMES   APIVERSION                             NAMESPACED   KIND
 pods                              po           v1                                     true         Pod
 deployments                       deploy       apps/v1                                true         Deployment
 foos                              fo           hello.zeng.dev/v1                      true         Foo
 ```
 
-上节只是在 kube-apiserver 创建了 CRD/foos.hello.zeng.dev，对应的 REST endpoints /apis/hello.zeng.dev，/apis/hello.zeng.dev/v1 如何安装？返回的  [APIGroup](https://github.com/kubernetes/kubernetes/blob/0bff705acd8982e34b937116eb2016c9d6e4c4a6/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L1045-L1076) 和 [APIResource](https://github.com/kubernetes/kubernetes/blob/0bff705acd8982e34b937116eb2016c9d6e4c4a6/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L1098-L1155) 从何而来？
+默认情况下 kube-apiverser `GET /apis` 返回 APIGroupList (包含所有 API Groups 信息），再逐个访问 `/apis/{group}/{version}` 得到 APIResourceList。最终汇聚出 kube-apiserver 支持的所有 Resource 信息
 
-这要从 kube-apiserver 的请求处理模式开讲，它包含两个服务模块: kube-apiserver 模块和 [apiextensions-apiserver 模块]，采用委托模式串联
+```bash
+# on top terminal
+kubectl proxy
+Starting to serve on 127.0.0.1:8001
+---
+curl -H 'Accept: application/yaml' localhost:8001/apis 
+
+kind: APIGroupList
+apiVersion: v1
+groups:
+- name: autoscaling
+  versions:
+  - groupVersion: autoscaling/v2
+    version: v2
+  - groupVersion: autoscaling/v1
+    version: v1
+  preferredVersion:
+    groupVersion: autoscaling/v2
+    version: v2
+- name: hello.zeng.dev
+  versions:
+  - groupVersion: hello.zeng.dev/v1
+    version: v1
+  preferredVersion:
+    groupVersion: hello.zeng.dev/v1
+    version: v1
+...
+---
+curl -H 'Accept: application/yaml' localhost:8001/apis/hello.zeng.dev/v1
+
+apiVersion: v1
+groupVersion: hello.zeng.dev/v1
+kind: APIResourceList
+resources:
+- kind: Foo
+  name: foos
+  namespaced: true
+  shortNames:
+  - fo
+  singularName: foo
+  storageVersionHash: YAqgrOjs43I=
+  verbs:
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - create
+  - update
+  - watch
+```
+
+可以看出，APIGroupDiscoveryList 其实是 APIGroupList 加上所有 APIResourceList，作用是减少 API Discovery 的请求次数 (n -> 1)。
+
+## 🤔 API by CRD internals
+
+kube-apiserver 包含两个模块：kube-apiserver 模块和 [apiextensions-apiserver 模块]，前者负责官方核心组 core/legacy (Pod, ConfigMap, Service 等) 和官方普通 Groups (apps, autoscaling, batch) 资源的处理，后者负责 CRD 及对应 Custom Resources 处理。
+
 > 🤣🤣🤣 
 > 「kube-apiserver 包含 kube-apiserver 模块」 —— 听着很奇怪。Kubernetes 起初只有 kube-apiserver 模块提供官方 API，并不支持 Custom Resources。1.6 之后相继引入 CustomResourceDefinitions（也即 [apiextensions-apiserver 模块]，见 [issue 95]）和 kube-aggregator 模块（支持 API Aggregation 功能，见 [issue 263]）支持 Custom Resources。
 
-```
-kube-apiserver (own paths: core/legacy group /api/**, official groups /apis/apps/**, /apis/batch/**...)
-    |
- delegate
-    |
-    +--- apiextensions-apiserver (own paths: /apis/apiextensions.k8s.io/**, /apis/<crd.group.io>/**
-                      |
-                   delegate
-                      |
-                      +--- notfoundhandler -> 404Not Found
-```
+[apiextensions-apiserver 模块] 功能，由多个内置 controllers 驱动。比较重要的控制器是 controllers 是 [DiscoveryController]（负责 API Discovery）、OpenAPI 控制器（OpenAPI Spec），和 [customresource_handler]（负责资源的增删改查）。其他的还有 CRD 状态字段更新、对应 custom resource 名称检查、CRD 删除清理等，代码集中在 [这个 package](https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/controller)。
 
-HTTP 请求路由流程如下
-- 先从 kube-apiserver 模块开始路由匹配，如果匹配核心组路由 `/api/**` 或者[官方 API Groups](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#-strong-api-groups-strong-) 如 `/apis/apps/**`，`/apis/batch/**`，直接使用本地 Handler 处理并返回 APIGroup 或 APIResourceList 或 Resources。如果不匹配，委托给 apiextensions-apiserver 处理
-- [apiextensions-apiserver 模块] 先看请求是否匹配路由 `/apis/apiextensions.k8s.io/**`（customresourcedefinitions 属于该 group）或是 CRD 定义的 Custom 路由 `/apis/{crd_group}/**`，如果任一匹配，返回并返回 Custom APIGroup 或 Custom APIResourceList 或 Custom Resources。否则委托给 notfoundhandler 处理
-- notfoundhandler 返回 HTTP 404
+[DiscoveryController] 实现了之前展示的 API Discovery。它不断监听 CRD 变化，负责将 CRD 声明同步转化为以下内存对象 
 
-[apiextensions-apiserver 模块] 负责 CRD 及对应 Custom Resources 处理。kube-apiserver [集成了该模块](https://github.com/kubernetes/kubernetes/blob/e11c5284ad01554b60c29b8d3f6337f2c735e7fb/cmd/kube-apiserver/app/server.go#L192-L208) 并对外提供 CRD 相关 API。
+- [APIGroupDiscovery](https://github.com/kubernetes/kubernetes/blob/master/staging/src/k8s.io/api/apidiscovery/v2beta1/types.go#L33-L66) (1.26+)
+- [APIGroup](https://github.com/kubernetes/kubernetes/blob/0bff705acd8982e34b937116eb2016c9d6e4c4a6/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L1045-L1076)
+- [APIResourceList](https://github.com/kubernetes/kubernetes/blob/0bff705acd8982e34b937116eb2016c9d6e4c4a6/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L1098-L1155)
+ 
+并动态注册以下 API 返回对应资源
 
-CRD 创建后，自 kube-apiserver /openapi/v3 或者 /openapi/v2 查询 hello.zeng.dev/v1 的 OpenAPISpec，可以得到如下结果（这里只保留了 3 层 JSON
+- `/apis/{group}` ➡️ APIGroup
+- `/apis/{group}/{version}` ➡️ APIResourceList
+
+在本文例子中，动态注册的路由是 `/apis/hello.zeng.dev` 和 `/apis/hello.zeng.dev/v1`。
+
+在 1.26+ APIGroupDiscovery 则会提供给 kube-apiserver 中的全局 [AggregatedDiscoveryGroupManager](https://github.com/kubernetes/kubernetes/blob/b374404825125f5ea8c46313ccaf3717e6ba46fb/staging/src/k8s.io/apiserver/pkg/server/config.go#L278)，最终统一聚合在 `/apis`。1.26 之前，`/apis` 路径只返回 APIGroupList。
+
+得益于 OpenAPI 控制器，CRD 创建后，自 kube-apiserver /openapi/v3 或者 /openapi/v2 查询 hello.zeng.dev/v1 的 OpenAPISpec，即可得到如下结果（只展示了 3 层 JSON，完整内容在 [这里](/file/hello.zeng.dev_v1_openapi_v3.json) 
 
 ```bash
 # on top terminal
@@ -298,62 +348,99 @@ curl -s http://localhost:8001/openapi/v3/apis/hello.zeng.dev/v1 | jq 'delpaths([
 }
 ```
 
-可以发现 [apiextensions-apiserver 模块] 自动为 CRD 生成了这些路由和 REST API 实现
+OpenAPI 控制器有两个：[OpenAPIController v2] 和 [OpenAPIController v3]，分别支持 [OpenAPI Specification v2](https://swagger.io/specification/v2/) 和 [OpenAPI Specification v3](https://spec.openapis.org/oas/v3.1.0)。**接口响应体字段** schemas 对应 CRD 对象字段 `.spec.versions[].schema`， [OpenAPIController v2] 和 [OpenAPIController v3] 会监听 CRD 变化、自动生成 OpenAPISpec 并将其写入 kube-apiserver 模块 OpenAPI Spec，由 kube-apiserver 路由 /openapi/v2 和 /openapi/v3 对外暴露。
+
+OpenAPISpec 则类似使用说明书，它提供了使用 API 的规范：包括接收参数、数据格式约束、操作动词、返回数据类型等。稍微修改 CRD OpenAPI 定义，要求 `spec.msg` 为必输，且长度不超过 15
+
+```yaml
+schema:
+  openAPIV3Schema:
+    type: object
+    properties:
+      spec:
+        type: object
+        required: ["msg"] # 新增字段必输校验
+        properties:
+          msg:
+            type: string
+          maxLength: 15 # 新增长度上限校验
+```
+
+可校验效果如下
+
+```bash
+cat << EOF | k apply -f -
+apiVersion: hello.zeng.dev/v1
+kind: Foo
+metadata:
+  name: invalid
+spec: {}
+EOF
+
+The Foo "invalid" is invalid: spec.msg: Required value
+---
+
+cat << EOF | k apply -f -
+apiVersion: hello.zeng.dev/v1
+kind: Foo
+metadata:
+  name: invalid
+spec:
+  msg: "hello world, hello world"
+EOF
+The Foo "invalid" is invalid: spec.msg: Too long: may not be longer than 15
+```
+
+<img src="/img/2023/crd-custom-resource-validation.gif" width="600px"/>
+
+此外可以看到，创建 Foo 不遵从如下结构会报错
+
+```
+apiVersion: hello.zeng.dev/v1 | apiVersion: v1  <--- 使用何种 API 版本创建资源
+kind: Foo                     | kind: Pod       <--- 欲创建资源类型
+metadata:                     | metadata:       <--- 唯一标识资源的元数据，包括 name
+  name: myfoo                 |   name: web              namespace（默认值为 default）, UID（省略则在服务端自动生成) 等
+spec:                         | spec:           <--- 所期望的资源状态（What state you desire for the object
+  msg: hi                     |   containers:            通常搭配 status 使用，当前阶段的 Foo 还不涉及，后续文章会做介绍
+                              |   - name: nginx  
+                              |     image: nginx
+```
+
+它们是 [Kubernetes objects 必须字段](https://kubernetes.io/docs/concepts/overview/working-with-objects/#required-fields) 。尽管 CRD OpenAPIV3 Schema 并不包含 apiVersion, kind 和 metadata 字段， [apiextensions-apiserver 模块] 会 [强制保证这些字段](https://github.com/kubernetes/apiextensions-apiserver/blob/e0b0416bf23396ad7fb7007b264f5c04062590bc/pkg/registry/customresource/validator.go)。
+
+🪬🪬🪬 Kubernetes 1.25+ [CRD validation rules](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules) 进入 beta，可在 OpenAPI Spec 基础上设置更强大的字段约束。
+
+🪬🪬🪬 kubectl apply 会利用 OpenAPI Spec 确定资源支持的 Patch 类型，kubectl explain 输出的资源字段来自于 OpenAPI Spec。kubectl 插件 [kubernetes-sigs/kubectl-validate](https://github.com/kubernetes-sigs/kubectl-validate) 支持在客户端使用 OpenAPI Spec 校验资源对象（接近 --dry-run=server）。
+
+解释了 API Discovery 如何可能和如何使用 API 之后，到达了最后一个问题：API 资源处理和持久如何可能。
+
+这得从路由层说起，kube-apiserver [通过委托模式串联 apiextensions-apiserver 模块](https://github.com/kubernetes/kubernetes/blob/e11c5284ad01554b60c29b8d3f6337f2c735e7fb/cmd/kube-apiserver/app/server.go#L192-L208) 获得了 CRD 处理能力
+
+```
+kube-apiserver ---> {core/legacy group /api/**}, {official groups /apis/apps/**, /apis/batch/**, ...}
+    │
+ delegate
+    │
+    └── apiextensions-apiserver ---> {CRD groups /apis/apiextensions.k8s.io/**, /apis/<crd.group.io>/**}
+                      │
+                   delegate
+                      │
+                      └── notfoundhandler ---> 404 NotFound
+```
+
+HTTP 请求路由流程如下
+- 先从 kube-apiserver 模块开始路由匹配，如果匹配核心组路由 `/api/**` 或者[官方 API Groups](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#-strong-api-groups-strong-) 如 `/apis/apps/**`，`/apis/batch/**`，直接在本模块处理。如果不匹配，委托给 apiextensions-apiserver 处理
+- [apiextensions-apiserver 模块] 先看请求是否匹配路由 `/apis/apiextensions.k8s.io/**`，如果是则为 customresourcedefinitions 变更，直接在本模块处理；如果不匹配，再看是否匹配任意 CRD 对应的 Custom 路由 `/apis/{crd_group}/**`，如果任一匹配，直接在本模块处理。否则委托给 notfoundhandler 处理
+- notfoundhandler 返回 HTTP 404
+
+回顾之前的 OpenAPI Spec，可以发现 [apiextensions-apiserver 模块] 自动为 CRD 生成了这些 REST API
 
 - /apis/hello.zeng.dev/v1/foos
 - /apis/hello.zeng.dev/v1/namespaces/{namespace}/foos
 - /apis/hello.zeng.dev/v1/namespaces/{namespace}/foos/{name}
 
-实际上， [apiextensions-apiserver 模块] 的 [customresource_handler] 提供了 `/apis/{group}/{version}/(foos | namespaces/{namespace}/<kind_plural> | namespaces/{namespace}/{kind_plural}/{name})` 通配。[customresource_handler] 实时读取所有 CRD 信息，负责 custom resources 的 CRUD 操作，并持有一个 [RESTStorage](https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/registry/customresource) (实现通常为 etcd)。在 API 层业务（通用校验、解码转换、admission 等）成功后，[customresource_handler] 调用 RESTStorage 实施对象持久化。
+原理是模块内 [customresource_handler] 提供了 `/apis/{group}/{version}/(<kind_plural> | namespaces/{namespace}/<kind_plural> | namespaces/{namespace}/{kind_plural}/{name})` 通配。[customresource_handler] 实时读取所有 CRD 信息，负责 custom resources 的 CRUD 操作，并持有一个 [RESTStorage](https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/registry/customresource) (实现通常为 etcd)。在 API 层业务（通用校验、解码转换、admission 等）成功后，[customresource_handler] 调用 RESTStorage 实施对象持久化。
 
-说回 CRD OpenAPISpec，其 schemas 来自于 CRD 对象字段 `.spec.versions[].schema`， [apiextensions-apiserver 模块] 中的 openapiv2 控制器和 openapiv3 控制器负责监听 CRD 变化、自动生成 OpenAPISpec 并将其写入 kube-apiserver 模块 OpenAPI Spec。CRD OpenAPISpec 最终由 kube-apiserver 对外暴露。
-
- [apiextensions-apiserver 模块] 中的服务发现功能，则由控制器 [DiscoveryController] 负责。[DiscoveryController] 将 CRD 声明实时同步为内存对象 APIGroupDiscovery (1.26+)，APIGroup 和 APIResourceList，并动态注册以下 API
-- `/apis/{group}/{version}`
-- `/apis/{group}`
-
-```bash
-# on top terminal
-kubectl proxy
-Starting to serve on 127.0.0.1:8001
-
----
-# on middle terminal
-curl -H 'Accept: application/yaml' 127.1:8001/apis/hello.zeng.dev
-apiVersion: v1
-kind: APIGroup
-name: hello.zeng.dev
-preferredVersion:
-  groupVersion: hello.zeng.dev/v1
-  version: v1
-versions:
-- groupVersion: hello.zeng.dev/v1
-  version: v1
----
-# on bottom terminal
-curl -H 'Accept: application/yaml' 127.1:8001/apis/hello.zeng.dev/v1
-apiVersion: v1
-groupVersion: hello.zeng.dev/v1
-kind: APIResourceList
-resources:
-- kind: Foo
-  name: foos
-  namespaced: true
-  shortNames:
-  - fo
-  singularName: foo
-  storageVersionHash: YAqgrOjs43I=
-  verbs:
-  - delete
-  - deletecollection
-  - get
-  - list
-  - patch
-  - create
-  - update
-  - watch
-```
-[apiextensions-apiserver 模块] 中的状态协调，如 CRD 状态更新、对应 custom resource 名称检查、CRD 删除清理，分别由不同 controller 处理。controllers 代码集中在 [这个 package](https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/controller)。
 
 路由 `/apis` 实际是 `/apis/{group}/{version}` 和 `/apis/{group}` 的聚合，由 kube-apiserver 的 kube-aggregator 模块提供，将在后面章节介绍。
 
@@ -364,7 +451,7 @@ resources:
 ```
                       +--- DiscoveryController sync ---> HTTP Endpoints /apis/{group},/apis/{group}/{version}
                       |
-CRD <---listwatch---> +--- OpenapiController sync ---> OpenAPI Spec in kube-apiserver module
+CRD <---listwatch---> +--- OpenApiController sync ---> OpenAPI Spec in kube-apiserver module
                       |
                       +--- customresource_handler CRUDs
                            +---> /apis/{group}/{version}/foos
@@ -372,7 +459,7 @@ CRD <---listwatch---> +--- OpenapiController sync ---> OpenAPI Spec in kube-apis
                            +---> /apis/{group}/{version}/namespaces/{namespace}/{kind_plural}/{name}
 ```
 
-## Generate CRD from Go Structs
+## 🧰 Generate CRD from Go Structs
 手动维护 CRD 对象是笨办法，更好的方式是从 Go Struct 生成 CRD 声明。[controller-tools](https://github.com/kubernetes-sigs/controller-tools) 项目的一个工具 [controller-gen](https://github.com/kubernetes-sigs/controller-tools/tree/master/cmd/controller-gen) 提供了这种能力。
 
 我的项目 [x-kubernetes] 统一将 API 相关 Go Structs 放置在目录 /api 中，按照 /api/{group} 罗列
@@ -493,7 +580,7 @@ spec:
 
 ⚠️⚠️⚠️ 注意：CRD OpenAPI Schema 之 `properties/apiVersion, kind, metadata` ，虽然工具生成了这些字段定义，实际非必需（如之前展示）。apiextensions-apiserver 的 [openapi builder](https://github.com/kubernetes/apiextensions-apiserver/blob/37c0f7d353bee5630da4b697c410b00acec91f11/pkg/controller/openapi/builder/builder.go#L381-L413) 会自动注入这些定义。
 
-## Summarize
+## 📝 Summarize
 
 CustomResourceDefinition 是拓展 K8s API 最便捷方式，没有之一。[apiextensions-apiserver 模块] 有如下好处
 - 开箱即用，只需提供 CRD 声明，不需要自行实现 REST API（包括 OpenAPI Spec 转换、API Discovery、Custom Resource CRUD），也不需要与存储层交互
@@ -514,9 +601,11 @@ Custom API 往往需要配合控制器，才能发挥其强大能力。本文仅
 [issue 263]: https://github.com/kubernetes/enhancements/issues/263
 [customresource_handler]: https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go
 [DiscoveryController]: https://github.com/kubernetes/apiextensions-apiserver/blob/501bf5ec6db2f5e9171a8ed822380f71911b1b8f/pkg/apiserver/customresource_discovery_controller.go#L59
+[OpenAPIController v2]: https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/controller/openapi/controller.go
+[OpenAPIController v3]: https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/controller/openapiv3/controller.go
 [apiextensions-apiserver 模块]: https://github.com/kubernetes/apiextensions-apiserver
 [x-kubernetes]: https://github.com/phosae/x-kubernetes
 [hello.zeng.dev_foos_full.yaml]: https://github.com/phosae/x-kubernetes/blob/38dcc4056984705ffbf9dbeaa570e875857a6042/api/artifacts/crd/hello.zeng.dev_foos_full.yaml
 [hello.zeng.dev_foos_nodesc.yaml]: https://github.com/phosae/x-kubernetes/blob/38dcc4056984705ffbf9dbeaa570e875857a6042/api/artifacts/crd/hello.zeng.dev_foos_nodesc.yaml
-[kubbuilder]: https://github.com/kubernetes-sigs/kubebuilder
+[kubebuilder]: https://github.com/kubernetes-sigs/kubebuilder
 [controller-tools]: https://github.com/kubernetes-sigs/controller-tools
