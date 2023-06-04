@@ -1,13 +1,13 @@
 ---
-title: "K8s API 和控制器: API 聚合原理剖析"
+title: "K8s API 和控制器: 搞懂 API aggregation"
 date: 2023-05-31T18:46:31+08:00
 lastmod: 2023-05-31T18:46:31+08:00
 draft: true
-keywords: []
-description: ""
-tags: []
+keywords: ["kubernetes"]
+description: "understanding api aggregation in Kuberntes"
+tags: ["kubernetes"]
 author: "Zeng Xu"
-summary: "文章摘要"
+summary: "全图文展示 API aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)"
 
 comment: true
 toc: true
@@ -32,19 +32,19 @@ flowchartDiagrams:
   options: ""
 
 sequenceDiagrams: 
-  enable: false
+  enable: true
   options: ""
 ---
 
 <!-- 系列链接 -->
 [K8s API 和控制器: CustomResourceDefinitions (CRD)]: ../2023-k8s-api-by-crd
 [K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-api-from-scratch
-[K8s API 和控制器: API 聚合原理剖析]: ../2023-k8s-api-aggregation-internals
+[K8s API 和控制器: 搞懂 API aggregation]: ../2023-k8s-api-aggregation-internals
 
 本文为 **K8s API 和控制器** 系列文章之一
 - [K8s API 和控制器: CustomResourceDefinitions (CRD)]
 - [K8s API 和控制器: 实现一个极简 apiserver]
-- [K8s API 和控制器: API 聚合原理剖析]（本文）
+- [K8s API 和控制器: 搞懂 API aggregation]（本文）
 
 ## 🤔 How APIService Works
 
@@ -61,12 +61,12 @@ sequenceDiagrams:
 1. kube-aggregator 通过路径 `/apis/{spec.group}/{spec.version}` 发起存活检测，如果未通过，访问三方 apiserver 时 proxyHandler 返回 `503 Service Unavailable`
 2. 如果三方 apiserver 只提供 Specification v2，kube-aggregator 会自动转换出一份 v3 版本
 
-## 👑 The Builtin Aggregation
+## 👑 The Builtin Aggregation and HandlerChain
 
 [K8s API 和控制器: CustomResourceDefinitions (CRD)] 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，最后再返回 404。
 
-而实际上，kube-apiserver 模块又以委托模式组合在 kube-aggregator 模块内。
-官方内置 API Groups 的处理和三方便用使用了一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但是代理模式上有所区别
+实际上 kube-apiserver 模块又以委托模式组合在 kube-aggregator 模块内。
+官方内置 API Groups 的处理和三方便用使用了同一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但是代理模式上有所区别
 
 1. 每个内置 API GroupVersion 对应 APIService 都会打上 Local 标识，诸如 `/api/**`, `/apis/apps/**`, `/apis/batch/**`, `/apis/{crd.group}` 等路径，直接通过模块委托交给同进程 kube-apiserver 模块处理，而非走网络代理
 2. Discovery API 和 OpenAPI Specification 由 HTTP 请求聚合改为了直接读内存聚合
@@ -98,7 +98,7 @@ sequenceDiagrams:
                                           └── notfoundhandler ---> 404 NotFound
 ```
 
-kube-aipserver 中和三方 apiserver 最相关的 filters 是鉴权 authentication(authn) 和授权 authorization(authz)
+与 custom apiserver 最相关的 kube-aipserver filters 是鉴权 authentication(authn) 和授权 authorization(authz)
 - authn 根据客户端凭证，鉴别出用户信息 `(name, uid, groups, extra)`，未通过返回 `401 Unauthorized`
 - authz 根据用户信息，主要是 `(name, groups)`，查询用户具有何种权限（通常是 RBAC），未通过返回 `403 Forbidden`
 
@@ -127,7 +127,7 @@ kube-apiserver 详细 authn authz 概念在这里查看
 
 custom apiserver 首先应该能够鉴别请求是否来自 kube-apiserver 代理。
 
-为解决此问题，kube-apiserver 中还有几个项配置
+为解决此问题，kube-apiserver 中还有几项配置
 
 - `--requestheader-client-ca-file`，path to aggregator CA cert，kube-apiserver proxy 请求 TLS 证书签发 CA
 - `--requestheader-allowed-names`，通常是 front-proxy-client，对应 proxy 模块证书里头的 Common Name 字段
@@ -157,7 +157,7 @@ rules:
   - watch
 ```
 
-custom apiserver 接到请求时
+custom apiserver 处理请求时
 - 首先应进行客户端 TLS 证书验证：先看是否由 client-ca-file 签发，再验证 TLS 证书 Common Name 是否为 allowed-names 之一。验证通过表明流量来自 kube-apiserver，自 `(X-Remote-User, X-Remote-Group, X-Remote-Extra-*)` 提取出 authn 信息。否则
 - 请求非可信，应当对其执行 authn
 
@@ -195,7 +195,7 @@ kube-apiserver authn 该 token，通过后返回
 }'
 ```
 
-authn 取代用户信息之后，还需要进行 authz，才真正到达业务处理。针对这类 authz ，kube-apiserver 接口是 `POST /apis/authorization.k8s.io/v1/subjectaccessreviews`
+authn 取得用户信息之后，还需要进行 authz，才真正到达业务处理。针对这类 authz ，kube-apiserver 接口是 `POST /apis/authorization.k8s.io/v1/subjectaccessreviews`
 
 假设 custom apiserver 需要 authz serviceaccount hello/me 是否能够 list /apis/hello.zeng.dev/namespaces/default/foos，交互协议如下（服务端用 JSON 传输
 
@@ -256,34 +256,103 @@ rules:
   - create
 ```
 
-//todo add diagram/flowchart
+流程图: request ↔️ kube-apiserver ↔️ custom-apiserver
+
+<!-- 
+sequenceDiagram 
+%%{init: { 'sequence': {
+'noteAlign': 'left', 'messageAlign': 'center'
+}}}%%
+
+actor kubectl/AnyClient
+kubectl/AnyClient -) kube-apiserver: delete foo/test
+kube-apiserver ->> kube-apiserver: authn/authz OK
+kube-apiserver ->>+ hello-apiserver: Proxy Request with <br/>X-Remote-User<br/>X-Remote-Group<br/>X-Remote-Extra-
+hello-apiserver ->> hello-apiserver: TLS Cert verify OK
+Note right of hello-apiserver: userinfo<br/>{name: X-Remote-User<br/>groups: X-Remote-Group<br/>extraX-Remote-Extra-}
+hello-apiserver ->>+ kube-apiserver: delegate authz <br/> POST SubjectAccessReview
+kube-apiserver ->>- hello-apiserver: 200 OK with<br/>SubjectAccessReview<br/>status.allow=true
+hello-apiserver ->> hello-apiserver: execute delete
+hello-apiserver ->>- kube-apiserver: 200 OK
+kube-apiserver -) kubectl/AnyClient: 200 OK 
+-->
+
+<img src="/img/2023/custom-apiserver-delegate-authz.png" width="700px" height="700px"/>
+
+流程图: request ↔️ custom-apiserver
+
+<!-- sequenceDiagram 
+actor kubectl/AnyClient
+
+kubectl/AnyClient ->> hello-apiserver: delete foo/test
+hello-apiserver --\>> hello-apiserver: TLS Cert <br/> verify failed
+hello-apiserver ->>+ kube-apiserver: delegate authn <br/> POST TokenReview
+kube-apiserver ->> kube-apiserver: authn OK
+kube-apiserver ->>- hello-apiserver: 200 OK with<br/> userInfo in TokenReview status
+hello-apiserver ->>+ kube-apiserver: delegate authz <br/> POST SubjectAccessReview
+kube-apiserver ->> kube-apiserver: authz OK
+kube-apiserver ->>- hello-apiserver: 200 OK with SubjectAccessReview<br/>status.allow=true
+hello-apiserver ->> hello-apiserver: execute delete
+hello-apiserver ->> kubectl/AnyClient: 200 OK  -->
+
+
+<img src="/img/2023/custom-apiserver-delegate-authn-authz.png" width="700px" height="700px"/>
+
+🪬🪬🪬 目前 X-Remote-* headers 没有携带 authz 信息。无论 kube-apiserver 是否先执行了 authz，custom apiserver 都要 authn 之后要进行执行 authz。
+
+🪬🪬🪬 custom apiserver 当然可以自行读取 kube-apiserver 存储，自行在本地实现 authn, authz，但是不推荐。
+
+🪬🪬🪬 由于每个请求都需要远程 authz，custom apiserver 可以缓存 authz 结果。
 
 ## 🧗 Further Reading: kube-aggregator history
 
-查看同时期 (v1.7.0 前后) [proposal: Aggregated API Servers]，可以发现社区当时面临的问题
+查看 [proposal: Aggregated API Servers]，可以发现社区当时面临的问题
 1. 自身业务有拆单体 kube-apiserver 为多个 aggregated servers 的需求 
 2. 用户/三方机构有自己实现 custom apiserver 并暴露 custom API 的需求
 
-社区提供的解决方案经历了许多个 PR 迭代。第一次提交发生在2016 年 5 月 [kubernetes PR20358]，增加了一个名为第独立进程 kube-discovery，功能非常原始，仅提供 API disovery 信息聚合。具体来说就是读取配置文件提供的 apiserver 列表，逐个访问，将 kube-apiserver 核心 API Group 信息聚合到 /api，将其他 API Groups（官方、三方）一起组合到 /apis。
+社区解决方案经历了许多个 PR 迭代，主要由 [deads2k 贡献]，在 Kubernetes 进入 v1.7.0 Beta (默认开启)，v1.10 进入 GA
 
-2016 年 12 月 v1.6.0-alpha.1 版本 [kubernetes PR37561] 引入服务发现 GroupVersionKind `apiregistration.k8s.io/v1alpha1 apiservices`，[kubernetes PR38289] 提供了 proxy。
+2016 年 5 月 [kubernetes PR20358] 为第一次提交，增加了一个名为第独立进程 kube-discovery。它的功能非常原始，仅提供 API disovery 信息聚合，具体来说就是读取配置文件提供的 apiservers 列表，逐个访问，将 kube-apiserver 核心 API Group 信息聚合到 /api，将其他 API Groups（官方、三方）一起组合到 /apis。
 
+2016 年 12 月经历了多个迭代
+- [kubernetes PR37561] 引入服务发现 GroupVersionKind `apiregistration.k8s.io/v1alpha1 APIService` 
+- [kubernetes PR38319] kube-discovery /api 和 /apis 开始通过 APIService 聚合官方 API
+- [kubernetes PR38289] 提供了 proxyHandler
 
-也谈到 apiextensions-apiserver 模块实现了 REST API Discovery Endpoints /apis/{group},/apis/{group}/{version}，kube-aggregator 模块的 /apis 则会聚合它们。
+2017 年 3 月合并提交奠定了 kube-aggregator 形态，一直沿用至今 (v1.27)
+- [kubernetes 39619] kube-discovery 改名为 kube-apiserver
+- [kubernetes PR42911] 合并了 kube-apiserver 模块和 kube-aggregator 模块
+- [kubernetes PR46055] 并入了 CRD 模块 apiextensions-apiserver，委托链为 kube-aggregator ➡️ (apiextensions-apiserver ➡️ kube-apiserver)
+- [kubernetes PR46440] 调整委托链为 kube-aggregator ➡️ (kube-apiserver ➡️ apiextensions-apiserver)
 
-[deads2k PRs]: https://github.com/kubernetes/kubernetes/pulls?page=29&q=is%3Apr+is%3Aclosed+author%3Adeads2k
+👏👏👏 欢迎在评论区指出其他重要 PR
 
-<!-- v1.7.0-alpha.1: kubernetes PR42911 combine kube-apiserver and kube-aggregator -->
-[kubernetes PR42911]: https://github.com/kubernetes/kubernetes/pull/42911
-<!-- add summarizing discovery controller and handlers -->
-[kubernetes PR38319]: https://github.com/kubernetes/kubernetes/pull/38319
-<!-- kubernetes-discovery proxy -->
-[kubernetes PR38289]: https://github.com/kubernetes/kubernetes/pull/38624
-<!-- v1.6.0-alpha.1: api federation types apiregistration.k8s.io/v1alpha1 apiservices -->
-[kubernetes PR37561]: https://github.com/kubernetes/kubernetes/pull/37561
-<!-- 1st federated api servers, named kube-discovery -->
-[kubernetes PR20358]: https://github.com/kubernetes/kubernetes/pull/20358
+## 📝 Summarize
+
+本文围绕核心协议 APIService，梳理了 Kubernetes API aggregation 原理。读者理解了 APIService 背后的运作原理，就搞懂了 apiserver aggregation 魔法如何可能。
+
+官方文档 [Configure the Aggregation Layer](https://kubernetes.io/docs/tasks/extend-kubernetes/configure-aggregation-layer/) 一直很令人费解，只列了列干巴巴的接入流程。其实只要先了解 kube-apiserver handlerChain，区分好请求来源，就大体明白 custom apiserver 应该如何处理 authn 和 authz。
+
+最后，本文梳理了 kube-aggregator 重要 Pull Request，供有兴趣读者进一步查阅。
+
+[deads2k 贡献]: https://github.com/kubernetes/kubernetes/pulls?page=29&q=is%3Apr+is%3Aclosed+author%3Adeads2k
 
 [proposal: Aggregated API Servers]: https://github.com/kubernetes/design-proposals-archive/blob/acc25e14ca83dfda4f66d8cb1f1b491f26e78ffe/api-machinery/aggregated-api-servers.md
 <!-- API Aggregation timeline -->
 [issue 263]: https://github.com/kubernetes/enhancements/issues/263
+
+<!-- 1st federated api servers, named kube-discovery -->
+[kubernetes PR20358]: https://github.com/kubernetes/kubernetes/pull/20358
+<!-- v1.6.0-alpha.1: api federation types apiregistration.k8s.io/v1alpha1 apiservices -->
+[kubernetes PR37561]: https://github.com/kubernetes/kubernetes/pull/37561
+<!-- add summarizing discovery controller and handlers -->
+[kubernetes PR38319]: https://github.com/kubernetes/kubernetes/pull/38319
+<!-- kubernetes-discovery proxy -->
+[kubernetes PR38289]: https://github.com/kubernetes/kubernetes/pull/38624
+<!-- rename kubernetes-discovery to kube-aggregator -->
+[kubernetes 39619]: https://github.com/kubernetes/kubernetes/pull/39619
+<!-- v1.7.0-alpha.1: kubernetes PR42911 combine kube-apiserver and kube-aggregator -->
+[kubernetes PR42911]: https://github.com/kubernetes/kubernetes/pull/42911
+
+[kubernetes PR46055]: https://github.com/kubernetes/kubernetes/pull/46055
+[kubernetes PR46440]: https://github.com/kubernetes/kubernetes/pull/46440
