@@ -1,5 +1,5 @@
 ---
-title: "K8s API 和控制器: CustomResourceDefinitions (CRD)"
+title: "K8s API 和控制器: CustomResourceDefinitions (CRD) 原理"
 date: 2023-05-19T10:09:09+08:00
 lastmod: 2023-05-27T17:29:00+08:00
 draft: true
@@ -37,14 +37,14 @@ sequenceDiagrams:
 ---
 
 <!-- 系列链接 -->
-[K8s API 和控制器: CustomResourceDefinitions (CRD)]: ../2023-k8s-api-by-crd
-[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-api-from-scratch
-[K8s API 和控制器: 搞懂 API aggregation]: ../2023-k8s-api-aggregation-internals
+[K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
+[K8s API 和控制器: 搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [K8s API 和控制器: CustomResourceDefinitions (CRD)] (本文)
+- [K8s API 和控制器: CustomResourceDefinitions (CRD) 原理] (本文)
 - [K8s API 和控制器: 实现一个极简 apiserver]
-- [K8s API 和控制器: 搞懂 API aggregation]
+- [K8s API 和控制器: 搞懂 apiserver aggregation]
 
 ## 🎯 Goals
 这里假定你已经熟悉 Kubernetes 的基本组件，尤其是 Control Plane 之核心 kube-apiserver，如不然，可以移步[这里](https://kubernetes.io/docs/concepts/overview/components/)。

@@ -37,14 +37,14 @@ sequenceDiagrams:
 ---
 
 <!-- 系列链接 -->
-[K8s API 和控制器: CustomResourceDefinitions (CRD)]: ../2023-k8s-api-by-crd
-[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-api-from-scratch
-[K8s API 和控制器: 搞懂 API aggregation]: ../2023-k8s-api-aggregation-internals
+[K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
+[K8s API 和控制器: 搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [K8s API 和控制器: CustomResourceDefinitions (CRD)]
+- [K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]
 - [K8s API 和控制器: 实现一个极简 apiserver] (本文)
-- [K8s API 和控制器: 搞懂 API aggregation]
+- [K8s API 和控制器: 搞懂 apiserver aggregation]
 
 ## 👀 APIService
 

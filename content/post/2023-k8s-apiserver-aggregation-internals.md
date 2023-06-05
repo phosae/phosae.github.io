@@ -1,13 +1,13 @@
 ---
-title: "K8s API 和控制器: 搞懂 API aggregation"
+title: "K8s API 和控制器: 搞懂 apiserver aggregation"
 date: 2023-05-31T18:46:31+08:00
 lastmod: 2023-05-31T18:46:31+08:00
 draft: true
 keywords: ["kubernetes"]
-description: "understanding api aggregation in Kuberntes"
+description: "understanding apiserver aggregation in Kuberntes"
 tags: ["kubernetes"]
 author: "Zeng Xu"
-summary: "全图文展示 API aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)"
+summary: "全图文展示 apiserver aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)"
 
 comment: true
 toc: true
@@ -37,14 +37,14 @@ sequenceDiagrams:
 ---
 
 <!-- 系列链接 -->
-[K8s API 和控制器: CustomResourceDefinitions (CRD)]: ../2023-k8s-api-by-crd
-[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-api-from-scratch
-[K8s API 和控制器: 搞懂 API aggregation]: ../2023-k8s-api-aggregation-internals
+[K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
+[K8s API 和控制器: 搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [K8s API 和控制器: CustomResourceDefinitions (CRD)]
+- [K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]
 - [K8s API 和控制器: 实现一个极简 apiserver]
-- [K8s API 和控制器: 搞懂 API aggregation]（本文）
+- [K8s API 和控制器: 搞懂 apiserver aggregation]（本文）
 
 ## 🤔 How APIService Works
 
@@ -331,7 +331,7 @@ hello-apiserver ->> kubectl/AnyClient: 200 OK
 
 ## 📝 Summarize
 
-本文围绕核心协议 APIService，梳理了 Kubernetes API aggregation 原理。读者理解了 APIService 背后的运作原理，就搞懂了 apiserver aggregation 魔法如何可能。
+本文围绕核心协议 APIService，梳理了 Kubernetes apiserver aggregation 原理。读者理解了 APIService 背后的运作原理，就搞懂了 apiserver aggregation 魔法如何可能。
 
 官方文档 [Configure the Aggregation Layer](https://kubernetes.io/docs/tasks/extend-kubernetes/configure-aggregation-layer/) 一直很令人费解，只列了列干巴巴的接入流程。其实只要先了解 kube-apiserver handlerChain，区分好请求来源，就大体明白 custom apiserver 应该如何处理 authn 和 authz。
 
