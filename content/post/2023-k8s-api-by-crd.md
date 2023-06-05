@@ -32,7 +32,7 @@ flowchartDiagrams:
   options: ""
 
 sequenceDiagrams: 
-  enable: true
+  enable: false
   options: ""
 ---
 

@@ -1,7 +1,6 @@
-# baseURL = "http://example.org/"
-# languageCode = "en-us"
-# title = "十九的白日梦客栈"
-# theme = "even"
+# site base on hugo v0.87.0
+# todo migrate googleAnalytics (UA) -> Google Analytics 4 (GA4)
+# todo replace flowchart, sequence diagram JS with mermaid.js
 
 baseURL = "https://www.zeng.dev/"
 languageCode = "en"
