@@ -258,8 +258,10 @@ rules:
 
 流程图: request ↔️ kube-apiserver ↔️ custom-apiserver
 
-<!-- 
-sequenceDiagram 
+<style> .mermaid svg { width: 72%;} </style>
+
+```mermaid
+sequenceDiagram
 %%{init: { 'sequence': {
 'noteAlign': 'left', 'messageAlign': 'center'
 }}}%%
@@ -275,17 +277,17 @@ kube-apiserver ->>- hello-apiserver: 200 OK with<br/>SubjectAccessReview<br/>sta
 hello-apiserver ->> hello-apiserver: execute delete
 hello-apiserver ->>- kube-apiserver: 200 OK
 kube-apiserver -) kubectl/AnyClient: 200 OK 
--->
-
-<img src="/img/2023/custom-apiserver-delegate-authz.png" width="700px" height="700px"/>
+```
 
 流程图: request ↔️ custom-apiserver
 
-<!-- sequenceDiagram 
+```mermaid
+sequenceDiagram 
+
 actor kubectl/AnyClient
 
 kubectl/AnyClient ->> hello-apiserver: delete foo/test
-hello-apiserver --\>> hello-apiserver: TLS Cert <br/> verify failed
+hello-apiserver -->> hello-apiserver: TLS Cert <br/> verify failed
 hello-apiserver ->>+ kube-apiserver: delegate authn <br/> POST TokenReview
 kube-apiserver ->> kube-apiserver: authn OK
 kube-apiserver ->>- hello-apiserver: 200 OK with<br/> userInfo in TokenReview status
@@ -293,10 +295,10 @@ hello-apiserver ->>+ kube-apiserver: delegate authz <br/> POST SubjectAccessRevi
 kube-apiserver ->> kube-apiserver: authz OK
 kube-apiserver ->>- hello-apiserver: 200 OK with SubjectAccessReview<br/>status.allow=true
 hello-apiserver ->> hello-apiserver: execute delete
-hello-apiserver ->> kubectl/AnyClient: 200 OK  -->
+hello-apiserver ->> kubectl/AnyClient: 200 OK
+```
 
-
-<img src="/img/2023/custom-apiserver-delegate-authn-authz.png" width="700px" height="700px"/>
+<!-- <img src="/img/2023/custom-apiserver-delegate-authn-authz.png" width="700px" height="700px"/> -->
 
 🪬🪬🪬 目前 X-Remote-* headers 没有携带 authz 信息。无论 kube-apiserver 是否先执行了 authz，custom apiserver 都要 authn 之后要进行执行 authz。
 

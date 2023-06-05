@@ -87,6 +87,19 @@
     -webkit-box-shadow: 0 0 10px #555;
   }
 
+  svg {
+    max-width: 100%;
+    min-width: 350px;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    -webkit-box-shadow: 0 0 10px #555;
+  }
+
   .table-wrapper {
     overflow-x: auto;
 
