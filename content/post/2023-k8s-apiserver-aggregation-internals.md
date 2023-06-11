@@ -1,8 +1,8 @@
 ---
-title: "K8s API 和控制器: 搞懂 apiserver aggregation"
+title: "搞懂 apiserver aggregation"
 date: 2023-05-31T18:46:31+08:00
 lastmod: 2023-05-31T18:46:31+08:00
-draft: true
+draft: false
 keywords: ["kubernetes"]
 description: "understanding apiserver aggregation in Kuberntes"
 tags: ["kubernetes"]
@@ -37,18 +37,20 @@ sequenceDiagrams:
 ---
 
 <!-- 系列链接 -->
-[K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
-[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
-[K8s API 和控制器: 搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
+[CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
+[搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
+[最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]
-- [K8s API 和控制器: 实现一个极简 apiserver]
-- [K8s API 和控制器: 搞懂 apiserver aggregation]（本文）
+- [CustomResourceDefinitions (CRD) 原理]
+- [实现一个极简 apiserver]
+- [搞懂 apiserver aggregation]（本文）
+- [最不厌其烦的 K8s 代码生成教程]
 
 ## 🤔 How APIService Works
 
-[K8s API 和控制器: 实现一个极简 apiserver] 展示了使用 APIService 将 custom apiserver 聚合到 kube-apiserver。聚合（aggregation）由模块  kube-aggregator 实现，其原理如下
+[实现一个极简 apiserver] 展示了使用 APIService 将 custom apiserver 聚合到 kube-apiserver。聚合（aggregation）由模块  kube-aggregator 实现，其原理如下
 
 0. kube-aggregator watch 所有 APIService 资源，所有三方 APIService 都会按照 `spec.service` 字段解析成 Service `{name}.{namespace}:<port>`。Service 为背后 apiserver 提供负载均衡
 1. 启动 proxyHandler，反向代理三方 apiserver 所有流量。CRUD  API 如 `/apis/hello.zeng.dev/v1/**` 和 `/apis/metrics.k8s.io/v1beta1/**`，全部交给对应 apiserver 处理
@@ -63,7 +65,7 @@ sequenceDiagrams:
 
 ## 👑 The Builtin Aggregation and HandlerChain
 
-[K8s API 和控制器: CustomResourceDefinitions (CRD)] 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，最后再返回 404。
+[CustomResourceDefinitions (CRD) 原理] 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，最后再返回 404。
 
 实际上 kube-apiserver 模块又以委托模式组合在 kube-aggregator 模块内。
 官方内置 API Groups 的处理和三方便用使用了同一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但是代理模式上有所区别

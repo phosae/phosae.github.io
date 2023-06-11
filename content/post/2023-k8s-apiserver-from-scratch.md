@@ -1,8 +1,8 @@
 ---
-title: "K8s API 和控制器: 实现一个极简 apiserver"
+title: "实现一个极简 apiserver"
 date: 2023-05-26T07:43:51+08:00
 lastmod: 2023-05-31T18:45:00+08:00
-draft: true
+draft: false
 keywords: ["kubernetes", "rest", "go", "http", "openapi"]
 description: "Simplest Kubernetes style apiserver"
 tags: ["kubernetes", "rest", "go", "http", "openapi"]
@@ -37,14 +37,16 @@ sequenceDiagrams:
 ---
 
 <!-- 系列链接 -->
-[K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
-[K8s API 和控制器: 实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
-[K8s API 和控制器: 搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
+[CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
+[搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
+[最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [K8s API 和控制器: CustomResourceDefinitions (CRD) 原理]
-- [K8s API 和控制器: 实现一个极简 apiserver] (本文)
-- [K8s API 和控制器: 搞懂 apiserver aggregation]
+- [CustomResourceDefinitions (CRD) 原理]
+- [实现一个极简 apiserver] (本文)
+- [搞懂 apiserver aggregation]
+- [最不厌其烦的 K8s 代码生成教程]
 
 ## 👀 APIService
 
@@ -89,10 +91,12 @@ spec:                                 | spec:
 
 之后，kube-apiserver 就会将 `/apis/hello.zeng.dev/v1/**` 前缀请求，代理给我们即将要实现的 hello.zeng.dev-apiserver 处理，而非委托给 CRD 实现 apiextensions-apiserver。
 
-	Req /apis/hello.zeng.dev/v1/** ---> kube-apiserver 👉👉👉 hello.zeng.dev-apiserver ✅
- 	                                       ❌
-										   ⬇️
-									 apiextensions-apiserver     
+```bash
+Req /apis/hello.zeng.dev/v1/** ---> kube-apiserver 👉👉👉 hello.zeng.dev-apiserver ✅
+                                        ❌
+                                        ⬇️
+                                    apiextensions-apiserver    
+``` 
 
 
 
