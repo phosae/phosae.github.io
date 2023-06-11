@@ -25,16 +25,18 @@ hideHeaderAndFooter: false
 ---
 
 <!-- 系列链接 -->
-[CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
-[实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
-[搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
+[K8s CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[实现一个极简 K8s apiserver]: ../2023-k8s-apiserver-from-scratch
+[搞懂 K8s apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
+<!-- [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library -->
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [CustomResourceDefinitions (CRD) 原理]
-- [实现一个极简 apiserver]
-- [搞懂 apiserver aggregation]
+- [K8s CustomResourceDefinitions (CRD) 原理]
+- [实现一个极简 K8s apiserver]
+- [搞懂 K8s apiserver aggregation]
 - [最不厌其烦的 K8s 代码生成教程] (本文)
+<!-- - [使用 library 实现 K8s apiserver] -->
 
 
 ## ☸️ Kubernetes code-generator
@@ -688,7 +690,7 @@ func main() {
 }
 ```
 
-## 🥷 Get Hands Dirty
+## 🥷 All in One Script
 
 上述 Generators 中许多参数存在重复，针对这个问题 [kubernetes/code-generator] 早先提供了 generate-groups.sh 和 /generate-internal-groups.sh 脚本批量生成。1.28 alpha 之后则提供了表述更清晰更好维护的脚本 kube_codegen.sh。
 

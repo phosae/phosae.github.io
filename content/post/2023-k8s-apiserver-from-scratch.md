@@ -1,5 +1,5 @@
 ---
-title: "实现一个极简 apiserver"
+title: "实现一个极简 K8s apiserver"
 date: 2023-05-26T07:43:51+08:00
 lastmod: 2023-05-31T18:45:00+08:00
 draft: false
@@ -35,18 +35,19 @@ sequenceDiagrams:
   enable: false
   options: ""
 ---
-
 <!-- 系列链接 -->
-[CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
-[实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
-[搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
+[K8s CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[实现一个极简 K8s apiserver]: ../2023-k8s-apiserver-from-scratch
+[搞懂 K8s apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
+<!-- [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library -->
 
 本文为 **K8s API 和控制器** 系列文章之一
-- [CustomResourceDefinitions (CRD) 原理]
-- [实现一个极简 apiserver] (本文)
-- [搞懂 apiserver aggregation]
+- [K8s CustomResourceDefinitions (CRD) 原理]
+- [实现一个极简 K8s apiserver] (本文)
+- [搞懂 K8s apiserver aggregation]
 - [最不厌其烦的 K8s 代码生成教程]
+<!-- - [使用 library 实现 K8s apiserver] -->
 
 ## 👀 APIService
 
@@ -674,7 +675,6 @@ func tryConvert2Table(obj interface{}, acceptedContentType string) interface{} {
 也不是每一类 custom resource 都需要全部特性。如 [metrics-server](https://github.com/kubernetes-sigs/metrics-server)，就不需要持久数据。
 
 这些额外特性，更好的方式是直接集成 K8s 库获得它们，比从头写便捷很多。本系列后续文章将展现这一点。
-
 
 [apiserver-from-scratch 源码]: https://github.com/phosae/x-kubernetes/blob/c59960982df64efee4b166e040d8031203173963/apiserver-from-scratch/main.go
 [apiextensions-apiserver 模块]: https://github.com/kubernetes/apiextensions-apiserver

@@ -1,5 +1,5 @@
 ---
-title: "CustomResourceDefinitions (CRD) 原理"
+title: "K8s CustomResourceDefinitions (CRD) 原理"
 date: 2023-05-19T10:09:09+08:00
 lastmod: 2023-05-27T17:29:00+08:00
 draft: false
