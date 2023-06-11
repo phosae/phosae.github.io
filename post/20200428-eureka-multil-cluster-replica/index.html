@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/20200428-eureka-multil-cluster-replica/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,11 +45,10 @@
 <meta property="og:url" content="https://www.zeng.dev/post/20200428-eureka-multil-cluster-replica/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-04-28T20:32:51+08:00" />
 <meta property="article:modified_time" content="2020-05-07T01:00:00+08:00" />
-
 <meta itemprop="name" content="如何迁移 Spring Cloud Eureka 注册体系至 k8s">
 <meta itemprop="description" content="优雅处理 Eureka 跨集群同步"><meta itemprop="datePublished" content="2020-04-28T20:32:51+08:00" />
 <meta itemprop="dateModified" content="2020-05-07T01:00:00+08:00" />
-<meta itemprop="wordCount" content="2617">
+<meta itemprop="wordCount" content="2584">
 <meta itemprop="keywords" content="Spring Cloud,Eureka,Kubernetes,Spring,Java," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="如何迁移 Spring Cloud Eureka 注册体系至 k8s"/>
 <meta name="twitter:description" content="优雅处理 Eureka 跨集群同步"/>
@@ -181,11 +180,11 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">127.0.0.1 ecs-peer1
-127.0.0.1 ecs-peer2
-127.0.0.1 k8s-peer1
-127.0.0.1 k8s-peer2
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">127.0.0.1 ecs-peer1
+</span></span><span class="line"><span class="cl">127.0.0.1 ecs-peer2
+</span></span><span class="line"><span class="cl">127.0.0.1 k8s-peer1
+</span></span><span class="line"><span class="cl">127.0.0.1 k8s-peer2
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>下面的 yaml 配置展示了如何模拟将 ECS Eureka 集群单向注册到 k8s 集群，有几个配置需要说明</p>
 <ul>
@@ -264,75 +263,75 @@
 </span><span class="lnt">68
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
-</span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
-</span><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-eureka</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
-</span><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-zone</span><span class="w">
-</span><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8762</span><span class="w">
-</span><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer2</span><span class="w">
-</span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer2</span><span class="w">
-</span><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-eureka</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
-</span><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-zone</span><span class="w">
-</span><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8763</span><span class="w">
-</span><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer1</span><span class="w">
-</span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer1</span><span class="w">
-</span><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-eureka</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">fetch-registry</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">ecs-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/</span><span class="w">
-</span><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
-</span><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-zone,k8s-zone</span><span class="w">
-</span><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8764</span><span class="w">
-</span><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer2</span><span class="w">
-</span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer2</span><span class="w">
-</span><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-eureka</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">fetch-registry</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">ecs-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/</span><span class="w">
-</span><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
-</span><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-zone,k8s-zone</span><span class="w">
-</span><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-zone</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8762</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-zone</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8763</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">fetch-registry</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">ecs-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-zone,k8s-zone</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8764</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-peer2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">fetch-registry</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">ecs-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">ecs-zone,k8s-zone</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>确认你已经在 Eureka server 项目目录，开 4 个控制台依次使用如下命令启动所有 Eureka</p>
 <div class="highlight"><div class="chroma">
@@ -343,11 +342,11 @@
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>k8s-peer1
-mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>k8s-peer2
-mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>ecs-peer1
-mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>ecs-peer2
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>k8s-peer1
+</span></span><span class="line"><span class="cl">mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>k8s-peer2
+</span></span><span class="line"><span class="cl">mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>ecs-peer1
+</span></span><span class="line"><span class="cl">mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.profiles.active<span class="o">=</span>ecs-peer2
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>访问 k8s-peer1:8761 或者 k8s-peer2:8762，可以看到 Eureka 实例 ecs-peer1:8763 和 ecs-peer2:8764 注册到了 k8s-zone
 <img src="/img/2020-04/k8s-peer.jpg" width="600px"></p>
@@ -383,23 +382,23 @@ mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
-</span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
-</span><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-eureka</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">ecs-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/</span><span class="w">
-</span><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
-</span><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-zone, ecs-zone</span><span class="w">
-</span><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spring</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">profiles</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">instance</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hostname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-peer1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">appname</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">ecs-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://ecs-peer1:8763/eureka/,http://ecs-peer2:8764/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">k8s-zone</span><span class="p">:</span><span class="w"> </span><span class="l">http://k8s-peer1:8761/eureka/,http://k8s-peer2:8762/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">k8s-zone, ecs-zone</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="理解-eureka-集群复制原理">理解 Eureka 集群复制原理</h2>
 <p>Eureka 会选取 eureka.client.availability-zones 声明的所有节点作为同步节点列表（在上面，我通过这种方式实现了单向注册）。</p>
@@ -442,41 +441,41 @@ mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="kd">final</span> <span class="n">InstanceInfo</span> <span class="n">info</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
-    <span class="kt">int</span> <span class="n">leaseDuration</span> <span class="o">=</span> <span class="n">Lease</span><span class="o">.</span><span class="na">DEFAULT_DURATION_IN_SECS</span><span class="o">;</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">info</span><span class="o">.</span><span class="na">getLeaseInfo</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">info</span><span class="o">.</span><span class="na">getLeaseInfo</span><span class="o">().</span><span class="na">getDurationInSecs</span><span class="o">()</span> <span class="o">&gt;</span> <span class="n">0</span><span class="o">)</span> <span class="o">{</span>
-      <span class="n">leaseDuration</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="na">getLeaseInfo</span><span class="o">().</span><span class="na">getDurationInSecs</span><span class="o">();</span>
-    <span class="o">}</span>
-    <span class="kd">super</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">info</span><span class="o">,</span> <span class="n">leaseDuration</span><span class="o">,</span> <span class="n">isReplication</span><span class="o">);</span>
-    <span class="n">replicateToPeers</span><span class="o">(</span><span class="n">Action</span><span class="o">.</span><span class="na">Register</span><span class="o">,</span> <span class="n">info</span><span class="o">.</span><span class="na">getAppName</span><span class="o">(),</span> <span class="n">info</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">info</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">isReplication</span><span class="o">);</span>
-<span class="o">}</span>
-
-<span class="kd">private</span> <span class="kt">void</span> <span class="nf">replicateToPeers</span><span class="o">(</span><span class="n">Action</span> <span class="n">action</span><span class="o">,</span> <span class="n">String</span> <span class="n">appName</span><span class="o">,</span> <span class="n">String</span> <span class="n">id</span><span class="o">,</span>
-                                  <span class="n">InstanceInfo</span> <span class="n">info</span> <span class="cm">/* optional */</span><span class="o">,</span>
-                                  <span class="n">InstanceStatus</span> <span class="n">newStatus</span> <span class="cm">/* optional */</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">Stopwatch</span> <span class="n">tracer</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="na">getTimer</span><span class="o">().</span><span class="na">start</span><span class="o">();</span>
-    <span class="k">try</span> <span class="o">{</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">numberOfReplicationsLastMin</span><span class="o">.</span><span class="na">increment</span><span class="o">();</span>
-        <span class="o">}</span>
-        <span class="c1">// If it is a replication already, do not replicate again as this will create a poison replication
-</span><span class="c1"></span>        <span class="c1">// 如果是其他节点信息同步，处理结束
-</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">peerEurekaNodes</span> <span class="o">==</span> <span class="n">Collections</span><span class="o">.</span><span class="na">EMPTY_LIST</span> <span class="o">||</span> <span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
-            <span class="k">return</span><span class="o">;</span>
-        <span class="o">}</span>
-        <span class="c1">// 如果是应用信息更新，同步注册信息至其他节点
-</span><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="kd">final</span> <span class="n">PeerEurekaNode</span> <span class="n">node</span> <span class="o">:</span> <span class="n">peerEurekaNodes</span><span class="o">.</span><span class="na">getPeerEurekaNodes</span><span class="o">())</span> <span class="o">{</span>
-            <span class="c1">// If the url represents this host, do not replicate to yourself.
-</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">peerEurekaNodes</span><span class="o">.</span><span class="na">isThisMyUrl</span><span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">getServiceUrl</span><span class="o">()))</span> <span class="o">{</span>
-                <span class="k">continue</span><span class="o">;</span>
-            <span class="o">}</span>
-            <span class="n">replicateInstanceActionsToPeers</span><span class="o">(</span><span class="n">action</span><span class="o">,</span> <span class="n">appName</span><span class="o">,</span> <span class="n">id</span><span class="o">,</span> <span class="n">info</span><span class="o">,</span> <span class="n">newStatus</span><span class="o">,</span> <span class="n">node</span><span class="o">);</span>
-        <span class="o">}</span>
-    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
-        <span class="n">tracer</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="kd">final</span> <span class="n">InstanceInfo</span> <span class="n">info</span><span class="o">,</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">leaseDuration</span> <span class="o">=</span> <span class="n">Lease</span><span class="o">.</span><span class="na">DEFAULT_DURATION_IN_SECS</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">info</span><span class="o">.</span><span class="na">getLeaseInfo</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">info</span><span class="o">.</span><span class="na">getLeaseInfo</span><span class="o">().</span><span class="na">getDurationInSecs</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">leaseDuration</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="na">getLeaseInfo</span><span class="o">().</span><span class="na">getDurationInSecs</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">super</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">info</span><span class="o">,</span> <span class="n">leaseDuration</span><span class="o">,</span> <span class="n">isReplication</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">replicateToPeers</span><span class="o">(</span><span class="n">Action</span><span class="o">.</span><span class="na">Register</span><span class="o">,</span> <span class="n">info</span><span class="o">.</span><span class="na">getAppName</span><span class="o">(),</span> <span class="n">info</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">info</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="n">isReplication</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">replicateToPeers</span><span class="o">(</span><span class="n">Action</span> <span class="n">action</span><span class="o">,</span> <span class="n">String</span> <span class="n">appName</span><span class="o">,</span> <span class="n">String</span> <span class="n">id</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                  <span class="n">InstanceInfo</span> <span class="n">info</span> <span class="cm">/* optional */</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">                                  <span class="n">InstanceStatus</span> <span class="n">newStatus</span> <span class="cm">/* optional */</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Stopwatch</span> <span class="n">tracer</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="na">getTimer</span><span class="o">().</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">numberOfReplicationsLastMin</span><span class="o">.</span><span class="na">increment</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// If it is a replication already, do not replicate again as this will create a poison replication
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// 如果是其他节点信息同步，处理结束
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">peerEurekaNodes</span> <span class="o">==</span> <span class="n">Collections</span><span class="o">.</span><span class="na">EMPTY_LIST</span> <span class="o">||</span> <span class="n">isReplication</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 如果是应用信息更新，同步注册信息至其他节点
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span> <span class="o">(</span><span class="kd">final</span> <span class="n">PeerEurekaNode</span> <span class="n">node</span> <span class="o">:</span> <span class="n">peerEurekaNodes</span><span class="o">.</span><span class="na">getPeerEurekaNodes</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// If the url represents this host, do not replicate to yourself.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">peerEurekaNodes</span><span class="o">.</span><span class="na">isThisMyUrl</span><span class="o">(</span><span class="n">node</span><span class="o">.</span><span class="na">getServiceUrl</span><span class="o">()))</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="n">replicateInstanceActionsToPeers</span><span class="o">(</span><span class="n">action</span><span class="o">,</span> <span class="n">appName</span><span class="o">,</span> <span class="n">id</span><span class="o">,</span> <span class="n">info</span><span class="o">,</span> <span class="n">newStatus</span><span class="o">,</span> <span class="n">node</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tracer</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Eureka server 实例通过 register 同时处理应用注册 (isReplication=false) 和 peer 注册同步 (isReplication=true)。如果是应用注册，在本地注册成功后，PeerAwareInstanceRegistryImpl 会将注册信息同步到集群其他节点；如果是其他节点的注册同步，那么在本地注册成功之后，即结束流程。</p>
 <p>这样设计的考量是：如果允许 replication 信息反复传递，那么只要任意注册一个应用，稍过一段时间，所有 Eureka 节点的网卡都会被打爆。</p>
@@ -537,52 +536,52 @@ mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.
 </span><span class="lnt">45
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="c"># headless Service, 绑定到 StatefulSet 使用</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eureka-svc</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">clusterIP</span><span class="p">:</span><span class="w"> </span><span class="l">None</span><span class="w">
-</span><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">eureka</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="c"># 与 Pod 一一对应，供 ECS eureka 注册</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eureka-0-svc</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
-</span><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="m">30761</span><span class="w">
-</span><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">eureka</span><span class="w">
-</span><span class="w">    </span><span class="nt">&#34;statefulset.kubernetes.io/pod-name&#34;: </span><span class="l">eureka-0</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="c"># 与 Pod 一一对应，供 ECS eureka 注册</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eureka-1-svc</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
-</span><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="m">30762</span><span class="w">
-</span><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
-</span><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">eureka</span><span class="w">
-</span><span class="w">    </span><span class="nt">&#34;statefulset.kubernetes.io/pod-name&#34;: </span><span class="l">eureka-1</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># headless Service, 绑定到 StatefulSet 使用</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eureka-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">clusterIP</span><span class="p">:</span><span class="w"> </span><span class="l">None</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># 与 Pod 一一对应，供 ECS eureka 注册</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eureka-0-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="m">30761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&#34;statefulset.kubernetes.io/pod-name&#34;: </span><span class="l">eureka-0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># 与 Pod 一一对应，供 ECS eureka 注册</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">eureka-1-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">NodePort</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">nodePort</span><span class="p">:</span><span class="w"> </span><span class="m">30762</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="m">8761</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">TCP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">eureka</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&#34;statefulset.kubernetes.io/pod-name&#34;: </span><span class="l">eureka-1</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>看到这里，你应该已经明白如何实现 k8s Eureka 与外部 Eureka 信息同步了。</p>
 <h2 id="为什么关闭-eureka-自我保护">为什么关闭 Eureka 自我保护</h2>
@@ -698,7 +697,7 @@ mvn spring-boot:run -Dspring-boot.run.arguments<span class="o">=</span>--spring.
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -711,6 +710,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

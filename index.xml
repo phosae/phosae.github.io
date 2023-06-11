@@ -6,7 +6,43 @@
     <description>Recent content on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 22 Apr 2023 10:01:25 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Jun 2023 18:08:17 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>最不厌其烦的 K8s 代码生成教程</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-codegen/</link>
+      <pubDate>Mon, 05 Jun 2023 18:08:17 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-codegen/</guid>
+      <description>彻底而全面的梳理，甚至提供了复制即用的脚本和镜像&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>搞懂 K8s apiserver aggregation</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-aggregation-internals/</link>
+      <pubDate>Wed, 31 May 2023 18:46:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-aggregation-internals/</guid>
+      <description>全图文展示 apiserver aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)</description>
+    </item>
+    
+    <item>
+      <title>实现一个极简 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/</guid>
+      <description>本文实现了一个符合 Kubernetes REST 风格的极简 apiserver，代码量只有 500 行左右。无论是单独运行还是集成到 K8s 集群，它都支持 kubectl 增删改查操作。动手把玩这个 apiserver，可以很好理解 K8s apiserver aggregation 原理，以及 kubectl 与 apiserver 的交互机制</description>
+    </item>
+    
+    <item>
+      <title>K8s CustomResourceDefinitions (CRD) 原理</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-by-crd/</link>
+      <pubDate>Fri, 19 May 2023 10:09:09 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-by-crd/</guid>
+      <description>K8s CustomResourceDefinition (CRD) 为使用者提供了开箱即用的 REST API 拓展能力。使用方只需创建一份 CRD 声明，kube-apiserver 就会自动提供一套成熟的 HTTP REST API，并直接将 Custom Resources 存储到背后存储（通常是 etcd）中。本文由浅入深，先展示了 CRD 的基本使用方式、kubectl 与对应 Custom API 模块的交互原理，再深入探究 CRD 在 kube-apiserver 内部的实现原理，最后对其特性的利弊做了总结</description>
+    </item>
+    
     <item>
       <title>Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin</title>
       <link>https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/</link>

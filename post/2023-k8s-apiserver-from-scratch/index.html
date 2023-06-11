@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>实现一个极简 K8s apiserver - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="Simplest Kubernetes style apiserver" /><meta name="keywords" content="kubernetes, rest, go, http, openapi" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="实现一个极简 K8s apiserver" />
+<meta property="og:description" content="Simplest Kubernetes style apiserver" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-05-26T07:43:51+08:00" />
+<meta property="article:modified_time" content="2023-05-31T18:45:00+08:00" />
+<meta itemprop="name" content="实现一个极简 K8s apiserver">
+<meta itemprop="description" content="Simplest Kubernetes style apiserver"><meta itemprop="datePublished" content="2023-05-26T07:43:51+08:00" />
+<meta itemprop="dateModified" content="2023-05-31T18:45:00+08:00" />
+<meta itemprop="wordCount" content="3749">
+<meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="实现一个极简 K8s apiserver"/>
+<meta name="twitter:description" content="Simplest Kubernetes style apiserver"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">实现一个极简 K8s apiserver</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-05-26 07:43 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#-apiservice">👀 APIService</a></li>
+    <li><a href="#-goals">🎯 Goals</a></li>
+    <li><a href="#-how-and-why">🤔 How and Why</a></li>
+    <li><a href="#-implement-api-discovery">🔥 Implement API Discovery</a></li>
+    <li><a href="#-generate-openapi-specification">☸️ Generate OpenAPI Specification</a></li>
+    <li><a href="#-crud-foo">🦀 CRUD Foo</a></li>
+    <li><a href="#-lets-play">🎮 Let&rsquo;s play</a></li>
+    <li><a href="#-summarize">📝 Summarize</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <!-- 系列链接 -->
+<!-- [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library -->
+<p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
+<ul>
+<li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></li>
+<li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a> (本文)</li>
+<li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
+<li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
+</ul>
+<!-- - [使用 library 实现 K8s apiserver] -->
+<h2 id="-apiservice">👀 APIService</h2>
+<p>如果我们在创建 <code>crd/foos.hello.zeng.dev</code> 之后查询 APIService 列表，会看到一个名为 <code>v1.hello.zeng.dev</code> 的 APIService 对象随之被创建</p>
+<pre><code>kubectl apply -f https://raw.githubusercontent.com/phosae/x-kubernetes/master/api/artifacts/crd/hello.zeng.dev_foos.yaml
+
+kubectl get apiservice | awk 'NR==1 || /hello/'
+NAME                                   SERVICE   AVAILABLE   AGE
+v1.hello.zeng.dev                      Local     True        15s
+</code></pre>
+<p>实际上 kube-apiserver 中的每个 API Group 版本都会有 APIService 与之对应，Local 表示请求在本地进程处理</p>
+<pre><code>kubectl get apiservice
+
+NAME                                   SERVICE   AVAILABLE   AGE
+v1.                                    Local     True        20h  &lt;--- core/legacy version.group 
+v1.apps                                Local     True        20h
+v1.autoscaling                         Local     True        20h
+v1.hello.zeng.dev                      Local     True        15s  &lt;--- our crd version.group
+v2.autoscaling                         Local     True        20h
+</code></pre>
+<p>以 CRD <code>APIService/v1.hello.zeng.dev</code> 为模版，增加 service 声明，表明对应版本 API 由集群内某 Serivce 背后 Pod 提供。
+即可将 Custom Resource 实现从 kube-apiserver 内 <a href="https://github.com/kubernetes/apiextensions-apiserver">apiextensions-apiserver 模块</a> 更换为自己的 custom apiserver 实现。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># APIService for CRD               ---&gt; # APIService from scratch
+</span></span><span class="line"><span class="cl">apiVersion: apiregistration.k8s.io/v1 | apiVersion: apiregistration.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: APIService                      | kind: APIService
+</span></span><span class="line"><span class="cl">metadata:                             | metadata:
+</span></span><span class="line"><span class="cl">  name: v1.hello.zeng.dev             |   name: v1.hello.zeng.dev
+</span></span><span class="line"><span class="cl">spec:                                 | spec:
+</span></span><span class="line"><span class="cl">  group: hello.zeng.dev               |   group: hello.zeng.dev
+</span></span><span class="line"><span class="cl">  groupPriorityMinimum: 1000          |   groupPriorityMinimum: 100 
+</span></span><span class="line"><span class="cl">  version: v1                         |   version: v1
+</span></span><span class="line"><span class="cl">  versionPriority: 100                |   versionPriority: 10
+</span></span><span class="line"><span class="cl">                                      | + service:
+</span></span><span class="line"><span class="cl">                                      | +   name: apiserver
+</span></span><span class="line"><span class="cl">                                      | +   namespace: hello
+</span></span><span class="line"><span class="cl">                                      | + insecureSkipTLSVerify: true
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>之后，kube-apiserver 就会将 <code>/apis/hello.zeng.dev/v1/**</code> 前缀请求，代理给我们即将要实现的 hello.zeng.dev-apiserver 处理，而非委托给 CRD 实现 apiextensions-apiserver。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Req /apis/hello.zeng.dev/v1/** ---&gt; kube-apiserver 👉👉👉 hello.zeng.dev-apiserver ✅
+</span></span><span class="line"><span class="cl">                                        ❌
+</span></span><span class="line"><span class="cl">                                        ⬇️
+</span></span><span class="line"><span class="cl">                                    apiextensions-apiserver    
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="-goals">🎯 Goals</h2>
+<p>最终目标类似 [拓展 K8s API: CustomResourceDefinitions (CRD)]</p>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>Action</th>
+<th>HTTP method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kubectl create -f ./foo.yml</td>
+<td>create</td>
+<td>POST</td>
+</tr>
+<tr>
+<td>kubectl get fo myfoo</td>
+<td>get</td>
+<td>GET</td>
+</tr>
+<tr>
+<td>kubectl apply -f ./foos.yml</td>
+<td>update or create</td>
+<td>PATCH or POST</td>
+</tr>
+<tr>
+<td>kubectl delete fo myfoo</td>
+<td>delete</td>
+<td>DELETE</td>
+</tr>
+</tbody>
+</table>
+<h2 id="-how-and-why">🤔 How and Why</h2>
+<p>独立 custom apiserver 需实现下列 API</p>
+<ul>
+<li>for API Discovery
+<ul>
+<li>/apis ➡️ APIGroupList or APIGroupDiscoveryList (1.26+</li>
+<li>/apis/hello.zeng.dev ➡️ APIGroup</li>
+<li>/apis/hello.zeng.dev/v1 ➡️ APIResourceList</li>
+</ul>
+</li>
+<li>for OpenAPI Schema
+<ul>
+<li>/openapi/v2 ➡️ OpenAPI Specification v2 or</li>
+<li>/openapi/v3 ➡️ OpenAPI Specification v3</li>
+</ul>
+</li>
+<li>for Foo CRUD
+<ul>
+<li>/apis/hello.zeng.dev/v1/foos</li>
+<li>/apis/hello.zeng.dev/v1/namespaces/{namespace}/foos</li>
+<li>/apis/hello.zeng.dev/v1/namespaces/{namespace}/foos/{name}</li>
+</ul>
+</li>
+</ul>
+<p>API Discovery 表面是支持 kubectl 使用</p>
+<ul>
+<li>1.27 后 /apis 需支持返回 APIGroupDiscoveryList</li>
+<li>1.27 前 /apis 需返回 APIGrouList 和 /apis/hello.zeng.dev/v1 需返回 APIResourceList</li>
+</ul>
+<p>它实际是各种客户端与 kube-apiserver 交互的基础，被用来支持 RESTMapper。RESTMapper 负责完成 kubernetes resource 到 kind 的转换，是序列化/反序列化的基础。</p>
+<p>1.16 之后，/apis/hello.zeng.dev/v1 还涉及了 APIService 探活，该接口如果返回非 200 会导致 custom apiserver 无法集成到 kube-apiserver。</p>
+<p>OpenAPI Specification 为非必需，作用包括：</p>
+<ul>
+<li>生成多语言客户端代码，官方 <a href="https://github.com/kubernetes-client">非 Go 语言客户端</a> 均生成于此，<a href="https://github.com/Arnavion/k8s-openapi">Arnavion/k8s-openapi</a> 使用用官方提供的 Specification 生成了 Rust 客户端。</li>
+<li>生成 API 文档，目前 <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/">官方 API 文档</a> 就生成自 OpenAPI Specification v2。</li>
+<li>支持客户端校验（如 <a href="https://github.com/yannh/kubeconform">yannh/kubeconform</a>, <a href="https://github.com/GoogleContainerTools/kpt">kpt</a></li>
+</ul>
+<h2 id="-implement-api-discovery">🔥 Implement API Discovery</h2>
+<p>API Discovery 实现只需在代码提前定义好字符串或者对象，程序运行时直接读内存响应即可</p>
+<p><a href="https://github.com/phosae/x-kubernetes/blob/a0aaa0ac9c3f7776f78127f48f1a969c84da389d/apiserver-from-scratch/main.go#L64-L160">/apis 实现</a> 如下</p>
+<p>省略 APIGroupDiscoveryList 变量 apidiscoveries</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">apis</span> <span class="p">=</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">APIGroupList</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">TypeMeta</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Kind</span><span class="p">:</span>       <span class="s">&#34;APIGroupList&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">APIVersion</span><span class="p">:</span> <span class="s">&#34;v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Groups</span><span class="p">:</span> <span class="p">[]</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">APIGroup</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">TypeMeta</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Kind</span><span class="p">:</span>       <span class="s">&#34;APIGroup&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">APIVersion</span><span class="p">:</span> <span class="s">&#34;v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;hello.zeng.dev&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Versions</span><span class="p">:</span> <span class="p">[]</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">GroupVersionForDiscovery</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="p">{</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">GroupVersion</span><span class="p">:</span> <span class="s">&#34;hello.zeng.dev/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">Version</span><span class="p">:</span>      <span class="s">&#34;v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">PreferredVersion</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">GroupVersionForDiscovery</span><span class="p">{</span><span class="nx">GroupVersion</span><span class="p">:</span> <span class="s">&#34;hello.zeng.dev/v1&#34;</span><span class="p">,</span> <span class="nx">Version</span><span class="p">:</span> <span class="s">&#34;v1&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">},</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">apidiscoveries</span> <span class="p">=</span> <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//@Router /apis [get]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">APIs</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">gvk</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">acceptPart</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;Accept&#34;</span><span class="p">),</span> <span class="s">&#34;;&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">g_v_k</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="nx">acceptPart</span><span class="p">,</span> <span class="s">&#34;=&#34;</span><span class="p">);</span> <span class="nb">len</span><span class="p">(</span><span class="nx">g_v_k</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">switch</span> <span class="nx">g_v_k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="s">&#34;g&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">gvk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">=</span> <span class="nx">g_v_k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="s">&#34;v&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">gvk</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">=</span> <span class="nx">g_v_k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">			<span class="k">case</span> <span class="s">&#34;as&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">gvk</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="p">=</span> <span class="nx">g_v_k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">gvk</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;apidiscovery.k8s.io&#34;</span> <span class="o">&amp;&amp;</span> <span class="nx">gvk</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;APIGroupDiscoveryList&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/json;g=apidiscovery.k8s.io;v=v2beta1;as=APIGroupDiscoveryList&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">w</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">apidiscoveries</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">renderJSON</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">apis</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a href="https://github.com/phosae/x-kubernetes/blob/a0aaa0ac9c3f7776f78127f48f1a969c84da389d/apiserver-from-scratch/main.go#LL169-L172">/apis/hello.zeng.dev 实现</a> 只需返回 /apis 数组中第一个对象即可</p>
+<p><a href="https://github.com/phosae/x-kubernetes/blob/a0aaa0ac9c3f7776f78127f48f1a969c84da389d/apiserver-from-scratch/main.go#L174-L212">/apis/hello.zeng.dev/v1 实现</a> 确实也可以采用 metav1.APIResourceList，直接使用字符串看这简洁些</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">hellov1Resources</span> <span class="p">=</span> <span class="s">`{
+</span></span></span><span class="line"><span class="cl"><span class="s">	&#34;kind&#34;: &#34;APIResourceList&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">	&#34;apiVersion&#34;: &#34;v1&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">	&#34;groupVersion&#34;: &#34;hello.zeng.dev/v1&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">	&#34;resources&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">	  {
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;name&#34;: &#34;foos&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;singularName&#34;: &#34;foo&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;namespaced&#34;: true,
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;kind&#34;: &#34;Foo&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;verbs&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;create&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;delete&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;get&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;list&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;update&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;patch&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">		],
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;shortNames&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;fo&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">		],
+</span></span></span><span class="line"><span class="cl"><span class="s">		&#34;categories&#34;: [
+</span></span></span><span class="line"><span class="cl"><span class="s">		  &#34;all&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">		]
+</span></span></span><span class="line"><span class="cl"><span class="s">	  }
+</span></span></span><span class="line"><span class="cl"><span class="s">	]}`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// @Router  /apis/hello.zeng.dev/v1 [get]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">APIGroupHelloV1Resources</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">_</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">w</span><span class="p">.</span><span class="nf">Write</span><span class="p">([]</span><span class="nb">byte</span><span class="p">(</span><span class="nx">hellov1Resources</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="-generate-openapi-specification">☸️ Generate OpenAPI Specification</h2>
+<p>定义好 Foo struct，引用官方库 <code>k8s.io/apimachinery</code> 添加
+<a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/#required-fields">Kubernetes objects 必须字段</a>
+apiVersion, kind 和 metadata。</p>
+<p>再创建函数声明 PostFoo 支持在任意 namespace 创建 Foo</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">  <span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Foo</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span>   <span class="s">`json:&#34;,inline&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span> <span class="s">`json:&#34;metadata,omitempty&#34;`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">Spec</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// Msg says hello world!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">Msg</span> <span class="kt">string</span> <span class="s">`json:&#34;msg&#34;`</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// Msg1 provides verbose information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">Msg1</span> <span class="kt">string</span> <span class="s">`json:&#34;msg1&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="s">`json:&#34;spec&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// PostFoo swag doc
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Summary      Create a Foo Object
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Description  Create a Foo Object
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Tags         foos
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Consume      json
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Produce      json
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Param        namespace	path	string  true  &#34;Namepsace&#34;
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Success      201  {object}  Foo
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Router       /apis/hello.zeng.dev/v1/namespaces/{namespace}/foos [post]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">PostFoo</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>注意到函数声明上头有不少注释，目的是使用 <a href="https://github.com/swaggo/swag">swaggo/swag</a> 从 Go 代码和注释生成 OpenAPI Specification v2（很可惜目前并不支持 v3）。
+生成结果如下（已转化为 Yaml，原 JSON 文件点 <a href="https://github.com/phosae/x-kubernetes/blob/a0aaa0ac9c3f7776f78127f48f1a969c84da389d/apiserver-from-scratch/docs/swagger.json">这里</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">swagger</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;2.0&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="s2">&#34;/apis/hello.zeng.dev/v1/namespaces/{namespace}/foos&#34;</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">post</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l">Create a Foo Object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">produces</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">application/json</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">foos</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="l">Create a Foo Object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">parameters</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l">Namepsace</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">namespace</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">in</span><span class="p">:</span><span class="w"> </span><span class="l">path</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">responses</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">&#39;201&#39;</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l">Created</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">schema</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">&#34;$ref&#34;: </span><span class="s2">&#34;#/definitions/main.Foo&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">definitions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">main.Foo</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">properties</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;...&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;...&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">&#34;$ref&#34;: </span><span class="s2">&#34;#/definitions/v1.ObjectMeta&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">object</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">properties</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">msg</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l">Msg says hello world!</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">msg1</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l">Msg1 provides some verbose information</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">v1.ObjectMeta</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>生成的 OpenAPI Specification 文件 swagger.json 存放在 docs 目录。
+Golang 支持在二进制程序内嵌静态文件，使用 embed.FS 内嵌 docs 目录。
+服务接收到 <code>GET /openapi/v2</code> 请求时，返回 OpenAPI Specification 内容即可。</p>
+<p>注意点：kubectl 可能只接受 Protobuf 格式，需要特别判断并做转换（利用 <a href="https://github.com/google/gnostic">google/gnostic</a>）。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;embed&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;net/http&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;strings&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">gnosticopenapiv2</span> <span class="s">&#34;github.com/google/gnostic/openapiv2&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;google.golang.org/protobuf/proto&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//go:embed docs/*
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">embedFS</span> <span class="nx">embed</span><span class="p">.</span><span class="nx">FS</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//@Router	/openapi/v2	[get]
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">OpenapiV2</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">jsonbytes</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">embedFS</span><span class="p">.</span><span class="nf">ReadFile</span><span class="p">(</span><span class="s">&#34;docs/swagger.json&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 😭 kubectl (v1.26.2, v1.27.1 ...) api discovery module (which fetch /openapi/v2, /openapi/v3)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">//    only accept application/com.github.proto-openapi.spec.v2@v1.0+protobuf
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">!</span><span class="nx">strings</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;Accept&#34;</span><span class="p">),</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;Accept&#34;</span><span class="p">),</span> <span class="s">&#34;protobuf&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/com.github.proto-openapi.spec.v2.v1.0+protobuf&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">pbbytes</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">ToProtoBinary</span><span class="p">(</span><span class="nx">jsonbytes</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">writeErrStatus</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">StatusInternalServerError</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">w</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">pbbytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 😄 kube apiserver aggregation module accept application/json
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">w</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">jsonbytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ToProtoBinary</span><span class="p">(</span><span class="nx">json</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">document</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">gnosticopenapiv2</span><span class="p">.</span><span class="nf">ParseDocument</span><span class="p">(</span><span class="nx">json</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">proto</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">document</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong><em>🪬🪬🪬:</em></strong>
+kube-apiserver 获取到 hello.zeng.dev-apiserver 提供的 OpenAPI Specification v2 后，
+会将其合并到 /openapi/v2，同时也会将其转换为 OpenAPI Specification v3 合并在 /openapi/v3</p>
+</blockquote>
+<h2 id="-crud-foo">🦀 CRUD Foo</h2>
+<p>定义好数据结构之后，我们利用内存 map 存储 Foo 对象们，并在程序初始化阶段自动写入一个名为 bar 的 Foo 对象。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">x</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">foos</span> <span class="p">=</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">Foo</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">foos</span><span class="p">[</span><span class="s">&#34;default/bar&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">Foo</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">TypeMeta</span><span class="p">:</span>   <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span><span class="nx">APIVersion</span><span class="p">:</span> <span class="s">&#34;hello.zeng.dev/v1&#34;</span><span class="p">,</span> <span class="nx">Kind</span><span class="p">:</span> <span class="s">&#34;Foo&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">ObjectMeta</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span><span class="nx">Namespace</span><span class="p">:</span> <span class="s">&#34;default&#34;</span><span class="p">,</span> <span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;bar&#34;</span><span class="p">,</span> <span class="nx">CreationTimestamp</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nf">Now</span><span class="p">()},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Spec</span><span class="p">:</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Msg</span>  <span class="kt">string</span> <span class="s">&#34;json:\&#34;msg\&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Msg1</span> <span class="kt">string</span> <span class="s">&#34;json:\&#34;msg1\&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Msg</span><span class="p">:</span>  <span class="s">&#34;hello world&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Msg1</span><span class="p">:</span> <span class="s">&#34;apiserver-from-scratch says &#39;👋 hello world 👋&#39;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>之后便是围绕存储增删改查并包装出 HTTP API，较复杂的是 Patch，它在 Kubernetes 中存在多种策略</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion: hello.zeng.dev/v1                               | apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">hello.zeng.dev/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind: Foo                                                   | kind</span><span class="p">:</span><span class="w"> </span><span class="l">Foo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata:                                                   | metadata</span><span class="p">:</span><span class="w">                                          
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name: bar                                                 |   name</span><span class="p">:</span><span class="w"> </span><span class="l">bar</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">                                                       </span><span class="nt">| spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">msg: hello world                                          |   msg</span><span class="p">:</span><span class="w"> </span><span class="l">hi there</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">msg1</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;apiserver-from-scratch says &#39;👋 hello world 👋&#39;&#34;</span><span class="w">    </span><span class="nt">|   msg1</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>左边 Foo 修改成右边，使用 kubectl 有这么几种方式</p>
+<p><strong>application/json-patch+json <a href="https://datatracker.ietf.org/doc/html/rfc6902">JSON Patch, RFC 6902</a></strong></p>
+<pre><code>kubectl patch fo/bar --type json -p='[
+	{&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/msg&quot;, &quot;value&quot;:&quot;hi there&quot;},
+	{&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/msg1&quot;, &quot;value&quot;:&quot;&quot;}]'
+</code></pre>
+<p><strong>application/merge-patch+json <a href="https://datatracker.ietf.org/doc/html/rfc7386">JSON Merge Patch, RFC 7386</a></strong></p>
+<pre><code>kubectl patch fo/bar --type merge -p='{&quot;spec&quot;: {&quot;msg&quot;: &quot;hi there&quot;, &quot;msg1&quot;: &quot;&quot;}}'
+
+or
+
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: hello.zeng.dev/v1
+kind: Foo
+metadata:  
+  name: bar
+spec:
+  msg: hi there
+  msg1: ''
+EOF
+</code></pre>
+<blockquote>
+<p><strong>👻👻👻</strong>
+kubectl apply 逻辑：目标不存在时，用 POST 创建；目标存在时，用 Patch 更新</p>
+</blockquote>
+<p><strong>application/strategic-merge-patch+json</strong></p>
+<pre><code>kubectl patch fo/bar --type strategic -p '{&quot;spec&quot;: {&quot;$retainKeys&quot;: [&quot;msg&quot;], &quot;msg&quot;:&quot;hi there&quot;}}'
+
+or
+
+kubectl patch fo/bar --type strategic -p '{&quot;spec&quot;: {&quot;msg&quot;:&quot;hi there&quot;, &quot;msg1&quot;: &quot;&quot;}}'
+</code></pre>
+<p><code>application/json-patch+json</code> 和 <code>application/merge-patch+json</code> 使用 <a href="https://github.com/evanphx/json-patch">evanphx/json-patch</a> 即可实现。</p>
+<p><code>application/strategic-merge-patch+json</code> 是 Kubernetes 定制的 patch 类型，为 JSON Merge Patch 增强版，也是 kubectl patch 使用的默认策略。上述例子中 <code>$retainKeys</code> 意思为只保留哪些字段，其余的删除，再执行 merge patch。处理数组时，只需提供变动 object，它就能对数组中单个元素执行更新，而无需提供整个数组。其语法相比较 JSON Patch 更为直观简略（使用 name 替代了数组索引）</p>
+<pre><code>source: [{&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 17}, {&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: 18}]
+⬇️ change Bob's age to 18 ⬇️ 
+target: [{&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 17}, {&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: 21}]
+
+strategic-merge-patch: [{&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: 21}]
+merge-patch: [{&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 17}, {&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: 21}]
+json-patch: [{ &quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/1/age&quot;, &quot;value&quot;: 21}]
+</code></pre>
+<p><code>application/strategic-merge-patch+json</code> 可借助库 <code>k8s.io/apimachinery/pkg/util/strategicpatch</code> 便捷实现</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// 省略部分依赖引入和错误处理...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">import</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">jsonpatch</span> <span class="s">&#34;github.com/evanphx/json-patch&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">kruntime</span> <span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">kstrategicpatch</span> <span class="s">&#34;k8s.io/apimachinery/pkg/util/strategicpatch&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">PatchFoo</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">,</span> <span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">patchBytes</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">ReadAll</span><span class="p">(</span><span class="nx">r</span><span class="p">.</span><span class="nx">Body</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">old</span> <span class="o">:=</span> <span class="nx">foos</span><span class="p">[</span><span class="nx">nsname</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">originalBytes</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">old</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">patchedFoo</span> <span class="p">[]</span><span class="kt">byte</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">switch</span> <span class="nx">r</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;Content-Type&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="s">&#34;application/merge-patch+json&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">patchedFoo</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">jsonpatch</span><span class="p">.</span><span class="nf">MergePatch</span><span class="p">(</span><span class="nx">originalBytes</span><span class="p">,</span> <span class="nx">patchBytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="s">&#34;application/json-patch+json&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">patch</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">jsonpatch</span><span class="p">.</span><span class="nf">DecodePatch</span><span class="p">(</span><span class="nx">patchBytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">patchedFoo</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">patch</span><span class="p">.</span><span class="nf">Apply</span><span class="p">(</span><span class="nx">originalBytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">case</span> <span class="s">&#34;application/strategic-merge-patch+json&#34;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">var</span> <span class="nx">patchMap</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">_</span> <span class="p">=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Unmarshal</span><span class="p">(</span><span class="nx">patchBytes</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">patchMap</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">var</span> <span class="nx">patchedObjMap</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">kstrategicpatch</span><span class="p">.</span><span class="nf">StrategicMergeMapPatch</span><span class="p">(</span><span class="nx">originalObjMap</span><span class="p">,</span> <span class="nx">patchMap</span><span class="p">,</span> <span class="nx">schema</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">var</span> <span class="nx">theFoo</span> <span class="nx">Foo</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">_</span> <span class="p">=</span> <span class="nx">kruntime</span><span class="p">.</span><span class="nx">DefaultUnstructuredConverter</span><span class="p">.</span><span class="nf">FromUnstructuredWithValidation</span><span class="p">(</span><span class="nx">patchedObjMap</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">theFoo</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">patchedFoo</span><span class="p">,</span> <span class="nx">_</span> <span class="p">=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">Marshal</span><span class="p">(</span><span class="nx">theFoo</span><span class="p">)</span>	
+</span></span><span class="line"><span class="cl">	<span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">w</span><span class="p">.</span><span class="nf">WriteHeader</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusUnsupportedMediaType</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">dec</span> <span class="o">:=</span> <span class="nx">json</span><span class="p">.</span><span class="nf">NewDecoder</span><span class="p">(</span><span class="nx">bytes</span><span class="p">.</span><span class="nf">NewReader</span><span class="p">(</span><span class="nx">patchedFoo</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">dec</span><span class="p">.</span><span class="nf">DisallowUnknownFields</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">f</span> <span class="nx">Foo</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">dec</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">f</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">foos</span><span class="p">[</span><span class="nx">nsname</span><span class="p">]</span> <span class="p">=</span> <span class="nx">f</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">renderJSON</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">f</span><span class="p">)</span> <span class="c1">// serialize new Foo as JSON, fill response body
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>HTTP GET 需要支持 Kubernetes Table 类似，对应
+<code>Accept: application/json;as=Table;v=v1;g=meta.k8s.io,application/json;as=Table;v=v1beta1;g=meta.k8s.io,application/json</code>。
+否则 kubectl get fo 只能能展示 NAME, AGE 列，而不能展示定制列。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">fooCol</span> <span class="p">=</span> <span class="p">[]</span><span class="nx">metav1</span><span class="p">.</span><span class="nx">TableColumnDefinition</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Name&#34;</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;string&#34;</span><span class="p">,</span> <span class="nx">Format</span><span class="p">:</span> <span class="s">&#34;name&#34;</span><span class="p">,</span> <span class="nx">Description</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{}.</span><span class="nf">SwaggerDoc</span><span class="p">()[</span><span class="s">&#34;name&#34;</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Age&#34;</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;string&#34;</span><span class="p">,</span> <span class="nx">Description</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{}.</span><span class="nf">SwaggerDoc</span><span class="p">()[</span><span class="s">&#34;creationTimestamp&#34;</span><span class="p">]},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Message&#34;</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;string&#34;</span><span class="p">,</span> <span class="nx">Format</span><span class="p">:</span> <span class="s">&#34;message&#34;</span><span class="p">,</span> <span class="nx">Description</span><span class="p">:</span> <span class="s">&#34;foo message&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Message1&#34;</span><span class="p">,</span> <span class="nx">Type</span><span class="p">:</span> <span class="s">&#34;string&#34;</span><span class="p">,</span> <span class="nx">Format</span><span class="p">:</span> <span class="s">&#34;message1&#34;</span><span class="p">,</span> <span class="nx">Description</span><span class="p">:</span> <span class="s">&#34;foo message plus&#34;</span><span class="p">,</span> <span class="nx">Priority</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="c1">// kubectl -o wide
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">tryConvert2Table</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">acceptedContentType</span> <span class="kt">string</span><span class="p">)</span> <span class="kd">interface</span><span class="p">{}</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nx">acceptedContentType</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nx">acceptedContentType</span><span class="p">,</span> <span class="s">&#34;as=Table&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">switch</span> <span class="nx">typedObj</span> <span class="o">:=</span> <span class="nx">obj</span><span class="p">.(</span><span class="kd">type</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">case</span> <span class="nx">Foo</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">Table</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">TypeMeta</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">Kind</span><span class="p">:</span>       <span class="s">&#34;Table&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">APIVersion</span><span class="p">:</span> <span class="s">&#34;meta.k8s.io/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="p">},</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">ColumnDefinitions</span><span class="p">:</span> <span class="nx">fooCol</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Rows</span><span class="p">:</span>              <span class="nf">foo2TableRow</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">typedObj</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">case</span> <span class="nx">FooList</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">Table</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">TypeMeta</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">Kind</span><span class="p">:</span>       <span class="s">&#34;Table&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">					<span class="nx">APIVersion</span><span class="p">:</span> <span class="s">&#34;meta.k8s.io/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="p">},</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">ColumnDefinitions</span><span class="p">:</span> <span class="nx">fooCol</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">				<span class="nx">Rows</span><span class="p">:</span>              <span class="nf">fooList2TableRows</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">typedObj</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="nx">obj</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">obj</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>最后，值得注意的是异常处理也要遵从 Kubernetes 规范，返回如下结构。实现上可以利用 <code>k8s.io/apimachinery</code> 包提供的结构</p>
+<pre><code>metav1 &quot;k8s.io/apimachinery/pkg/apis/meta/v1&quot;
+return metav1.Status{
+	TypeMeta: metav1.TypeMeta{APIVersion: &quot;v1&quot;, Kind: &quot;Status&quot;},
+	Status:   &quot;Failure&quot;,
+	Message:  &quot;foos 'x' not found&quot;,
+	Reason:   &quot;Not Found&quot;,
+	Details: &amp;metav1.StatusDetails{
+		Group: &quot;hello.zeng.dev&quot;,
+		Kind:  &quot;foos&quot;,
+		Name:  &quot;x&quot;
+	},
+	Code: 404
+}
+</code></pre>
+<p>也可以直接渲染 String Template 返回</p>
+<pre><code>var kstatusTmplate = `{
+	&quot;kind&quot;:&quot;Status&quot;,
+	&quot;apiVersion&quot;:&quot;v1&quot;,
+	&quot;metadata&quot;:{},
+	&quot;status&quot;:&quot;Failure&quot;,
+	&quot;message&quot;:&quot;%s&quot;,
+	&quot;reason&quot;:&quot;%s&quot;,
+	&quot;details&quot;:{&quot;group&quot;: &quot;hello.zeng.dev&quot;, &quot;kind&quot;:&quot;foos&quot;, &quot;name&quot;:&quot;%s&quot;},
+	&quot;code&quot;: %d
+}
+return fmt.Sprintf(kstatusTmplate, fmt.Sprintf(`foos '%s' not found`, &quot;x&quot;), http.StatusText(http.StatusNotFound), &quot;x&quot;, http.StatusNotFound)
+</code></pre>
+<p>其他部分，POST GET DELETE PUT 实现都较为简单，在这里可以查看 <a href="https://github.com/phosae/x-kubernetes/blob/c59960982df64efee4b166e040d8031203173963/apiserver-from-scratch/main.go">apiserver-from-scratch 源码</a>。</p>
+<h2 id="-lets-play">🎮 Let&rsquo;s play</h2>
+<p>拉取代码并设置环境</p>
+<pre><code>git clone https://github.com/phosae/x-kubernetes.git
+cd x-kubernetes
+</code></pre>
+<p>独立模式
+go run main.go</p>
+<img src="/img/2023/apiserver-scratch-play-standalone.gif" width="700px"/>
+<p>设置测试 K8s 集群</p>
+<pre><code>make localenv
+</code></pre>
+<img src="/img/2023/x-k8s-setup-localenv-1.27.1.gif" width="700px"/>
+<p>以 aggregation 模式集成到 kube-apiserver</p>
+<pre><code>cd apiserver-from-scratch
+make deploy
+</code></pre>
+<img src="/img/2023/apiserver-scratch-play-aggregation.gif" width="700px"/>
+<p>可注意到 APIService/v1.hello.zeng.dev 指向了 service/api-scratch，而 service/api-scratch 背后存在 Pod 提供 API 服务</p>
+<pre><code>kubectl get apiservices.apiregistration.k8s.io/v1.hello.zeng.dev -o wide
+NAME                SERVICE               AVAILABLE   AGE
+v1.hello.zeng.dev   default/api-scratch   True        5m
+
+kubectl get service/api-scratch 
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE	SELECTOR
+api-scratch   ClusterIP   10.108.222.11   &lt;none&gt;        443/TCP   5m	app=api-scratch
+
+kubectl get po -l app=api-scratch
+NAME                           READY   STATUS    RESTARTS   AGE
+api-scratch-7d5759d8cb-vmmpm   1/1     Running   0          5m
+</code></pre>
+<h2 id="-summarize">📝 Summarize</h2>
+<p>手写极简 apiserver 有助于我们真正理解</p>
+<ul>
+<li>K8s API REST 协议</li>
+<li>K8s apiserver aggregation 原理</li>
+<li>kubectl 与 apiserver 的交互机制</li>
+</ul>
+<p>它表明，只用少量社区依赖（K8s meta API 库和几个工具库），基于 Go 自带的 http 库，500 行上下代码量，就能实现一个 K8s 风格的 apiserver。</p>
+<pre><code>root@dev:~/x-kubernetes/apiserver-from-scratch# cat go.mod
+
+require (
+    github.com/evanphx/json-patch v4.12.0+incompatible
+    github.com/google/gnostic v0.5.7-v3refs
+    google.golang.org/protobuf v1.28.1
+    k8s.io/apimachinery v0.27.1
+) ...
+
+root@dev:~/x-kubernetes/apiserver-from-scratch# cloc main.go 
+	1 text file.
+	1 unique file.                              
+	0 files ignored.
+
+github.com/AlDanial/cloc v 1.90  T=0.02 s (45.4 files/s, 32245.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Go                               1             69            127            523
+-------------------------------------------------------------------------------
+</code></pre>
+<p>倘若不实现 API Discovery 和 OpenAPI Specification，2-300 行代码就够了。</p>
+<p>相对标准实现，初看这个 apiserver 目前还缺少这些特性</p>
+<ul>
+<li><input disabled="" type="checkbox"> authentication 和 authorization，不区分请求来源，接收任意客户端请求，且没有权限控制，任意用户都拥有增删改查权限</li>
+<li><input disabled="" type="checkbox"> watch，比如 <code>GET /apis/hello.zeng.dev/v1/watch/foos</code>，或者 <code>GET /apis/hello.zeng.dev/v1/foos?watch=true</code></li>
+<li><input disabled="" type="checkbox"> list 分页</li>
+<li><input disabled="" type="checkbox"> 数据持久</li>
+</ul>
+<blockquote>
+<p>🐝🐝🐝 如果请求路径是 request ➡️ kube-apiserver ➡️ hello.zeng.dev-apiserver，kube-apiserver 自身会对请求执行 authentication 和 authorization。但服务运行在集群中时，无法杜绝 request ➡️ hello.zeng.dev-apiserver（有时甚至有这种需求）。</p>
+</blockquote>
+<p>每实现一个特性，代码量都会增加，且极可能是成倍增加。倘若你想到了较为简洁的实现方式，可以给项目提 Pull Request (<a href="https://github.com/phosae/x-kubernetes/blob/c59960982df64efee4b166e040d8031203173963/apiserver-from-scratch/main.go">apiserver-from-scratch 源码</a>)。
+我后续倘若灵光一闪，也可能会补充若干实现。</p>
+<blockquote>
+<p>🦀🦀🦀 也许可以用 Rust 重写一遍</p>
+</blockquote>
+<p>也不是每一类 custom resource 都需要全部特性。如 <a href="https://github.com/kubernetes-sigs/metrics-server">metrics-server</a>，就不需要持久数据。</p>
+<p>这些额外特性，更好的方式是直接集成 K8s 库获得它们，比从头写便捷很多。本系列后续文章将展现这一点。</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-05-31 18:45
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/rest/">rest</a>
+          <a href="/tags/go/">go</a>
+          <a href="/tags/http/">http</a>
+          <a href="/tags/openapi/">openapi</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2023-k8s-apiserver-aggregation-internals/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">搞懂 K8s apiserver aggregation</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2023-k8s-api-by-crd/">
+            <span class="next-text nav-default">K8s CustomResourceDefinitions (CRD) 原理</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2023-05-26 07:43:51 \u002b0800 CST',
+        title: '实现一个极简 K8s apiserver',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-149382924-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

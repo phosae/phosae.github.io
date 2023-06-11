@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,7 +45,6 @@
 <meta property="og:url" content="https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-04-22T10:01:25+08:00" />
 <meta property="article:modified_time" content="2023-04-23T17:53:00+08:00" />
-
 <meta itemprop="name" content="Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin">
 <meta itemprop="description" content="Setting up a Kubernetes cluster with a newly deployed metrics server often results in the following error message: `Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs node=kind-worker`. This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD."><meta itemprop="datePublished" content="2023-04-22T10:01:25+08:00" />
 <meta itemprop="dateModified" content="2023-04-23T17:53:00+08:00" />
@@ -179,21 +178,21 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">cat <span class="s">&lt;&lt; EOF | kind create cluster --config -
-</span><span class="s">kind: Cluster
-</span><span class="s">apiVersion: kind.x-k8s.io/v1alpha4
-</span><span class="s">nodes:
-</span><span class="s">  - role: control-plane
-</span><span class="s">    image: kindest/node-amd64:v1.26.2
-</span><span class="s">  - role: worker
-</span><span class="s">    image: kindest/node-amd64:v1.26.2
-</span><span class="s">  - role: worker
-</span><span class="s">    image: kindest/node-amd64:v1.26.2
-</span><span class="s">networking:
-</span><span class="s">  podSubnet: &#34;10.244.0.0/16&#34;
-</span><span class="s">  serviceSubnet: &#34;10.96.0.0/12&#34;
-</span><span class="s">EOF</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cat <span class="s">&lt;&lt; EOF | kind create cluster --config -
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: Cluster
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: kind.x-k8s.io/v1alpha4
+</span></span></span><span class="line"><span class="cl"><span class="s">nodes:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - role: control-plane
+</span></span></span><span class="line"><span class="cl"><span class="s">    image: kindest/node:v1.26.2
+</span></span></span><span class="line"><span class="cl"><span class="s">  - role: worker
+</span></span></span><span class="line"><span class="cl"><span class="s">    image: kindest/node:v1.26.2
+</span></span></span><span class="line"><span class="cl"><span class="s">  - role: worker
+</span></span></span><span class="line"><span class="cl"><span class="s">    image: kindest/node:v1.26.2
+</span></span></span><span class="line"><span class="cl"><span class="s">networking:
+</span></span></span><span class="line"><span class="cl"><span class="s">  podSubnet: &#34;10.244.0.0/16&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">  serviceSubnet: &#34;10.96.0.0/12&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Deploy metrics server</p>
 <div class="highlight"><div class="chroma">
@@ -201,8 +200,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.3/components.yaml
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.3/components.yaml
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>and errors occour</p>
 <div class="highlight"><div class="chroma">
@@ -211,9 +210,9 @@
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">E0423 08:43:11.181966       1 scraper.go:140] &#34;Failed to scrape node&#34; err=&#34;Get \&#34;https://172.18.0.2:10250/metrics/resource\&#34;: x509: cannot validate certificate for 172.18.0.2 because it doesn&#39;t contain any IP SANs&#34; node=&#34;kind-worker&#34;
-E0423 08:43:11.193158       1 scraper.go:140] &#34;Failed to scrape node&#34; err=&#34;Get \&#34;https://172.18.0.3:10250/metrics/resource\&#34;: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs&#34; node=&#34;kind-worker2&#34;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">E0423 08:43:11.181966       1 scraper.go:140] &#34;Failed to scrape node&#34; err=&#34;Get \&#34;https://172.18.0.2:10250/metrics/resource\&#34;: x509: cannot validate certificate for 172.18.0.2 because it doesn&#39;t contain any IP SANs&#34; node=&#34;kind-worker&#34;
+</span></span><span class="line"><span class="cl">E0423 08:43:11.193158       1 scraper.go:140] &#34;Failed to scrape node&#34; err=&#34;Get \&#34;https://172.18.0.3:10250/metrics/resource\&#34;: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs&#34; node=&#34;kind-worker2&#34;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>The metrics server won&rsquo;t be ready</p>
 <div class="highlight"><div class="chroma">
@@ -227,14 +226,14 @@ E0423 08:43:11.193158       1 scraper.go:140] &#34;Failed to scrape node&#34; er
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># k -n kube-system get po -l k8s-app=metrics-server
-NAME                             READY   STATUS    RESTARTS   AGE
-metrics-server-6757d65f8-dk94t   0/1     Running   0          4m33s
-# k top no
-Error from server (ServiceUnavailable): the server is currently unable to handle the request (get nodes.metrics.k8s.io)
-# k top po
-Error from server (ServiceUnavailable): the server is currently unable to handle the request (get pods.metrics.k8s.io)
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># k -n kube-system get po -l k8s-app=metrics-server
+</span></span><span class="line"><span class="cl">NAME                             READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">metrics-server-6757d65f8-dk94t   0/1     Running   0          4m33s
+</span></span><span class="line"><span class="cl"># k top no
+</span></span><span class="line"><span class="cl">Error from server (ServiceUnavailable): the server is currently unable to handle the request (get nodes.metrics.k8s.io)
+</span></span><span class="line"><span class="cl"># k top po
+</span></span><span class="line"><span class="cl">Error from server (ServiceUnavailable): the server is currently unable to handle the request (get pods.metrics.k8s.io)
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="temporarily-solution">Temporarily Solution</h2>
 <p>It can be solved by adding args <code>--kubelet-insecure-tls</code>, but is not a ideal solution</p>
@@ -260,25 +259,25 @@ Error from server (ServiceUnavailable): the server is currently unable to handle
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: metrics-server
-  namespace: kube-system
-<span class="c1"># ......</span>
-spec:
-  template:
-    spec:
-      containers:
-      - args:
-        - --cert-dir<span class="o">=</span>/tmp
-        - --secure-port<span class="o">=</span><span class="m">4443</span>
-        - --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname
-        - --kubelet-use-node-status-port
-        - --metric-resolution<span class="o">=</span>15s
-        -- --kubelet-insecure-tls <span class="c1">## append this arg</span>
-        image: zengxu/metrics-server:v0.6.3
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">apiVersion: apps/v1
+</span></span><span class="line"><span class="cl">kind: Deployment
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: metrics-server
+</span></span><span class="line"><span class="cl">  namespace: kube-system
+</span></span><span class="line"><span class="cl"><span class="c1"># ......</span>
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  template:
+</span></span><span class="line"><span class="cl">    spec:
+</span></span><span class="line"><span class="cl">      containers:
+</span></span><span class="line"><span class="cl">      - args:
+</span></span><span class="line"><span class="cl">        - --cert-dir<span class="o">=</span>/tmp
+</span></span><span class="line"><span class="cl">        - --secure-port<span class="o">=</span><span class="m">4443</span>
+</span></span><span class="line"><span class="cl">        - --kubelet-preferred-address-types<span class="o">=</span>InternalIP,ExternalIP,Hostname
+</span></span><span class="line"><span class="cl">        - --kubelet-use-node-status-port
+</span></span><span class="line"><span class="cl">        - --metric-resolution<span class="o">=</span>15s
+</span></span><span class="line"><span class="cl">        -- --kubelet-insecure-tls <span class="c1">## append this arg</span>
+</span></span><span class="line"><span class="cl">        image: zengxu/metrics-server:v0.6.3
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>It goes Ready.</p>
 <div class="highlight"><div class="chroma">
@@ -295,17 +294,17 @@ spec:
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># 
-# k -n kube-system get po -l k8s-app=metrics-server
-NAME                              READY   STATUS    RESTARTS   AGE
-metrics-server-7499c765d9-bw8rv   1/1     Running   0          103s
-
-# k  top no
-NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
-kind-control-plane   191m         1%     582Mi           0%
-kind-worker          43m          0%     145Mi           0%
-kind-worker2         30m          0%     126Mi           0%
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># 
+</span></span><span class="line"><span class="cl"># k -n kube-system get po -l k8s-app=metrics-server
+</span></span><span class="line"><span class="cl">NAME                              READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">metrics-server-7499c765d9-bw8rv   1/1     Running   0          103s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># k  top no
+</span></span><span class="line"><span class="cl">NAME                 CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%
+</span></span><span class="line"><span class="cl">kind-control-plane   191m         1%     582Mi           0%
+</span></span><span class="line"><span class="cl">kind-worker          43m          0%     145Mi           0%
+</span></span><span class="line"><span class="cl">kind-worker2         30m          0%     126Mi           0%
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="ideal-solution">Ideal Solution</h2>
 <img src="/img/2023/kubelet-serving-cert-kubeadm-solution.gif" width="700px"/>
@@ -331,25 +330,25 @@ kind-worker2         30m          0%     126Mi           0%
 </span><span class="lnt">18
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">cat <span class="s">&lt;&lt; EOF | kind create cluster --config -
-</span><span class="s">kind: Cluster
-</span><span class="s">apiVersion: kind.x-k8s.io/v1alpha4
-</span><span class="s">nodes:
-</span><span class="s">  - role: control-plane
-</span><span class="s">    image: kindest/node-amd64:v1.26.2
-</span><span class="s">    kubeadmConfigPatches:         # -----+
-</span><span class="s">    - |                           #      |   (setup cluster with
-</span><span class="s">      kind: KubeletConfiguration  #      |    patches)
-</span><span class="s">      serverTLSBootstrap: true    # -----+
-</span><span class="s">  - role: worker
-</span><span class="s">    image: kindest/node-amd64:v1.26.2
-</span><span class="s">  - role: worker
-</span><span class="s">    image: kindest/node-amd64:v1.26.2
-</span><span class="s">networking:
-</span><span class="s">  podSubnet: &#34;10.244.0.0/16&#34;
-</span><span class="s">  serviceSubnet: &#34;10.96.0.0/12&#34;
-</span><span class="s">EOF</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cat <span class="s">&lt;&lt; EOF | kind create cluster --config -
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: Cluster
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: kind.x-k8s.io/v1alpha4
+</span></span></span><span class="line"><span class="cl"><span class="s">nodes:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - role: control-plane
+</span></span></span><span class="line"><span class="cl"><span class="s">    image: kindest/node-amd64:v1.26.2
+</span></span></span><span class="line"><span class="cl"><span class="s">    kubeadmConfigPatches:         # -----+
+</span></span></span><span class="line"><span class="cl"><span class="s">    - |                           #      |   (setup cluster with
+</span></span></span><span class="line"><span class="cl"><span class="s">      kind: KubeletConfiguration  #      |    patches)
+</span></span></span><span class="line"><span class="cl"><span class="s">      serverTLSBootstrap: true    # -----+
+</span></span></span><span class="line"><span class="cl"><span class="s">  - role: worker
+</span></span></span><span class="line"><span class="cl"><span class="s">    image: kindest/node-amd64:v1.26.2
+</span></span></span><span class="line"><span class="cl"><span class="s">  - role: worker
+</span></span></span><span class="line"><span class="cl"><span class="s">    image: kindest/node-amd64:v1.26.2
+</span></span></span><span class="line"><span class="cl"><span class="s">networking:
+</span></span></span><span class="line"><span class="cl"><span class="s">  podSubnet: &#34;10.244.0.0/16&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">  serviceSubnet: &#34;10.96.0.0/12&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>When it comes ready, apply metrics-server manifests</p>
 <div class="highlight"><div class="chroma">
@@ -357,8 +356,8 @@ kind-worker2         30m          0%     126Mi           0%
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.3/components.yaml
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.3/components.yaml
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Errors throw when connected to kubectl</p>
 <div class="highlight"><div class="chroma">
@@ -367,9 +366,9 @@ kind-worker2         30m          0%     126Mi           0%
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># k -n kube-system logs metrics-server-6757d65f8-tfwb5</span>
-Error from server: Get <span class="s2">&#34;https://172.18.0.3:10250/containerLogs/kube-system/metrics-server-6757d65f8-tfwb5/metrics-server&#34;</span>: remote error: tls: internal error
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># k -n kube-system logs metrics-server-6757d65f8-tfwb5</span>
+</span></span><span class="line"><span class="cl">Error from server: Get <span class="s2">&#34;https://172.18.0.3:10250/containerLogs/kube-system/metrics-server-6757d65f8-tfwb5/metrics-server&#34;</span>: remote error: tls: internal error
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Because Kubelet&rsquo;s certificate requests aren&rsquo;t approved.</p>
 <div class="highlight"><div class="chroma">
@@ -384,15 +383,15 @@ Error from server: Get <span class="s2">&#34;https://172.18.0.3:10250/containerL
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># k -n kube-system get csr</span>
-NAME        AGE   SIGNERNAME                                    REQUESTOR                        REQUESTEDDURATION   CONDITION
-csr-brvcz   85s   kubernetes.io/kubelet-serving                 system:node:kind-control-plane   &lt;none&gt;              Pending
-csr-c24zs   91s   kubernetes.io/kubelet-serving                 system:node:kind-control-plane   &lt;none&gt;              Pending
-csr-k4ggc   67s   kubernetes.io/kube-apiserver-client-kubelet   system:bootstrap:abcdef          &lt;none&gt;              Approved,Issued
-csr-pbbxh   65s   kubernetes.io/kubelet-serving                 system:node:kind-worker2         &lt;none&gt;              Pending
-csr-r8gk7   67s   kubernetes.io/kube-apiserver-client-kubelet   system:bootstrap:abcdef          &lt;none&gt;              Approved,Issued
-csr-srh22   65s   kubernetes.io/kubelet-serving                 system:node:kind-worker          &lt;none&gt;              Pending
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># k -n kube-system get csr</span>
+</span></span><span class="line"><span class="cl">NAME        AGE   SIGNERNAME                                    REQUESTOR                        REQUESTEDDURATION   CONDITION
+</span></span><span class="line"><span class="cl">csr-brvcz   85s   kubernetes.io/kubelet-serving                 system:node:kind-control-plane   &lt;none&gt;              Pending
+</span></span><span class="line"><span class="cl">csr-c24zs   91s   kubernetes.io/kubelet-serving                 system:node:kind-control-plane   &lt;none&gt;              Pending
+</span></span><span class="line"><span class="cl">csr-k4ggc   67s   kubernetes.io/kube-apiserver-client-kubelet   system:bootstrap:abcdef          &lt;none&gt;              Approved,Issued
+</span></span><span class="line"><span class="cl">csr-pbbxh   65s   kubernetes.io/kubelet-serving                 system:node:kind-worker2         &lt;none&gt;              Pending
+</span></span><span class="line"><span class="cl">csr-r8gk7   67s   kubernetes.io/kube-apiserver-client-kubelet   system:bootstrap:abcdef          &lt;none&gt;              Approved,Issued
+</span></span><span class="line"><span class="cl">csr-srh22   65s   kubernetes.io/kubelet-serving                 system:node:kind-worker          &lt;none&gt;              Pending
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Approve kubelet certificate requests</p>
 <div class="highlight"><div class="chroma">
@@ -400,8 +399,8 @@ csr-srh22   65s   kubernetes.io/kubelet-serving                 system:node:kind
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="k">for</span> kubeletcsr in <span class="sb">`</span>kubectl -n kube-system get csr <span class="p">|</span> grep kubernetes.io/kubelet-serving <span class="p">|</span> awk <span class="s1">&#39;{ print $1 }&#39;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span> kubectl certificate approve <span class="nv">$kubeletcsr</span><span class="p">;</span> <span class="k">done</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="k">for</span> kubeletcsr in <span class="sb">`</span>kubectl -n kube-system get csr <span class="p">|</span> grep kubernetes.io/kubelet-serving <span class="p">|</span> awk <span class="s1">&#39;{ print $1 }&#39;</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span> kubectl certificate approve <span class="nv">$kubeletcsr</span><span class="p">;</span> <span class="k">done</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Everything works as expected</p>
 <div class="highlight"><div class="chroma">
@@ -433,32 +432,32 @@ csr-srh22   65s   kubernetes.io/kubelet-serving                 system:node:kind
 </span><span class="lnt">25
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># k -n kube-system get po -l k8s-app=metrics-server</span>
-NAME                             READY   STATUS    RESTARTS   AGE
-metrics-server-6757d65f8-tfwb5   1/1     Running   <span class="m">0</span>          3m42s
-
-<span class="c1"># k -n kube-system top po</span>
-NAME                                         CPU<span class="o">(</span>cores<span class="o">)</span>   MEMORY<span class="o">(</span>bytes<span class="o">)</span>
-coredns-787d4945fb-2dwn9                     4m           13Mi
-coredns-787d4945fb-cl288                     2m           12Mi
-etcd-kind-control-plane                      34m          30Mi
-kindnet-hql7g                                1m           8Mi
-kindnet-jdxl6                                1m           7Mi
-kindnet-xrdkl                                1m           8Mi
-kube-apiserver-kind-control-plane            67m          263Mi
-kube-controller-manager-kind-control-plane   26m          43Mi
-kube-proxy-4fc8z                             1m           11Mi
-kube-proxy-hpckv                             2m           11Mi
-kube-proxy-t275x                             2m           11Mi
-kube-scheduler-kind-control-plane            6m           18Mi
-metrics-server-6757d65f8-tfwb5               5m           15Mi
-
-<span class="c1"># k  top no</span>
-NAME                 CPU<span class="o">(</span>cores<span class="o">)</span>   CPU%   MEMORY<span class="o">(</span>bytes<span class="o">)</span>   MEMORY%
-kind-control-plane   164m         1%     577Mi           0%
-kind-worker          33m          0%     147Mi           0%
-kind-worker2         24m          0%     119Mi           0%
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># k -n kube-system get po -l k8s-app=metrics-server</span>
+</span></span><span class="line"><span class="cl">NAME                             READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">metrics-server-6757d65f8-tfwb5   1/1     Running   <span class="m">0</span>          3m42s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># k -n kube-system top po</span>
+</span></span><span class="line"><span class="cl">NAME                                         CPU<span class="o">(</span>cores<span class="o">)</span>   MEMORY<span class="o">(</span>bytes<span class="o">)</span>
+</span></span><span class="line"><span class="cl">coredns-787d4945fb-2dwn9                     4m           13Mi
+</span></span><span class="line"><span class="cl">coredns-787d4945fb-cl288                     2m           12Mi
+</span></span><span class="line"><span class="cl">etcd-kind-control-plane                      34m          30Mi
+</span></span><span class="line"><span class="cl">kindnet-hql7g                                1m           8Mi
+</span></span><span class="line"><span class="cl">kindnet-jdxl6                                1m           7Mi
+</span></span><span class="line"><span class="cl">kindnet-xrdkl                                1m           8Mi
+</span></span><span class="line"><span class="cl">kube-apiserver-kind-control-plane            67m          263Mi
+</span></span><span class="line"><span class="cl">kube-controller-manager-kind-control-plane   26m          43Mi
+</span></span><span class="line"><span class="cl">kube-proxy-4fc8z                             1m           11Mi
+</span></span><span class="line"><span class="cl">kube-proxy-hpckv                             2m           11Mi
+</span></span><span class="line"><span class="cl">kube-proxy-t275x                             2m           11Mi
+</span></span><span class="line"><span class="cl">kube-scheduler-kind-control-plane            6m           18Mi
+</span></span><span class="line"><span class="cl">metrics-server-6757d65f8-tfwb5               5m           15Mi
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># k  top no</span>
+</span></span><span class="line"><span class="cl">NAME                 CPU<span class="o">(</span>cores<span class="o">)</span>   CPU%   MEMORY<span class="o">(</span>bytes<span class="o">)</span>   MEMORY%
+</span></span><span class="line"><span class="cl">kind-control-plane   164m         1%     577Mi           0%
+</span></span><span class="line"><span class="cl">kind-worker          33m          0%     147Mi           0%
+</span></span><span class="line"><span class="cl">kind-worker2         24m          0%     119Mi           0%
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>
@@ -488,7 +487,11 @@ kind-worker2         24m          0%     119Mi           0%
           <a href="/tags/metrics-server/">metrics-server</a>
           </div>
       <nav class="post-nav">
-        
+        <a class="prev" href="/post/2023-k8s-api-by-crd/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">K8s CustomResourceDefinitions (CRD) 原理</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
         <a class="next" href="/post/2023-rest-part2-cache/">
             <span class="next-text nav-default">REST: Part 2 - HTTP 缓存</span>
             <span class="next-text nav-mobile">Next</span>
@@ -563,7 +566,7 @@ kind-worker2         24m          0%     119Mi           0%
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -576,6 +579,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

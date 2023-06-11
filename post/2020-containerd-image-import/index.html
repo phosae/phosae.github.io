@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2020-containerd-image-import/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,7 +45,6 @@
 <meta property="og:url" content="https://www.zeng.dev/post/2020-containerd-image-import/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-01-05T21:40:48+08:00" />
 <meta property="article:modified_time" content="2020-01-06T10:02:48+08:00" />
-
 <meta itemprop="name" content="containerd 手动导入镜像">
 <meta itemprop="description" content="注意 containerd namespace 概念"><meta itemprop="datePublished" content="2020-01-05T21:40:48+08:00" />
 <meta itemprop="dateModified" content="2020-01-06T10:02:48+08:00" />
@@ -147,9 +146,9 @@
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">docker pull mirrorgooglecontainers/pause:3.1
-docker tag mirrorgooglecontainers/pause:3.1 k8s.gcr.io/pause:3.1
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">docker pull mirrorgooglecontainers/pause:3.1
+</span></span><span class="line"><span class="cl">docker tag mirrorgooglecontainers/pause:3.1 k8s.gcr.io/pause:3.1
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>我在 k8s 集群中尝试使用 containerd 作为 CRI，发现镜像下载和导入与 docker 存在一些区别，大致如下：</p>
 <ul>
@@ -163,9 +162,9 @@ docker tag mirrorgooglecontainers/pause:3.1 k8s.gcr.io/pause:3.1
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">docker save k8s.gcr.io/pause -o pause.tar
-ctr -n &lt;namespace&gt; images import pause.tar
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">docker save k8s.gcr.io/pause -o pause.tar
+</span></span><span class="line"><span class="cl">ctr -n &lt;namespace&gt; images import pause.tar
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>刚开始导入时，没有指定 namespace，pause 导入在 default 空间，整晚上创建 Pod 均处于如下状态，心态一度爆炸</p>
 <div class="highlight"><div class="chroma">
@@ -177,12 +176,12 @@ ctr -n &lt;namespace&gt; images import pause.tar
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">Warning  FailedCreatePodSandBox  9s         kubelet, worker-2  Failed to create pod sandbox: rpc error: 
-code = Unknown desc = failed to get sandbox image &#34;k8s.gcr.io/pause:3.1&#34;: failed to pull image &#34;k8s.gcr.
-io/pause:3.1&#34;: failed to pull and unpack image &#34;k8s.gcr.io/pause:3.1&#34;: failed to resolve reference &#34;k8s.
-gcr.io/pause:3.1&#34;: failed to do request: Head https://k8s.gcr.io/v2/pause/manifests/3.1: dial tcp 108.
-177.97.82:443: i/o timeout
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Warning  FailedCreatePodSandBox  9s         kubelet, worker-2  Failed to create pod sandbox: rpc error: 
+</span></span><span class="line"><span class="cl">code = Unknown desc = failed to get sandbox image &#34;k8s.gcr.io/pause:3.1&#34;: failed to pull image &#34;k8s.gcr.
+</span></span><span class="line"><span class="cl">io/pause:3.1&#34;: failed to pull and unpack image &#34;k8s.gcr.io/pause:3.1&#34;: failed to resolve reference &#34;k8s.
+</span></span><span class="line"><span class="cl">gcr.io/pause:3.1&#34;: failed to do request: Head https://k8s.gcr.io/v2/pause/manifests/3.1: dial tcp 108.
+</span></span><span class="line"><span class="cl">177.97.82:443: i/o timeout
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>仔细看文档发现有 namespace 这回事时，才恍然大悟 k8s 只会使用 k8s.io namespace 中镜像。于是再往 k8s.io 导入镜像，containerd worker 终于能正常被调度了</p>
 <div class="highlight"><div class="chroma">
@@ -195,13 +194,13 @@ gcr.io/pause:3.1&#34;: failed to do request: Head https://k8s.gcr.io/v2/pause/ma
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">$ ctr namespace ls
-NAME    LABELS
-default
-k8s.io
-
-$ ctr -n k8s.io images import pause.tar
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">$ ctr namespace ls
+</span></span><span class="line"><span class="cl">NAME    LABELS
+</span></span><span class="line"><span class="cl">default
+</span></span><span class="line"><span class="cl">k8s.io
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ ctr -n k8s.io images import pause.tar
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>
@@ -287,7 +286,7 @@ $ ctr -n k8s.io images import pause.tar
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -300,6 +299,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

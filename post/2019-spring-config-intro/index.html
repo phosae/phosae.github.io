@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2019-spring-config-intro/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,11 +45,10 @@
 <meta property="og:url" content="https://www.zeng.dev/post/2019-spring-config-intro/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-06-03T23:56:06+08:00" />
 <meta property="article:modified_time" content="2019-06-07T23:56:06+08:00" />
-
 <meta itemprop="name" content="Spring Boot 配置探幽">
 <meta itemprop="description" content="介绍 SpringBoot YAML 和 properties 的对应关系，以及@ConfigurationProperties 和 @Value 的差异"><meta itemprop="datePublished" content="2019-06-03T23:56:06+08:00" />
 <meta itemprop="dateModified" content="2019-06-07T23:56:06+08:00" />
-<meta itemprop="wordCount" content="2681">
+<meta itemprop="wordCount" content="2688">
 <meta itemprop="keywords" content="spring,spring boot," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Spring Boot 配置探幽"/>
 <meta name="twitter:description" content="介绍 SpringBoot YAML 和 properties 的对应关系，以及@ConfigurationProperties 和 @Value 的差异"/>
@@ -187,14 +186,14 @@ three basic primitives: mappings (hashes/dictionaries), sequences (arrays/lists)
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># yaml
-spring:
-  yaml:
-    property: value
----    
-# properties 
-spring.yaml.property = value
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># yaml
+</span></span><span class="line"><span class="cl">spring:
+</span></span><span class="line"><span class="cl">  yaml:
+</span></span><span class="line"><span class="cl">    property: value
+</span></span><span class="line"><span class="cl">---    
+</span></span><span class="line"><span class="cl"># properties 
+</span></span><span class="line"><span class="cl">spring.yaml.property = value
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="序列sequence对应关系">序列（sequence）对应关系</h3>
 <hr>
@@ -218,21 +217,21 @@ spring.yaml.property = value
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"># yaml 风格
-sequenceOne: [&#34;a&#34;,&#34;b&#34;,&#34;c&#34;]
-
-sequenceTwo:
-  - 1
-  - 2
----
-# properties 风格
-sequenceOne[0]=a
-sequenceOne[1]=b
-sequenceOne[2]=c
-
-sequenceTwo[0]=1
-sequenceTwo[1]=2
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># yaml 风格
+</span></span><span class="line"><span class="cl">sequenceOne: [&#34;a&#34;,&#34;b&#34;,&#34;c&#34;]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sequenceTwo:
+</span></span><span class="line"><span class="cl">  - 1
+</span></span><span class="line"><span class="cl">  - 2
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># properties 风格
+</span></span><span class="line"><span class="cl">sequenceOne[0]=a
+</span></span><span class="line"><span class="cl">sequenceOne[1]=b
+</span></span><span class="line"><span class="cl">sequenceOne[2]=c
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sequenceTwo[0]=1
+</span></span><span class="line"><span class="cl">sequenceTwo[1]=2
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="映射mapping对应关系">映射（mapping）对应关系</h3>
 <hr>
@@ -260,23 +259,23 @@ sequenceTwo[1]=2
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">Map&lt;String, String&gt; map;
-Map&lt;String, Map&lt;String, String&gt;&gt; mapInMap;
----
-# yaml 风格
-map:
-  key1: value1
-  key2: value2
-  mapInMap:
-    key3: value3
-    key4: value4
----
-# properties 风格
-map.key1=value1
-map.key2=value2
-map.mapInMap.key3=value3
-map.mapInMap.key4=value4
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Map&lt;String, String&gt; map;
+</span></span><span class="line"><span class="cl">Map&lt;String, Map&lt;String, String&gt;&gt; mapInMap;
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># yaml 风格
+</span></span><span class="line"><span class="cl">map:
+</span></span><span class="line"><span class="cl">  key1: value1
+</span></span><span class="line"><span class="cl">  key2: value2
+</span></span><span class="line"><span class="cl">  mapInMap:
+</span></span><span class="line"><span class="cl">    key3: value3
+</span></span><span class="line"><span class="cl">    key4: value4
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># properties 风格
+</span></span><span class="line"><span class="cl">map.key1=value1
+</span></span><span class="line"><span class="cl">map.key2=value2
+</span></span><span class="line"><span class="cl">map.mapInMap.key3=value3
+</span></span><span class="line"><span class="cl">map.mapInMap.key4=value4
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li>POJO</li>
@@ -308,30 +307,30 @@ map.mapInMap.key4=value4
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">class POJO {
-  String name;
-  String desc;
-}
----
-# yaml
-pojo:
-  name: name
-  desc: desc
-pojoList:
-  - name: aa
-    desc: desca
-  - name: bb
-    desc: descb
----
-# properties
-pojo.name=name
-pojo.desc=desc
-
-pojoList[0].name=aa
-pojoList[0].desc=desca
-pojoList[1].name=bb
-pojoList[1].desc=descb
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">class POJO {
+</span></span><span class="line"><span class="cl">  String name;
+</span></span><span class="line"><span class="cl">  String desc;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># yaml
+</span></span><span class="line"><span class="cl">pojo:
+</span></span><span class="line"><span class="cl">  name: name
+</span></span><span class="line"><span class="cl">  desc: desc
+</span></span><span class="line"><span class="cl">pojoList:
+</span></span><span class="line"><span class="cl">  - name: aa
+</span></span><span class="line"><span class="cl">    desc: desca
+</span></span><span class="line"><span class="cl">  - name: bb
+</span></span><span class="line"><span class="cl">    desc: descb
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># properties
+</span></span><span class="line"><span class="cl">pojo.name=name
+</span></span><span class="line"><span class="cl">pojo.desc=desc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pojoList[0].name=aa
+</span></span><span class="line"><span class="cl">pojoList[0].desc=desca
+</span></span><span class="line"><span class="cl">pojoList[1].name=bb
+</span></span><span class="line"><span class="cl">pojoList[1].desc=descb
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="对应关系不存在的情况">对应关系不存在的情况</h3>
 <hr>
@@ -349,15 +348,15 @@ pojoList[1].desc=descb
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">logging.level.com.example=warn</span><span class="w">
-</span><span class="w"></span><span class="l">logging.level.com.expamle.HelloController=error</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="c">#logging:</span><span class="w">
-</span><span class="w"></span><span class="c">#  level:</span><span class="w">
-</span><span class="w"></span><span class="c">#    com:</span><span class="w">
-</span><span class="w"></span><span class="c">#      example: info</span><span class="w">
-</span><span class="w"></span><span class="c">#        HelloController: warn</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">logging.level.com.example=warn</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">logging.level.com.expamle.HelloController=error</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#logging:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#  level:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#    com:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#      example: info</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c">#        HelloController: warn</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="configurationproperties-和-value-差异">@ConfigurationProperties 和 @Value 差异</h2>
 <p>在 Spring Boot 中，通过在 JavaBean 类 @ConfigurationProperties 注解或者在类字段上添加 @Value 注解或者的方式，我们可以将配置在运行时加载到目标对象。</p>
@@ -406,13 +405,13 @@ pojoList[1].desc=descb
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;
-    &lt;version&gt;2.0.4.RELEASE&lt;/version&gt;
-    &lt;optional&gt;true&lt;/optional&gt;
-&lt;/dependency&gt;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">&lt;dependency&gt;
+</span></span><span class="line"><span class="cl">    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+</span></span><span class="line"><span class="cl">    &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;
+</span></span><span class="line"><span class="cl">    &lt;version&gt;2.0.4.RELEASE&lt;/version&gt;
+</span></span><span class="line"><span class="cl">    &lt;optional&gt;true&lt;/optional&gt;
+</span></span><span class="line"><span class="cl">&lt;/dependency&gt;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>JSON meta 的最大作用是供 IDE 提供交互，比如在 IDEA 中，你可以直接从配置文件跳转到对应 JavaBean 类。</p>
 <p><code>SpEL 表达式</code> 特性则意味着应用初始化时，Spring 框架将对应配置作为 String 参数运行 <code>#{${...}}</code> 声明的表达式进行，最终运算结果会被绑定到对象字段。</p>
@@ -435,19 +434,19 @@ pojoList[1].desc=descb
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">value:
-  maxValue: 0x7FFFFFFF # parse max value 2147483647
-  nullValue: null # parse to String &#34;&#34;, Integer null
-  trueValue: true # parse to true
-  trueCmp: 2==2 # parse to true
-  s_byte: 9 #...
-  s_char: 8 #...
-  s_double: 5.3 #...
-  s_float: 2.1 #...
-  s_int: 5 #...
-  s_long: 3 #...
-  s_short: 2 #...
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">value:
+</span></span><span class="line"><span class="cl">  maxValue: 0x7FFFFFFF # parse max value 2147483647
+</span></span><span class="line"><span class="cl">  nullValue: null # parse to String &#34;&#34;, Integer null
+</span></span><span class="line"><span class="cl">  trueValue: true # parse to true
+</span></span><span class="line"><span class="cl">  trueCmp: 2==2 # parse to true
+</span></span><span class="line"><span class="cl">  s_byte: 9 #...
+</span></span><span class="line"><span class="cl">  s_char: 8 #...
+</span></span><span class="line"><span class="cl">  s_double: 5.3 #...
+</span></span><span class="line"><span class="cl">  s_float: 2.1 #...
+</span></span><span class="line"><span class="cl">  s_int: 5 #...
+</span></span><span class="line"><span class="cl">  s_long: 3 #...
+</span></span><span class="line"><span class="cl">  s_short: 2 #...
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="序列绑定">序列绑定</h3>
 <p>对于序列类，@ConfigurationProperties 可以绑定到 Collection, List, Set 和 Array。</p>
@@ -495,44 +494,44 @@ pojoList[1].desc=descb
 </span><span class="lnt">37
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nl">sequence:</span>
-  <span class="n">strs</span><span class="o">:</span> <span class="o">[</span><span class="s">&#34;a&#34;</span><span class="o">,</span><span class="s">&#34;b&#34;</span><span class="o">,</span><span class="s">&#34;c&#34;</span><span class="o">]</span>
-<span class="o">---</span>
-<span class="n">properties</span><span class="o">.</span><span class="na">strs</span> <span class="o">=</span> <span class="n">a</span><span class="o">,</span><span class="n">b</span><span class="o">,</span><span class="n">c</span>
-<span class="o">---</span>
-<span class="c1">// @ConfigurationProperties 绑定声明
-</span><span class="c1"></span><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span><span class="o">=</span><span class="s">&#34;sequence&#34;</span><span class="o">)</span>
-<span class="nd">@Data</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SequenceBean</span> <span class="o">{</span>
-    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strs</span><span class="o">;</span>
-    <span class="c1">// 或者
-</span><span class="c1"></span>    <span class="c1">// private Set&lt;String&gt; strs；
-</span><span class="c1"></span>    <span class="c1">// 或者
-</span><span class="c1"></span>    <span class="c1">// private Collection&lt;String&gt; strs；
-</span><span class="c1"></span>    <span class="c1">// 或者
-</span><span class="c1"></span>    <span class="c1">// private String[] strs;
-</span><span class="c1"></span><span class="o">}</span>
-<span class="o">---</span>
-<span class="c1">// @Value 绑定声明
-</span><span class="c1"></span><span class="nd">@Component</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SequenceClzz</span> <span class="o">{</span>
-    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
-    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
-</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">String</span><span class="o">[]</span> <span class="n">strs</span><span class="o">;</span>
-    
-    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
-    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
-</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strList</span><span class="o">;</span>
-
-    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
-    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
-</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strSet</span><span class="o">;</span>
-    
-    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
-    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
-</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strCollection</span><span class="o">;</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nl">sequence:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">strs</span><span class="o">:</span> <span class="o">[</span><span class="s">&#34;a&#34;</span><span class="o">,</span><span class="s">&#34;b&#34;</span><span class="o">,</span><span class="s">&#34;c&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="n">properties</span><span class="o">.</span><span class="na">strs</span> <span class="o">=</span> <span class="n">a</span><span class="o">,</span><span class="n">b</span><span class="o">,</span><span class="n">c</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// @ConfigurationProperties 绑定声明
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span><span class="o">=</span><span class="s">&#34;sequence&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Data</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SequenceBean</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strs</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 或者
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// private Set&lt;String&gt; strs；
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// 或者
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// private Collection&lt;String&gt; strs；
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// 或者
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// private String[] strs;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// @Value 绑定声明
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nd">@Component</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SequenceClzz</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">String</span><span class="o">[]</span> <span class="n">strs</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strList</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strSet</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="nd">@Value</span><span class="o">(</span><span class="s">&#34;#{&#39;${sequence.strs[0]},${sequence.strs[1]},${sequence.strs[2]}&#39;}&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 或者  @Value(&#34;${properties.strs}&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">private</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">strCollection</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="映射绑定">映射绑定</h3>
 <p>对于映射类配置，@ConfigurationProperties 可以很自然绑定到 Map 对象 和 POJO 对象。</p>
@@ -569,36 +568,36 @@ pojoList[1].desc=descb
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="nl">mapping:</span>
-  <span class="n">map</span><span class="o">:</span>
-    <span class="n">key1</span><span class="o">:</span> <span class="n">value1</span>
-    <span class="n">key2</span><span class="o">:</span> <span class="n">value2</span>
-    <span class="n">mapInMap</span><span class="o">:</span>
-      <span class="n">key3</span><span class="o">:</span> <span class="n">value3</span>
-      <span class="n">key4</span><span class="o">:</span> <span class="n">value4</span>
-  <span class="n">pojo</span><span class="o">:</span>
-    <span class="n">name</span><span class="o">:</span> <span class="n">name</span>
-    <span class="n">desc</span><span class="o">:</span> <span class="n">desc</span>
-  <span class="n">pojoList</span><span class="o">:</span>
-    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">aa</span>
-      <span class="n">desc</span><span class="o">:</span> <span class="n">desca</span>
-    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">bb</span>
-      <span class="n">desc</span><span class="o">:</span> <span class="n">descb</span>
-<span class="o">---</span>
-<span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span><span class="o">=</span><span class="s">&#34;mapping&#34;</span><span class="o">)</span>
-<span class="nd">@Data</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MappingBean</span> <span class="o">{</span>
-    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">;</span>
-    <span class="kd">private</span> <span class="n">POJO</span> <span class="n">pojo</span><span class="o">;</span>
-    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;</span> <span class="n">pojoList</span><span class="o">;</span>
-
-    <span class="nd">@Data</span>
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">POJO</span><span class="o">{</span>
-        <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
-        <span class="n">String</span> <span class="n">desc</span><span class="o">;</span>
-    <span class="o">}</span>
-<span class="o">}</span>      
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nl">mapping:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">map</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">key1</span><span class="o">:</span> <span class="n">value1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">key2</span><span class="o">:</span> <span class="n">value2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mapInMap</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">      <span class="n">key3</span><span class="o">:</span> <span class="n">value3</span>
+</span></span><span class="line"><span class="cl">      <span class="n">key4</span><span class="o">:</span> <span class="n">value4</span>
+</span></span><span class="line"><span class="cl">  <span class="n">pojo</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">name</span><span class="o">:</span> <span class="n">name</span>
+</span></span><span class="line"><span class="cl">    <span class="n">desc</span><span class="o">:</span> <span class="n">desc</span>
+</span></span><span class="line"><span class="cl">  <span class="n">pojoList</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">aa</span>
+</span></span><span class="line"><span class="cl">      <span class="n">desc</span><span class="o">:</span> <span class="n">desca</span>
+</span></span><span class="line"><span class="cl">    <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">bb</span>
+</span></span><span class="line"><span class="cl">      <span class="n">desc</span><span class="o">:</span> <span class="n">descb</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@ConfigurationProperties</span><span class="o">(</span><span class="n">prefix</span><span class="o">=</span><span class="s">&#34;mapping&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nd">@Data</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MappingBean</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">map</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">POJO</span> <span class="n">pojo</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">POJO</span><span class="o">&gt;</span> <span class="n">pojoList</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Data</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">POJO</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">String</span> <span class="n">desc</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>      
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>与序列类似，@Value 映射类配置绑定，需要将配置处理成 String 标量，只支持 Map 而不支持 POJO。</p>
 <div class="highlight"><div class="chroma">
@@ -611,13 +610,13 @@ pojoList[1].desc=descb
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">={</span><span class="n">key1</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value1</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key2</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value2</span><span class="err">&#39;</span><span class="o">}</span>
-<span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">.</span><span class="na">mapInMap</span><span class="o">={</span><span class="n">key3</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value3</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key4</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value4</span><span class="err">&#39;</span><span class="o">}</span>
-
-<span class="c1">// 无法绑定
-</span><span class="c1">// @Value(&#34;#{${mapping.pojo}}&#34;)
-</span><span class="c1">// private POJO pojo;
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">={</span><span class="n">key1</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value1</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key2</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value2</span><span class="err">&#39;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">mapping</span><span class="o">.</span><span class="na">map</span><span class="o">.</span><span class="na">mapInMap</span><span class="o">={</span><span class="n">key3</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value3</span><span class="err">&#39;</span><span class="o">,</span><span class="n">key4</span><span class="o">:</span><span class="err">&#39;</span><span class="n">value4</span><span class="err">&#39;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 无法绑定
+</span></span></span><span class="line"><span class="cl"><span class="c1">// @Value(&#34;#{${mapping.pojo}}&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1">// private POJO pojo;
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="总结">总结</h2>
 <p>KV 是 YAML 超集这一点很容易发现，普通开发人员直接了解并合理混合文件即可避免。但如果你需要为公司开发远程配置中心，则需要格外小心。最好不要将所有配置存储在一个大配置源中，并支持用户在 KV 编辑器和 YAML 编辑器之间切换，而是要采用类似 Spring Boot 的方式，将 YAML 和 KV 分为两个配置源，在使用时将其统一为 KV 即可。当然，你也可以与同事约定远程配置中心只支持 KV 风格而不支持 YAML 风格。</p>
@@ -725,7 +724,7 @@ pojoList[1].desc=descb
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -738,6 +737,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 
