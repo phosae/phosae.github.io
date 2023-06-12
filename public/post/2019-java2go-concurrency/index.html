@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2019-java2go-concurrency/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,7 +45,6 @@
 <meta property="og:url" content="https://www.zeng.dev/post/2019-java2go-concurrency/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2019-07-15T16:55:32+08:00" />
 <meta property="article:modified_time" content="2019-08-20T16:55:32+08:00" />
-
 <meta itemprop="name" content="Java &amp; Go 并发编程对比">
 <meta itemprop="description" content="Java &amp; Go 并发编程对比"><meta itemprop="datePublished" content="2019-07-15T16:55:32+08:00" />
 <meta itemprop="dateModified" content="2019-08-20T16:55:32+08:00" />
@@ -198,10 +197,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;task running&#34;</span><span class="o">);</span>
-<span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
-<span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;task running&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Java 应用一般使用线程池集中处理任务，以避免线程反复创建回收带来的开销。</p>
 <div class="highlight"><div class="chroma">
@@ -211,10 +210,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;task running&#34;</span><span class="o">);</span>
-<span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
-<span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;task running&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>在 Go 中，则需要将代码包装成函数。使用 <code>go</code> 关键字调用函数之后，便创建了一个可以运行代码单元的 goroutine。一旦 CPU 资源就绪，对应的代码单元便会在 goroutine 中执行。</p>
 <div class="highlight"><div class="chroma">
@@ -224,10 +223,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;task running&#34;</span><span class="p">)</span>
-<span class="p">}()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;task running&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><strong>Java 和 Go 的一个显著区别是：Java 官方库提供了强大的线程池（Executor 及 ExecutorService 接口实现）实施线程复用和线程管理，goroutine 则可以不断被创建和销毁，不需要任何显式管理（实际上应用也无法获取 goroutine 引用）。</strong></p>
 <h3 id="定时任务和延时任务">定时任务和延时任务</h3>
@@ -243,14 +242,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
-  <span class="n">ScheduledExecutorService</span> <span class="n">schExecutor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadScheduledExecutor</span><span class="o">();</span>
-  <span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;tick  at &#34;</span> <span class="o">+</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">getSecond</span><span class="o">());</span>
-  <span class="n">schExecutor</span><span class="o">.</span><span class="na">scheduleAtFixedRate</span><span class="o">(</span><span class="n">task</span><span class="o">,</span> <span class="n">1</span><span class="o">,</span> <span class="n">1</span>  <span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
-  <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">3000</span><span class="o">);</span>
-  <span class="n">schExecutor</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ScheduledExecutorService</span> <span class="n">schExecutor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadScheduledExecutor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;tick  at &#34;</span> <span class="o">+</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">getSecond</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">  <span class="n">schExecutor</span><span class="o">.</span><span class="na">scheduleAtFixedRate</span><span class="o">(</span><span class="n">task</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">1</span>  <span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">3000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">schExecutor</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 使用 time channel</p>
 <div class="highlight"><div class="chroma">
@@ -268,18 +267,18 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Tick</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="k">for</span> <span class="p">{</span>
-      <span class="o">&lt;-</span><span class="nx">ticker</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;tick at %d\n&#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Second</span><span class="p">())</span>
-    <span class="p">}</span>
-  <span class="p">}()</span>
-  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Tick</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="o">&lt;-</span><span class="nx">ticker</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;tick at %d\n&#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Second</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>两门语言均可得到类似输出</p>
 <div class="highlight"><div class="chroma">
@@ -289,10 +288,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">tick at 27
-tick at 28
-tick at 29
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">tick at 27
+</span></span><span class="line"><span class="cl">tick at 28
+</span></span><span class="line"><span class="cl">tick at 29
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>定时任务和延时任务是类似的，这里只展示带有延时的定时任务，一次性延时任务，Java 可以使用 schedule，Go 去掉 for 循环即可。</p>
 <h3 id="async-callback-">async-callback ?</h3>
@@ -317,23 +316,23 @@ tick at 29
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">asyncJob</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="n">CompletableFuture</span><span class="o">.</span><span class="na">supplyAsync</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-        <span class="c1">// some expensive job...
-</span><span class="c1"></span>        <span class="k">return</span> <span class="s">&#34;finish&#34;</span><span class="o">;</span>
-    <span class="o">});</span>
-<span class="o">}</span>
-
-<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-  <span class="c1">// 运行异步任务并注册回调
-</span><span class="c1"></span>  <span class="n">asyncJob</span><span class="o">().</span><span class="na">whenComplete</span><span class="o">((</span><span class="n">ret</span><span class="o">,</span> <span class="n">ex</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">if</span> <span class="o">(</span><span class="n">ex</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-          <span class="c1">// 处理异常
-</span><span class="c1"></span>      <span class="o">}</span>
-      <span class="c1">// 处理运行结果
-</span><span class="c1"></span>  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">static</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">asyncJob</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">CompletableFuture</span><span class="o">.</span><span class="na">supplyAsync</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// some expensive job...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="s">&#34;finish&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 运行异步任务并注册回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">asyncJob</span><span class="o">().</span><span class="na">whenComplete</span><span class="o">((</span><span class="n">ret</span><span class="o">,</span> <span class="n">ex</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">ex</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">// 处理异常
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// 处理运行结果
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">});</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 并没有明显的 async-callback，如果需要用到类似 Future/Promise 之类的地方，应该使用 channel 替代。Go 代码不会有明显的同步、异步差别，请忘记回调。</p>
 <div class="highlight"><div class="chroma">
@@ -364,31 +363,31 @@ tick at 29
 </span><span class="lnt">24
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">ResultErr</span> <span class="kd">struct</span> <span class="p">{</span>
-  <span class="nx">ret</span> <span class="kt">string</span>
-  <span class="nx">err</span> <span class="kt">error</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">asyncJob</span><span class="p">()</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">ResultErr</span> <span class="p">{</span>
-  <span class="nx">retErr</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">ResultErr</span><span class="p">)</span>
-  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// do expensive job
-</span><span class="c1"></span>    <span class="c1">// 如果中途发生异常，返回错误
-</span><span class="c1"></span>    <span class="c1">// retErr &lt;- ResultErr{err: errors.New(&#34;error&#34;)}
-</span><span class="c1"></span>    <span class="nx">retErr</span> <span class="o">&lt;-</span> <span class="nx">ResultErr</span><span class="p">{</span><span class="nx">ret</span><span class="p">:</span> <span class="s">&#34;finish&#34;</span><span class="p">}</span>
-  <span class="p">}()</span>
-  <span class="k">return</span> <span class="nx">retErr</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span> <span class="p">()</span> <span class="p">{</span>
-  <span class="nx">retErr</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nf">asyncJob</span><span class="p">()</span>
-  <span class="k">if</span> <span class="nx">retErr</span><span class="p">.</span><span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-    <span class="c1">// 错误处理
-</span><span class="c1"></span>  <span class="p">}</span>
-  <span class="c1">// 结果处理
-</span><span class="c1"></span>  <span class="c1">// ret := retErr.ret
-</span><span class="c1"></span><span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">ResultErr</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ret</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">err</span> <span class="kt">error</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">asyncJob</span><span class="p">()</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">ResultErr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">retErr</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">ResultErr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// do expensive job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// 如果中途发生异常，返回错误
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// retErr &lt;- ResultErr{err: errors.New(&#34;error&#34;)}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">retErr</span> <span class="o">&lt;-</span> <span class="nx">ResultErr</span><span class="p">{</span><span class="nx">ret</span><span class="p">:</span> <span class="s">&#34;finish&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">retErr</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">retErr</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nf">asyncJob</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">retErr</span><span class="p">.</span><span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 错误处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 结果处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ret := retErr.ret
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="等待任意任务完成批量执行任务">等待任意任务完成，批量执行任务</h3>
 <p>Java 线程池 ExecutorService 提供了 2 个便捷的方法 invokeAny 和 invokeAll。invokeAny 表示并发执行一组任务，执行速度最快任务的结果将被返回。invokeAll 表示并发执行一组任务，所以执行结果以 Future 数组返回。</p>
@@ -403,14 +402,14 @@ tick at 29
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// ExecutorService
-</span><span class="c1"></span>
-<span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">invokeAny</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">tasks</span><span class="o">)</span>
-        <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span><span class="o">;</span>
-
-<span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="nf">invokeAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">tasks</span><span class="o">)</span>
-      <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// ExecutorService
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">invokeAny</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">tasks</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="nf">invokeAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">tasks</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 很容易实现 invokeAny，只要创建一个 buffered channel 接收结果，创建一个 buffered channel 通知取消，同时创建一组 goroutine 执行任务。每个 goroutine 先检测是否有取消信号，如果有则直接结束，否则走默认路径执行任务，完成后往  buffered channel 写结果。</p>
 <p>调度方只要在接收到最快结果后通知取消即可。</p>
@@ -440,29 +439,29 @@ tick at 29
 </span><span class="lnt">22
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">invokeAny</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">rets</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">10</span><span class="p">)</span>
-  <span class="nx">stops</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">9</span><span class="p">)</span>
-
-  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-      <span class="k">select</span> <span class="p">{</span>
-      <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stops</span><span class="p">:</span>
-        <span class="k">return</span>
-      <span class="k">default</span><span class="p">:</span>
-        <span class="c1">// execute job
-</span><span class="c1"></span>        <span class="nx">rets</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
-      <span class="p">}</span>
-    <span class="p">}()</span>
-  <span class="p">}</span>
-  <span class="nx">ret</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">rets</span>
-  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ret</span><span class="p">)</span>
-
-  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-    <span class="nx">stops</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">invokeAny</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">rets</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">stops</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">9</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stops</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">      <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// execute job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">rets</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ret</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">rets</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ret</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">stops</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>invokeAll 简单场景非常类似之前使用 RetErr channel 模拟 Future 的情况，改为 channel slice 即可，这里不再展示。</p>
 <p>复杂场景建议使用拓展库提供的 <a href="https://github.com/golang/sync/blob/master/errgroup/errgroup.go">x/sync/errgroup.Group</a>。</p>
@@ -488,23 +487,23 @@ tick at 29
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ThreadLocal</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">localMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThreadLocal</span><span class="o">&lt;&gt;();</span>
-<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-  <span class="n">localMap</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&#34;main hello&#34;</span><span class="o">);</span>
-  <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="n">String</span> <span class="n">tName</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
-      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tName</span> <span class="o">+</span> <span class="s">&#34; get &#34;</span> <span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
-      <span class="n">localMap</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&#34;sub hello&#34;</span><span class="o">);</span>
-      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tName</span> <span class="o">+</span> <span class="s">&#34; get &#34;</span> <span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
-  <span class="o">});</span>
-  <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-  <span class="n">t</span><span class="o">.</span><span class="na">join</span><span class="o">();</span>
-  <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Thread-main get &#34;</span><span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
-<span class="o">}</span> <span class="c1">//～
-</span><span class="c1"></span><span class="n">Thread</span><span class="o">-</span><span class="n">0</span> <span class="n">get</span> <span class="kc">null</span>
-<span class="n">Thread</span><span class="o">-</span><span class="n">0</span> <span class="n">get</span> <span class="n">sub</span> <span class="n">hello</span>
-<span class="n">Thread</span><span class="o">-</span><span class="n">main</span> <span class="n">get</span> <span class="n">main</span> <span class="n">hello</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ThreadLocal</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">localMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThreadLocal</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">localMap</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&#34;main hello&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">tName</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tName</span> <span class="o">+</span> <span class="s">&#34; get &#34;</span> <span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="n">localMap</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&#34;sub hello&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tName</span> <span class="o">+</span> <span class="s">&#34; get &#34;</span> <span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">  <span class="o">});</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">join</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Thread-main get &#34;</span><span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span> <span class="c1">//～
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Thread</span><span class="o">-</span><span class="mi">0</span> <span class="n">get</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl"><span class="n">Thread</span><span class="o">-</span><span class="mi">0</span> <span class="n">get</span> <span class="n">sub</span> <span class="n">hello</span>
+</span></span><span class="line"><span class="cl"><span class="n">Thread</span><span class="o">-</span><span class="n">main</span> <span class="n">get</span> <span class="n">main</span> <span class="n">hello</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>goroutine 并不支持本地存储，如果需传递上下文信息（比如链路追踪），可以使用 Context 接口，将其作为方法参数显式传递</p>
 <div class="highlight"><div class="chroma">
@@ -520,16 +519,16 @@ tick at 29
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithValue</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="s">&#34;value&#34;</span><span class="p">)</span>
-  <span class="nx">withCtx</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">others</span> <span class="o">...</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Value</span><span class="p">(</span><span class="s">&#34;key&#34;</span><span class="p">))</span>
-  <span class="p">}</span>
-  <span class="k">go</span> <span class="nf">withCtx</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-<span class="p">}</span> <span class="c1">//~
-</span><span class="c1"></span><span class="nx">value</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithValue</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="s">&#34;value&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">withCtx</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">others</span> <span class="o">...</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Value</span><span class="p">(</span><span class="s">&#34;key&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="nf">withCtx</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">value</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="任务中止">任务中止</h3>
 <p>Java 和 Go 应用层任务中止，一般均使用协同式中止。</p>
@@ -568,36 +567,36 @@ tick at 29
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CancelableTask</span> <span class="o">{</span>
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
-    <span class="n">interruptThread</span><span class="o">();</span>
-    <span class="n">interruptFuture</span><span class="o">();</span>
-  <span class="o">}</span>
-
-  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">interruptThread</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
-    <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">CancelableTask</span><span class="o">::</span><span class="n">loop</span><span class="o">);</span>
-    <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
-    <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
-  <span class="o">}</span>
-
-  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">interruptFuture</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
-    <span class="n">ExecutorService</span> <span class="n">exeSvc</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>
-    <span class="n">Future</span><span class="o">&lt;?&gt;</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">exeSvc</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="n">CancelableTask</span><span class="o">::</span><span class="n">loop</span><span class="o">);</span>
-    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
-    <span class="n">ft</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-    <span class="n">exeSvc</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
-  <span class="o">}</span>
-
-  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">loop</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">while</span> <span class="o">(!</span><span class="n">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">())</span> <span class="o">{</span>
-        <span class="c1">//... do business
-</span><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;looping&#34;</span><span class="o">);</span>
-    <span class="o">}</span>
-    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;stopped&#34;</span><span class="o">);</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CancelableTask</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">interruptThread</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">interruptFuture</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">interruptThread</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">CancelableTask</span><span class="o">::</span><span class="n">loop</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">interruptFuture</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ExecutorService</span> <span class="n">exeSvc</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Future</span><span class="o">&lt;?&gt;</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">exeSvc</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="n">CancelableTask</span><span class="o">::</span><span class="n">loop</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ft</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">exeSvc</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">loop</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(!</span><span class="n">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//... do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;looping&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;stopped&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 任务代码块可以依靠检查 select 关键字在每一轮循环检查 stop channel 是否有信号送达，如果没有则继续循环任务，如有则停止循环并返回。</p>
 <div class="highlight"><div class="chroma">
@@ -623,26 +622,26 @@ tick at 29
 </span><span class="lnt">19
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">stop</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
-  <span class="k">go</span> <span class="nf">loop</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span>
-  <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-  <span class="nb">close</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span> <span class="c1">// 也可使用 stop &lt;- struct{}{}
-</span><span class="c1"></span><span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">loop</span><span class="p">(</span><span class="nx">stop</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span> <span class="p">{</span>
-  <span class="k">for</span> <span class="p">{</span>
-    <span class="k">select</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stop</span><span class="p">:</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;stopped&#34;</span><span class="p">)</span>
-      <span class="k">return</span>
-    <span class="k">default</span><span class="p">:</span>
-      <span class="c1">//do business
-</span><span class="c1"></span>      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;looping&#34;</span><span class="p">)</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">stop</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="nf">loop</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">close</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span> <span class="c1">// 也可使用 stop &lt;- struct{}{}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">loop</span><span class="p">(</span><span class="nx">stop</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stop</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;stopped&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;looping&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>两种语言均会得到以下输出结果</p>
 <div class="highlight"><div class="chroma">
@@ -653,11 +652,11 @@ tick at 29
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">looping
-...
-looping
-stopped
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">looping
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">looping
+</span></span><span class="line"><span class="cl">stopped
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Java 能不能用 BlockQueue 做类似事情？答案是可以，但 BlockQueue 占用内存太大，不适合作为状态同步工具。更主要原因是，BlockQueue 对于 Java 而言只是一个库实现，缺乏编译器和运行时支持，channel 对于 Go 而言是同步原语，有非常好的编译器和运行时支持。</p>
 <div class="highlight"><div class="chroma">
@@ -678,21 +677,21 @@ stopped
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">static</span> <span class="kt">void</span> <span class="nf">loopWithBlockQueue</span><span class="o">(</span><span class="n">BlockingQueue</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">queue</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">while</span> <span class="o">(</span><span class="n">queue</span><span class="o">.</span><span class="na">poll</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
-        <span class="c1">//... do business
-</span><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;looping&#34;</span><span class="o">);</span>
-    <span class="o">}</span>
-    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;stopped&#34;</span><span class="o">);</span>
-<span class="o">}</span>
-
-<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
-    <span class="n">BlockingQueue</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">queue</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="n">1</span><span class="o">);</span>
-    <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">loopWithBlockQueue</span><span class="o">(</span><span class="n">queue</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
-    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">1</span><span class="o">);</span>
-    <span class="n">queue</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">new</span> <span class="n">Object</span><span class="o">());</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">static</span> <span class="kt">void</span> <span class="nf">loopWithBlockQueue</span><span class="o">(</span><span class="n">BlockingQueue</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">queue</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(</span><span class="n">queue</span><span class="o">.</span><span class="na">poll</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//... do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;looping&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;stopped&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BlockingQueue</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">queue</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">loopWithBlockQueue</span><span class="o">(</span><span class="n">queue</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">queue</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">new</span> <span class="n">Object</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 另一种常用的取消方式是使用 Context 接口</p>
 <div class="highlight"><div class="chroma">
@@ -715,23 +714,23 @@ stopped
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">())</span>
-  <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-    <span class="k">select</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;task canceled&#34;</span><span class="p">)</span>
-    <span class="k">default</span><span class="p">:</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;running&#34;</span><span class="p">)</span>
-      <span class="c1">// do business
-</span><span class="c1"></span>    <span class="p">}</span>
-  <span class="p">}(</span><span class="nx">ctx</span><span class="p">)</span>
-  <span class="nf">cancel</span><span class="p">()</span>
-  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-<span class="p">}</span><span class="c1">//~
-</span><span class="c1"></span><span class="nx">task</span> <span class="nx">canceled</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;task canceled&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;running&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}(</span><span class="nx">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">task</span> <span class="nx">canceled</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Context 除支持直接取消外，还支持超时取消 (WithDeadline，WithTimeout)。</p>
 <h3 id="优雅停机">优雅停机</h3>
@@ -771,32 +770,32 @@ stopped
 </span><span class="lnt">25
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">wg</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">{}</span>
-<span class="kd">var</span> <span class="nx">stop</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
-
-<span class="kd">func</span> <span class="nf">accept</span><span class="p">(</span><span class="nx">task</span> <span class="kd">func</span><span class="p">())</span> <span class="kt">error</span> <span class="p">{</span>
-  <span class="k">select</span> <span class="p">{</span>
-  <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stop</span><span class="p">:</span>
-    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;reject&#34;</span><span class="p">)</span>
-  <span class="k">default</span><span class="p">:</span>
-    <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-      <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
-      <span class="nf">handle</span><span class="p">(</span><span class="nx">task</span><span class="p">)</span>
-    <span class="p">}()</span>
-    <span class="k">return</span> <span class="kc">nil</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nx">task</span> <span class="kd">func</span><span class="p">())</span> <span class="p">{</span>
-  <span class="nf">task</span><span class="p">()</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">shutdown</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nb">close</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span>
-  <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">wg</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">stop</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">accept</span><span class="p">(</span><span class="nx">task</span> <span class="kd">func</span><span class="p">())</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stop</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;reject&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="nf">handle</span><span class="p">(</span><span class="nx">task</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nx">task</span> <span class="kd">func</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">task</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">shutdown</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">close</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="变量同步原语">变量同步原语</h2>
 <p>下表列出了 Java 和 Go 官方库中同步方式的对应关系，切记这只是一种粗略的对应关系，因为两者有着不同的并发哲学。</p>
@@ -886,34 +885,34 @@ stopped
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Locker</span> <span class="o">{</span>
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-      <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Locker</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
-          <span class="n">reentrant</span><span class="o">();</span>
-          <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Lock</span><span class="o">.</span><span class="na">class</span><span class="o">){</span>
-              <span class="n">reentrant</span><span class="o">();</span>
-          <span class="o">}</span>
-      <span class="o">}</span>
-      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
-      <span class="n">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantLock</span><span class="o">();</span>
-      <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
-      <span class="n">reentrant</span><span class="o">();</span>
-      <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
-      <span class="n">reentrant</span><span class="o">();</span>
-      <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
-      <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
-  <span class="o">}</span>
-
-  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">reentrant</span><span class="o">()</span> <span class="o">{</span>
-      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;entered&#34;</span><span class="o">);</span>
-  <span class="o">}</span>
-<span class="o">}</span><span class="c1">//~
-</span><span class="c1"></span><span class="n">entered</span>
-<span class="n">entered</span>
-
-<span class="n">entered</span>
-<span class="n">entered</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Locker</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Locker</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Lock</span><span class="o">.</span><span class="na">class</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">              <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantLock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">reentrant</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;entered&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">entered</span>
+</span></span><span class="line"><span class="cl"><span class="n">entered</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">entered</span>
+</span></span><span class="line"><span class="cl"><span class="n">entered</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 官方库没有提供任何可重入锁实现，sync.Mutex，sync.RWMutex 均不支持可重入，类似这种操作会导致死锁</p>
 <div class="highlight"><div class="chroma">
@@ -923,10 +922,10 @@ stopped
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">mu := sync.Mutex{}
-mu.Lock() // ok
-mu.Lock() // dead lock
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mu := sync.Mutex{}
+</span></span><span class="line"><span class="cl">mu.Lock() // ok
+</span></span><span class="line"><span class="cl">mu.Lock() // dead lock
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>遇到「可重入场景」，一般建议是将方法拆为公开版本和私有版本，公开方法加锁，私有方法不加锁，细节讨论参见 <a href="https://stackoverflow.com/questions/14670979/recursive-locking-in-go">6</a>。</p>
 <h3 id="锁的可中断式获取和超时获取">锁的可中断式获取和超时获取</h3>
@@ -947,18 +946,18 @@ mu.Lock() // dead lock
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">public interface Lock {
-    void lock();
-    
-    void unlock();
-
-    void lockInterruptibly() throws InterruptedException;
-
-    boolean tryLock();
-
-    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
-}
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public interface Lock {
+</span></span><span class="line"><span class="cl">    void lock();
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    void unlock();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    void lockInterruptibly() throws InterruptedException;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    boolean tryLock();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>以下代码展示了 Java 可中断式获取和超时获取</p>
 <div class="highlight"><div class="chroma">
@@ -987,29 +986,29 @@ mu.Lock() // dead lock
 </span><span class="lnt">22
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
-  <span class="n">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantLock</span><span class="o">();</span>
-  <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
-  <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">try</span> <span class="o">{</span>
-          <span class="c1">// 中断式获取，被中断抛出 InterruptedException
-</span><span class="c1"></span>          <span class="c1">// lock.lockInterruptibly();
-</span><span class="c1"></span>          <span class="c1">// 超时获取，操作超时自动返回，被中断抛出 InterruptedException
-</span><span class="c1"></span>          <span class="n">lock</span><span class="o">.</span><span class="na">tryLock</span><span class="o">(</span><span class="n">10</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
-      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
-          <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-      <span class="o">}</span>
-  <span class="o">});</span>
-  <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-  <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="n">100</span><span class="o">);</span>
-  <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
-<span class="o">}</span><span class="c1">//~
-</span><span class="c1"></span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">InterruptedException</span>
-  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">AbstractQueuedSynchronizer</span><span class="o">.</span><span class="na">tryAcquireNanos</span><span class="o">(</span><span class="n">AbstractQueuedSynchronizer</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">992</span><span class="o">)</span>
-  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">ReentrantLock$Sync</span><span class="o">.</span><span class="na">tryLockNanos</span><span class="o">(</span><span class="n">ReentrantLock</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">168</span><span class="o">)</span>
-  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">ReentrantLock</span><span class="o">.</span><span class="na">tryLock</span><span class="o">(</span><span class="n">ReentrantLock</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">479</span><span class="o">)</span>
-  <span class="o">...</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantLock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">// 中断式获取，被中断抛出 InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">// lock.lockInterruptibly();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">// 超时获取，操作超时自动返回，被中断抛出 InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="n">lock</span><span class="o">.</span><span class="na">tryLock</span><span class="o">(</span><span class="mi">10</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">});</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">InterruptedException</span>
+</span></span><span class="line"><span class="cl">  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">AbstractQueuedSynchronizer</span><span class="o">.</span><span class="na">tryAcquireNanos</span><span class="o">(</span><span class="n">AbstractQueuedSynchronizer</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">992</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">ReentrantLock$Sync</span><span class="o">.</span><span class="na">tryLockNanos</span><span class="o">(</span><span class="n">ReentrantLock</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">168</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">ReentrantLock</span><span class="o">.</span><span class="na">tryLock</span><span class="o">(</span><span class="n">ReentrantLock</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">479</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go sync.Mutex 并不支持可中断式获取和超时获取，因为这类场景应该使用 channel 实现，下面代码使用长度为 1 的 buffered channel 展示了这种技巧</p>
 <div class="highlight"><div class="chroma">
@@ -1043,34 +1042,34 @@ mu.Lock() // dead lock
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">lockCh</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">1</span><span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">TryLock</span><span class="p">(</span><span class="nx">timeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
-  <span class="k">for</span> <span class="p">{</span>
-    <span class="k">select</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="nx">lockCh</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}:</span>
-      <span class="k">return</span> <span class="kc">true</span>
-    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">timeout</span><span class="p">):</span>
-      <span class="k">return</span> <span class="kc">false</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">LockInterruptibly</span><span class="p">(</span><span class="nx">interrupt</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span> <span class="kt">bool</span> <span class="p">{</span>
-   <span class="k">for</span> <span class="p">{</span>
-    <span class="k">select</span> <span class="p">{</span>
-    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">interrupt</span><span class="p">:</span>
-      <span class="k">return</span> <span class="kc">false</span>
-    <span class="k">case</span> <span class="nx">lockCh</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}:</span>
-      <span class="k">return</span> <span class="kc">true</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">UnLock</span><span class="p">()</span> <span class="p">{</span>
-  <span class="o">&lt;-</span><span class="nx">lockCh</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">lockCh</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">TryLock</span><span class="p">(</span><span class="nx">timeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nx">lockCh</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">timeout</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">LockInterruptibly</span><span class="p">(</span><span class="nx">interrupt</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">interrupt</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nx">lockCh</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">UnLock</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="o">&lt;-</span><span class="nx">lockCh</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="条件变量">条件变量</h3>
 <p>一般来说，条件变量衍生于锁，不同条件变量只是同一锁空间下的不同等待队列。这点 Java 和 Go 类似。</p>
@@ -1086,10 +1085,10 @@ mu.Lock() // dead lock
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">Semaphore semaphore = new Semaphore(5);
-semaphore.acquire(1);
-semaphore.release(1);
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Semaphore semaphore = new Semaphore(5);
+</span></span><span class="line"><span class="cl">semaphore.acquire(1);
+</span></span><span class="line"><span class="cl">semaphore.release(1);
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 官方库并没有提供 Semaphore 实现，拓展库提供了信号量实现 <a href="https://github.com/golang/sync/blob/master/semaphore/semaphore.go">x/sync/semaphore.Weighted</a>。不过，类似上面非阻塞锁和超时锁，同样可以使用 buffered channel 模拟之，一个简单的实现如下</p>
 <div class="highlight"><div class="chroma">
@@ -1112,23 +1111,23 @@ semaphore.release(1);
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Semaphore</span> <span class="kd">struct</span> <span class="p">{</span>
-  <span class="nx">permits</span> <span class="kd">chan</span> <span class="kd">struct</span><span class="p">{}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">NewSemaphore</span><span class="p">(</span><span class="nx">permits</span> <span class="kt">uint</span><span class="p">)</span> <span class="o">*</span><span class="nx">Semaphore</span> <span class="p">{</span>
-  <span class="nx">permitsCh</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="nx">permits</span><span class="p">)</span>
-  <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Semaphore</span><span class="p">{</span><span class="nx">permits</span><span class="p">:</span> <span class="nx">permitsCh</span><span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Semaphore</span><span class="p">)</span> <span class="nf">Acquire</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">s</span><span class="p">.</span><span class="nx">permits</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Semaphore</span><span class="p">)</span> <span class="nf">Release</span><span class="p">()</span> <span class="p">{</span>
-  <span class="o">&lt;-</span><span class="nx">s</span><span class="p">.</span><span class="nx">permits</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Semaphore</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">permits</span> <span class="kd">chan</span> <span class="kd">struct</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewSemaphore</span><span class="p">(</span><span class="nx">permits</span> <span class="kt">uint</span><span class="p">)</span> <span class="o">*</span><span class="nx">Semaphore</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">permitsCh</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="nx">permits</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Semaphore</span><span class="p">{</span><span class="nx">permits</span><span class="p">:</span> <span class="nx">permitsCh</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Semaphore</span><span class="p">)</span> <span class="nf">Acquire</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">s</span><span class="p">.</span><span class="nx">permits</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Semaphore</span><span class="p">)</span> <span class="nf">Release</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="o">&lt;-</span><span class="nx">s</span><span class="p">.</span><span class="nx">permits</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="casatomic">CAS/Atomic</h3>
 <p>Java 和 Go 均支持 CAS 及原子操作。</p>
@@ -1172,35 +1171,35 @@ semaphore.release(1);
 </span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kd">var</span> <span class="nx">once</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span><span class="p">{}</span>
-  <span class="nx">f</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once&#34;</span><span class="p">)</span>
-  <span class="p">}</span>
-  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once start&#34;</span><span class="p">)</span>
-    <span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once finish&#34;</span><span class="p">)</span>
-  <span class="p">}()</span>
-  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;block...&#34;</span><span class="p">)</span>
-      <span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;resume&#34;</span><span class="p">)</span>
-    <span class="p">}()</span>
-  <span class="p">}</span>
-  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
-<span class="p">}</span><span class="c1">//~
-</span><span class="c1"></span><span class="nx">do</span> <span class="nx">once</span> <span class="nx">start</span>
-<span class="nx">block</span><span class="o">...</span>
-<span class="nx">block</span><span class="o">...</span>
-<span class="nx">do</span> <span class="nx">once</span>
-<span class="nx">do</span> <span class="nx">once</span> <span class="nx">finish</span>
-<span class="nx">resume</span>
-<span class="nx">resume</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nx">once</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">f</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once start&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once finish&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;block...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;resume&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">do</span> <span class="nx">once</span> <span class="nx">start</span>
+</span></span><span class="line"><span class="cl"><span class="nx">block</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">block</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">do</span> <span class="nx">once</span>
+</span></span><span class="line"><span class="cl"><span class="nx">do</span> <span class="nx">once</span> <span class="nx">finish</span>
+</span></span><span class="line"><span class="cl"><span class="nx">resume</span>
+</span></span><span class="line"><span class="cl"><span class="nx">resume</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Java 较为接近这种需求的场景是懒加载单例模式，如</p>
 <ul>
@@ -1241,27 +1240,27 @@ semaphore.release(1);
 </span><span class="lnt">20
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">main</span> <span class="p">()</span> <span class="p">{</span>
-  <span class="nx">wg</span> <span class="o">:=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">{}</span>
-  <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-
-  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-    <span class="nx">ii</span> <span class="o">:=</span> <span class="nx">i</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-      <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
-      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d finished\n&#34;</span><span class="p">,</span> <span class="nx">ii</span><span class="p">)</span>
-    <span class="p">}()</span>
-  <span class="p">}</span>
-
-  <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
-  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;all finish&#34;</span><span class="p">)</span>
-  <span class="c1">// do exchange
-</span><span class="c1"></span><span class="p">}</span> <span class="c1">// ~
-</span><span class="c1"></span><span class="mi">2</span> <span class="nx">finished</span>
-<span class="mi">0</span> <span class="nx">finished</span>
-<span class="mi">1</span> <span class="nx">finished</span>
-<span class="nx">all</span> <span class="nx">finish</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span> <span class="o">:=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ii</span> <span class="o">:=</span> <span class="nx">i</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d finished\n&#34;</span><span class="p">,</span> <span class="nx">ii</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;all finish&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// do exchange
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="c1">// ~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">2</span> <span class="nx">finished</span>
+</span></span><span class="line"><span class="cl"><span class="mi">0</span> <span class="nx">finished</span>
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="nx">finished</span>
+</span></span><span class="line"><span class="cl"><span class="nx">all</span> <span class="nx">finish</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="内存模型">内存模型</h2>
 <p>内存模型指的是，Java 和 Go 之类的高级语言（相对 C）在各自语言层面实现的多线程内存同步规范。这些同步规范保证了多线程并发进入某一代码路径时，相应的读取和写入能按照预期的顺序发生。实现上，多采用禁止编译器重排指令和使用硬件指令强制同步缓存和主存（又称内存屏障）。下面仅在语言使用者而非语言开发者的角度讨论如何理解和应用内存模型，也即如何在边界内写好并发程序。</p>
@@ -1310,18 +1309,18 @@ semaphore.release(1);
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">var</span> <span class="nx">a</span> <span class="kt">string</span>
-
-<span class="kd">func</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
-  <span class="nx">a</span> <span class="p">=</span> <span class="s">&#34;hello&#34;</span>
-  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nb">print</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">}()</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">notHello</span><span class="p">(){</span>
-  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nx">a</span> <span class="p">=</span> <span class="s">&#34;hello&#34;</span> <span class="p">}()</span>
-	<span class="nb">print</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">a</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">a</span> <span class="p">=</span> <span class="s">&#34;hello&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nb">print</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">}()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">notHello</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nx">a</span> <span class="p">=</span> <span class="s">&#34;hello&#34;</span> <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">print</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="chanel">chanel</h3>
 <ol>
@@ -1449,7 +1448,7 @@ semaphore.release(1);
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -1462,6 +1461,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,7 +45,6 @@
 <meta property="og:url" content="https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-03-08T10:51:20+08:00" />
 <meta property="article:modified_time" content="2023-03-08T10:51:20+08:00" />
-
 <meta itemprop="name" content="Http Range Request and MP4 Video Play in Browser">
 <meta itemprop="description" content="HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. several sample HTTP servers written in Golang are used to trick browsers."><meta itemprop="datePublished" content="2023-03-08T10:51:20+08:00" />
 <meta itemprop="dateModified" content="2023-03-08T10:51:20+08:00" />
@@ -168,14 +167,14 @@ displaying video to user. The network may losing packet. The user may want to pl
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">+----------------------------------------------------------------------------------------------------+
-|                                           1000MB                                                   |  
-+----------------------------------------------------------------------------------------------------+
-                                              ↓                                             
-+--------+   +-------------+             +-----------------------------+        +--------------------+
-| 100MB  |   |    150MB    |    ......   |            300MB            |        |         200MB      |
-+--------+   +-------------+             +-----------------------------+        +--------------------+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">+----------------------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl">|                                           1000MB                                                   |  
+</span></span><span class="line"><span class="cl">+----------------------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl">                                              ↓                                             
+</span></span><span class="line"><span class="cl">+--------+   +-------------+             +-----------------------------+        +--------------------+
+</span></span><span class="line"><span class="cl">| 100MB  |   |    150MB    |    ......   |            300MB            |        |         200MB      |
+</span></span><span class="line"><span class="cl">+--------+   +-------------+             +-----------------------------+        +--------------------+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>In HTTP protocol 1.1 to achieve this range request can be leveraged. More backgroun and details are at HTTP <a href="https://www.rfc-editor.org/rfc/rfc7233">RFC7233</a>, Wiki <a href="https://en.wikipedia.org/wiki/Byte_serving">Byte_serving</a>.</p>
 <p>Briefly, the HTTP Client send a request with header <code>Range</code> that declare needed byte ranges in resource. The HTTP server reponse with status code <code>206</code> (Partial Content), with header <code>Content-Range</code> describing what range of the selected representation is enclosed, and a payload consisting of the range.</p>
@@ -191,15 +190,15 @@ displaying video to user. The network may losing packet. The user may want to pl
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">HTTP Client                             HTTP Server
-+------------------------+              +-------------------------------------+           
-| GET /a.mp4 HTTP/1.1    |              | HTTP/1.1 206 Partial Content        |
-| Host: example.com      |    &lt;-----&gt;   | Content-Range: bytes 0-1023/10240   |
-| Range: bytes=0-1023    |              | Content-Length: 1024                |
-+------------------------+              | ...                                 |
-                                        | (body: 1024 bytes of a.mp4)         |
-                                        +-------------------------------------+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP Client                             HTTP Server
+</span></span><span class="line"><span class="cl">+------------------------+              +-------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1    |              | HTTP/1.1 206 Partial Content        |
+</span></span><span class="line"><span class="cl">| Host: example.com      |    &lt;-----&gt;   | Content-Range: bytes 0-1023/10240   |
+</span></span><span class="line"><span class="cl">| Range: bytes=0-1023    |              | Content-Length: 1024                |
+</span></span><span class="line"><span class="cl">+------------------------+              | ...                                 |
+</span></span><span class="line"><span class="cl">                                        | (body: 1024 bytes of a.mp4)         |
+</span></span><span class="line"><span class="cl">                                        +-------------------------------------+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>If the request range is invalid or don&rsquo;t overlap the selected resource, the server reponse with status code <code>416</code> (Range Not Satisfiable).</p>
 <div class="highlight"><div class="chroma">
@@ -212,13 +211,13 @@ displaying video to user. The network may losing packet. The user may want to pl
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">HTTP Client                               HTTP Server
-+--------------------------+              +-----------------------------------------------+           
-| GET /a.mp4 HTTP/1.1      |              | HTTP/1.1 416 Requested Range Not Satisfiable  |
-| Host: example.com        |    &lt;-----&gt;   | Content-Range: bytes */10240                  |
-| Range: bytes=10250-12000 |              | ...                                           |
-+--------------------------+              +-----------------------------------------------+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">HTTP Client                               HTTP Server
+</span></span><span class="line"><span class="cl">+--------------------------+              +-----------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1      |              | HTTP/1.1 416 Requested Range Not Satisfiable  |
+</span></span><span class="line"><span class="cl">| Host: example.com        |    &lt;-----&gt;   | Content-Range: bytes */10240                  |
+</span></span><span class="line"><span class="cl">| Range: bytes=10250-12000 |              | ...                                           |
+</span></span><span class="line"><span class="cl">+--------------------------+              +-----------------------------------------------+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Examples of valid byte ranges (assuming a resource of length 10240):</p>
 <ul>
@@ -285,53 +284,53 @@ displaying video to user. The network may losing packet. The user may want to pl
 </span><span class="lnt">46
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">1. send request, read the onflight reponse header, close connection when range support detected
-
-Chrome                                            Server
-+------------------------+    ------------&gt;       +-------------------------------------+           
-| GET /a.mp4 HTTP/1.1    |   close conn when      | HTTP/1.1 200 OK                     |
-| Host: example.com      |    &lt;----x-------       | Accept-Ranges: bytes                |
-+------------------------+ range support detected | Content-Length: 828908177           |
-                                                  | ...                                 |
-                                                  | (body: some first bytes of a.mp4)   |
-                                                  +-------------------------------------+
-
-2. send trivial range request 1, fetch head parts, verify server&#39;s support, 
-
-Chrome                                         Server
-+------------------------+   ------------&gt;     +---------------------------------------------+           
-| GET /a.mp4 HTTP/1.1    |  close conn when    | HTTP/1.1 206 Partial Content                |
-| Host: example.com      |   &lt;----x-------     | Accept-Ranges: bytes                        |
-| Range: [bytes=0-]      |   verify success    | Content-Range: bytes 0-828908176/828908177  |
-+------------------------+                     | Content-Length: 828908177                   |
-                                               | ...                                         |
-                                               | (body: some first bytes of a.mp4)           |
-                                               +---------------------------------------------+
-
-3. send trivial range request 2, fetch tail parts, verify server&#39;s support 
-
-Chrome                                          Server
-+--------------------------+                    +-----------------------------------------------------+           
-| GET /a.mp4 HTTP/1.1      |                    | HTTP/1.1 206 Partial Content                        |
-| Host: example.com        |   -----------&gt;     | Accept-Ranges: bytes                                |
-| Range: bytes=828604416-  |                    | Content-Range: bytes 828604416-828908176/828908177  |
-+--------------------------+                    | Content-Length: 303761                              |
-                                                | ...                                                 |
-                                                | (body: some end bytes of a.mp4)                     |
-                                                +-----------------------------------------------------+
-
-4. sending range request for remaining bytes 
-
-Chrome                                           Server
-+--------------------------+                     +-----------------------------------------------------+           
-| GET /a.mp4 HTTP/1.1      |   ------------&gt;     | HTTP/1.1 206 Partial Content                        |
-| Host: example.com        |   &lt;------------     | Accept-Ranges: bytes                                |
-| Range: bytes=720896-     |                     | Content-Range: bytes 720896-828908176/828908177     |
-+--------------------------+                     | Content-Length: 828187281                           |
-                                                 | ...                                                 |
-                                                 | (body: rest bytes of a.mp4)                         |
-                                                 +-----------------------------------------------------+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">1. send request, read the onflight reponse header, close connection when range support detected
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Chrome                                            Server
+</span></span><span class="line"><span class="cl">+------------------------+    ------------&gt;       +-------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1    |   close conn when      | HTTP/1.1 200 OK                     |
+</span></span><span class="line"><span class="cl">| Host: example.com      |    &lt;----x-------       | Accept-Ranges: bytes                |
+</span></span><span class="line"><span class="cl">+------------------------+ range support detected | Content-Length: 828908177           |
+</span></span><span class="line"><span class="cl">                                                  | ...                                 |
+</span></span><span class="line"><span class="cl">                                                  | (body: some first bytes of a.mp4)   |
+</span></span><span class="line"><span class="cl">                                                  +-------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. send trivial range request 1, fetch head parts, verify server&#39;s support, 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Chrome                                         Server
+</span></span><span class="line"><span class="cl">+------------------------+   ------------&gt;     +---------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1    |  close conn when    | HTTP/1.1 206 Partial Content                |
+</span></span><span class="line"><span class="cl">| Host: example.com      |   &lt;----x-------     | Accept-Ranges: bytes                        |
+</span></span><span class="line"><span class="cl">| Range: [bytes=0-]      |   verify success    | Content-Range: bytes 0-828908176/828908177  |
+</span></span><span class="line"><span class="cl">+------------------------+                     | Content-Length: 828908177                   |
+</span></span><span class="line"><span class="cl">                                               | ...                                         |
+</span></span><span class="line"><span class="cl">                                               | (body: some first bytes of a.mp4)           |
+</span></span><span class="line"><span class="cl">                                               +---------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. send trivial range request 2, fetch tail parts, verify server&#39;s support 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Chrome                                          Server
+</span></span><span class="line"><span class="cl">+--------------------------+                    +-----------------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1      |                    | HTTP/1.1 206 Partial Content                        |
+</span></span><span class="line"><span class="cl">| Host: example.com        |   -----------&gt;     | Accept-Ranges: bytes                                |
+</span></span><span class="line"><span class="cl">| Range: bytes=828604416-  |                    | Content-Range: bytes 828604416-828908176/828908177  |
+</span></span><span class="line"><span class="cl">+--------------------------+                    | Content-Length: 303761                              |
+</span></span><span class="line"><span class="cl">                                                | ...                                                 |
+</span></span><span class="line"><span class="cl">                                                | (body: some end bytes of a.mp4)                     |
+</span></span><span class="line"><span class="cl">                                                +-----------------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">4. sending range request for remaining bytes 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Chrome                                           Server
+</span></span><span class="line"><span class="cl">+--------------------------+                     +-----------------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1      |   ------------&gt;     | HTTP/1.1 206 Partial Content                        |
+</span></span><span class="line"><span class="cl">| Host: example.com        |   &lt;------------     | Accept-Ranges: bytes                                |
+</span></span><span class="line"><span class="cl">| Range: bytes=720896-     |                     | Content-Range: bytes 720896-828908176/828908177     |
+</span></span><span class="line"><span class="cl">+--------------------------+                     | Content-Length: 828187281                           |
+</span></span><span class="line"><span class="cl">                                                 | ...                                                 |
+</span></span><span class="line"><span class="cl">                                                 | (body: rest bytes of a.mp4)                         |
+</span></span><span class="line"><span class="cl">                                                 +-----------------------------------------------------+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>FireFox&rsquo;s Behaviors are quite similar to Chrome, except that&rsquo;s only one trivial range request.</p>
 <div class="highlight"><div class="chroma">
@@ -372,41 +371,41 @@ Chrome                                           Server
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">1. send request, read the onflight reponse header, close connection when range support detected
-
-FireFox                                           Server
-+------------------------+    ------------&gt;       +-------------------------------------+           
-| GET /a.mp4 HTTP/1.1    |   close conn when      | HTTP/1.1 200 OK                     |
-| Host: example.com      |    &lt;----x-------       | Accept-Ranges: bytes                |
-+------------------------+ range support detected | Content-Length: 828908177           |
-                                                  | ...                                 |
-                                                  | (body: some first bytes of a.mp4)   |
-                                                  +-------------------------------------+
-
-2. send trivial range request, fetch tail parts, verify server&#39;s support 
-
-FireFox                                          Server
-+--------------------------+                    +-----------------------------------------------------+           
-| GET /a.mp4 HTTP/1.1      |                    | HTTP/1.1 206 Partial Content                        |
-| Host: example.com        |   &lt;----------&gt;     | Accept-Ranges: bytes                                |
-| Range: bytes=828604416-  |                    | Content-Range: bytes 828604416-828908176/828908177  |
-+--------------------------+                    | Content-Length: 303761                              |
-                                                | ...                                                 |
-                                                | (body: some end bytes of a.mp4)                     |
-                                                +-----------------------------------------------------+
-
-3. sending range request for remaining bytes 
-
-FireFox                                         Server
-+--------------------------+                  +-----------------------------------------------------+           
-| GET /a.mp4 HTTP/1.1      |   &lt;----------&gt;   | HTTP/1.1 206 Partial Content                        |
-| Host: example.com        |                  | Accept-Ranges: bytes                                |
-| Range: bytes=1867776-    |                  | Content-Range: bytes 1867776-828908176/828908177    |
-+--------------------------+                  | Content-Length: 827040401                           |
-                                              | ...                                                 |
-                                              | (body: rest bytes of a.mp4)                         |
-                                              +-----------------------------------------------------+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">1. send request, read the onflight reponse header, close connection when range support detected
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">FireFox                                           Server
+</span></span><span class="line"><span class="cl">+------------------------+    ------------&gt;       +-------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1    |   close conn when      | HTTP/1.1 200 OK                     |
+</span></span><span class="line"><span class="cl">| Host: example.com      |    &lt;----x-------       | Accept-Ranges: bytes                |
+</span></span><span class="line"><span class="cl">+------------------------+ range support detected | Content-Length: 828908177           |
+</span></span><span class="line"><span class="cl">                                                  | ...                                 |
+</span></span><span class="line"><span class="cl">                                                  | (body: some first bytes of a.mp4)   |
+</span></span><span class="line"><span class="cl">                                                  +-------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. send trivial range request, fetch tail parts, verify server&#39;s support 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">FireFox                                          Server
+</span></span><span class="line"><span class="cl">+--------------------------+                    +-----------------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1      |                    | HTTP/1.1 206 Partial Content                        |
+</span></span><span class="line"><span class="cl">| Host: example.com        |   &lt;----------&gt;     | Accept-Ranges: bytes                                |
+</span></span><span class="line"><span class="cl">| Range: bytes=828604416-  |                    | Content-Range: bytes 828604416-828908176/828908177  |
+</span></span><span class="line"><span class="cl">+--------------------------+                    | Content-Length: 303761                              |
+</span></span><span class="line"><span class="cl">                                                | ...                                                 |
+</span></span><span class="line"><span class="cl">                                                | (body: some end bytes of a.mp4)                     |
+</span></span><span class="line"><span class="cl">                                                +-----------------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. sending range request for remaining bytes 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">FireFox                                         Server
+</span></span><span class="line"><span class="cl">+--------------------------+                  +-----------------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1      |   &lt;----------&gt;   | HTTP/1.1 206 Partial Content                        |
+</span></span><span class="line"><span class="cl">| Host: example.com        |                  | Accept-Ranges: bytes                                |
+</span></span><span class="line"><span class="cl">| Range: bytes=1867776-    |                  | Content-Range: bytes 1867776-828908176/828908177    |
+</span></span><span class="line"><span class="cl">+--------------------------+                  | Content-Length: 827040401                           |
+</span></span><span class="line"><span class="cl">                                              | ...                                                 |
+</span></span><span class="line"><span class="cl">                                              | (body: rest bytes of a.mp4)                         |
+</span></span><span class="line"><span class="cl">                                              +-----------------------------------------------------+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Safari send first trivial range request with <code>bytes=0-1</code>, and other two trivial range requests like Chrome.</p>
 <p>Both Chrome and FireFox send range request using byte range (i.e <code>bytes=1867776-</code>) with last-byte-pos value absent. But Safari always set the last-byte-pos.</p>
@@ -473,66 +472,66 @@ FireFox                                         Server
 </span><span class="lnt">59
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">1. send request 1, read the onflight reponse header, close connection when range support detected
-
-Safari                                         Server
-+------------------------+    ------------&gt;       +-------------------------------------+           
-| GET /a.mp4 HTTP/1.1    |   close conn when      | HTTP/1.1 200 OK                     |
-| Host: example.com      |    &lt;----x-------       | Accept-Ranges: bytes                |
-+------------------------+ range support detected | Content-Length: 828908177           |
-                                                  | ...                                 |
-                                                  | (body: some first bytes of a.mp4)   |
-                                                  +-------------------------------------+
-
-2. send trivial range request 1, fetch first two bytes, verify server&#39;s support, 
-
-Safari                                       Server
-+------------------------+                   +---------------------------------------------+           
-| GET /a.mp4 HTTP/1.1    |                   | HTTP/1.1 206 Partial Content                |
-| Host: example.com      |   &lt;-----------&gt;   | Accept-Ranges: bytes                        |
-| Range: bytes=0-1       |                   | Content-Range: bytes 0-1/828908177          |
-+------------------------+                   | Content-Length: 2                           |
-                                             | ...                                         |
-                                             | (body: first two bytes of a.mp4)            |
-                                             +---------------------------------------------+
-
-3. send trivial range request 2, fetch some first parts, verify server&#39;s support 
-
-Safari                                            Server
-+---------------------------+   ------------&gt;     +---------------------------------------------+           
-| GET /a.mp4 HTTP/1.1       |  close conn when    | HTTP/1.1 206 Partial Content                |
-| Host: example.com         |   &lt;----x-------     | Accept-Ranges: bytes                        |
-| Range: bytes=0-828908176  |   verify success    | Content-Range: bytes 0-828908176/828908177  |
-+---------------------------+                     | Content-Length: 828908177                   |
-                                                  | ...                                         |
-                                                  | (body: some first bytes of a.mp4)           |
-                                                  +---------------------------------------------+
-
-3. send trivial range request 3, fetch tail parts, verify server&#39;s support 
-
-Safari                                                 Server
-+-----------------------------------+                  +----------------------------------------------------+
-| GET /a.mp4 HTTP/1.1               |                  | HTTP/1.1 206 Partial Content                       |
-| Host: example.com                 |   &lt;----------&gt;   | Accept-Ranges: bytes                               |
-| Range: bytes=828571648-828908176  |                  | Content-Range: bytes 828571648-828908176/828908177 |
-+-----------------------------------+                  | Content-Length: 336529                             |
-                                                       | ...                                                |
-                                                       | (body: some end bytes of a.mp4)                    |
-                                                       +----------------------------------------------------+
-
-4. sending serial range requests for remaining bytes 
-
-req bytes=30.5-30.9MB
-req bytes=30.9-63.2MB
-req bytes=31.0-63.3MB
-req bytes=39.5-790MB (close conn when desired bytes from offset 39.5MB received)
-req bytes=42.3-790MB (close conn when desired bytes from offset 42.3MB received)
-req bytes=45.7-790MB (close conn when desired bytes from offset 45.7MB received)
-...
-req bytes=780.8-790MB (may close conn when desired bytes from offset 780.8MB received)
-req bytes=784.2-790MB (may close conn when desired bytes from offset 784.2MB received)
-req bytes=788.1-790MB (may close conn when desired bytes from offset 788.1MB received)
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">1. send request 1, read the onflight reponse header, close connection when range support detected
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Safari                                         Server
+</span></span><span class="line"><span class="cl">+------------------------+    ------------&gt;       +-------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1    |   close conn when      | HTTP/1.1 200 OK                     |
+</span></span><span class="line"><span class="cl">| Host: example.com      |    &lt;----x-------       | Accept-Ranges: bytes                |
+</span></span><span class="line"><span class="cl">+------------------------+ range support detected | Content-Length: 828908177           |
+</span></span><span class="line"><span class="cl">                                                  | ...                                 |
+</span></span><span class="line"><span class="cl">                                                  | (body: some first bytes of a.mp4)   |
+</span></span><span class="line"><span class="cl">                                                  +-------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. send trivial range request 1, fetch first two bytes, verify server&#39;s support, 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Safari                                       Server
+</span></span><span class="line"><span class="cl">+------------------------+                   +---------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1    |                   | HTTP/1.1 206 Partial Content                |
+</span></span><span class="line"><span class="cl">| Host: example.com      |   &lt;-----------&gt;   | Accept-Ranges: bytes                        |
+</span></span><span class="line"><span class="cl">| Range: bytes=0-1       |                   | Content-Range: bytes 0-1/828908177          |
+</span></span><span class="line"><span class="cl">+------------------------+                   | Content-Length: 2                           |
+</span></span><span class="line"><span class="cl">                                             | ...                                         |
+</span></span><span class="line"><span class="cl">                                             | (body: first two bytes of a.mp4)            |
+</span></span><span class="line"><span class="cl">                                             +---------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. send trivial range request 2, fetch some first parts, verify server&#39;s support 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Safari                                            Server
+</span></span><span class="line"><span class="cl">+---------------------------+   ------------&gt;     +---------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1       |  close conn when    | HTTP/1.1 206 Partial Content                |
+</span></span><span class="line"><span class="cl">| Host: example.com         |   &lt;----x-------     | Accept-Ranges: bytes                        |
+</span></span><span class="line"><span class="cl">| Range: bytes=0-828908176  |   verify success    | Content-Range: bytes 0-828908176/828908177  |
+</span></span><span class="line"><span class="cl">+---------------------------+                     | Content-Length: 828908177                   |
+</span></span><span class="line"><span class="cl">                                                  | ...                                         |
+</span></span><span class="line"><span class="cl">                                                  | (body: some first bytes of a.mp4)           |
+</span></span><span class="line"><span class="cl">                                                  +---------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. send trivial range request 3, fetch tail parts, verify server&#39;s support 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Safari                                                 Server
+</span></span><span class="line"><span class="cl">+-----------------------------------+                  +----------------------------------------------------+
+</span></span><span class="line"><span class="cl">| GET /a.mp4 HTTP/1.1               |                  | HTTP/1.1 206 Partial Content                       |
+</span></span><span class="line"><span class="cl">| Host: example.com                 |   &lt;----------&gt;   | Accept-Ranges: bytes                               |
+</span></span><span class="line"><span class="cl">| Range: bytes=828571648-828908176  |                  | Content-Range: bytes 828571648-828908176/828908177 |
+</span></span><span class="line"><span class="cl">+-----------------------------------+                  | Content-Length: 336529                             |
+</span></span><span class="line"><span class="cl">                                                       | ...                                                |
+</span></span><span class="line"><span class="cl">                                                       | (body: some end bytes of a.mp4)                    |
+</span></span><span class="line"><span class="cl">                                                       +----------------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">4. sending serial range requests for remaining bytes 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">req bytes=30.5-30.9MB
+</span></span><span class="line"><span class="cl">req bytes=30.9-63.2MB
+</span></span><span class="line"><span class="cl">req bytes=31.0-63.3MB
+</span></span><span class="line"><span class="cl">req bytes=39.5-790MB (close conn when desired bytes from offset 39.5MB received)
+</span></span><span class="line"><span class="cl">req bytes=42.3-790MB (close conn when desired bytes from offset 42.3MB received)
+</span></span><span class="line"><span class="cl">req bytes=45.7-790MB (close conn when desired bytes from offset 45.7MB received)
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">req bytes=780.8-790MB (may close conn when desired bytes from offset 780.8MB received)
+</span></span><span class="line"><span class="cl">req bytes=784.2-790MB (may close conn when desired bytes from offset 784.2MB received)
+</span></span><span class="line"><span class="cl">req bytes=788.1-790MB (may close conn when desired bytes from offset 788.1MB received)
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Whiles Chrome/FireFox try fetching the remaining bytes in one range request (with range without last-byte-pos i.e bytes=720896-), Safari sends many range request. It firstly request some small parts from the sever, wait for completion. In the next, Safari ask for all remaining bytes ranging from the bytes it holds to the end of file. But once every 4-5MB was transmitted from the server, Safari close the connection and start a new one.</p>
 <p>So what happens when user drag the progress bar to any time point? The browser just mapping the desired the point of video to an offset from start,then it abort the inflight range request and start a new one like <code>byte=offset-total</code>.</p>
@@ -571,35 +570,35 @@ req bytes=788.1-790MB (may close conn when desired bytes from offset 788.1MB rec
 </span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">const</span> <span class="nx">sizePerRequst</span> <span class="p">=</span> <span class="mi">5</span><span class="o">*</span><span class="mi">1000</span><span class="o">*</span><span class="mi">1000</span>
-
-<span class="kd">type</span> <span class="nx">httpRange</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">start</span><span class="p">,</span> <span class="nx">length</span> <span class="kt">int64</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">rangeVideo</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
-  <span class="o">...</span>
-  <span class="nx">rangeHeader</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;Range&#34;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="nx">rangeHeader</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-    <span class="nx">ra</span> <span class="o">:=</span> <span class="nx">httpRange</span><span class="p">{</span>
-      <span class="nx">start</span><span class="p">:</span>  <span class="mi">0</span><span class="p">,</span>
-      <span class="nx">length</span><span class="p">:</span> <span class="nx">sizePerRequst</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Accept-Ranges&#34;</span><span class="p">,</span> <span class="s">&#34;bytes&#34;</span><span class="p">)</span>
-    <span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Length&#34;</span><span class="p">,</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">FormatInt</span><span class="p">(</span><span class="nx">ra</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-    <span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Range&#34;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">.</span><span class="nf">contentRange</span><span class="p">(</span><span class="nx">size</span><span class="p">))</span>
-    <span class="nx">w</span><span class="p">.</span><span class="nf">WriteHeader</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusPartialContent</span><span class="p">)</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;hint browser to send serial range requests, response 206, 0-%d/%d\n&#34;</span><span class="p">,</span> <span class="nx">sizePerRequst</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">size</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Method</span> <span class="o">!=</span> <span class="s">&#34;HEAD&#34;</span> <span class="p">{</span>
-      <span class="nx">written</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">CopyN</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">f</span><span class="p">,</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
-      <span class="k">if</span> <span class="nx">written</span> <span class="o">!=</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span> <span class="p">{</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;desired range size: %d, actual written: %d, err: %v\n\n&#34;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">written</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="k">return</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">sizePerRequst</span> <span class="p">=</span> <span class="mi">5</span><span class="o">*</span><span class="mi">1000</span><span class="o">*</span><span class="mi">1000</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">httpRange</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">start</span><span class="p">,</span> <span class="nx">length</span> <span class="kt">int64</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">rangeVideo</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">rangeHeader</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;Range&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">rangeHeader</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ra</span> <span class="o">:=</span> <span class="nx">httpRange</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">start</span><span class="p">:</span>  <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">length</span><span class="p">:</span> <span class="nx">sizePerRequst</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Accept-Ranges&#34;</span><span class="p">,</span> <span class="s">&#34;bytes&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Length&#34;</span><span class="p">,</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">FormatInt</span><span class="p">(</span><span class="nx">ra</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">w</span><span class="p">.</span><span class="nf">Header</span><span class="p">().</span><span class="nf">Set</span><span class="p">(</span><span class="s">&#34;Content-Range&#34;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">.</span><span class="nf">contentRange</span><span class="p">(</span><span class="nx">size</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">w</span><span class="p">.</span><span class="nf">WriteHeader</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">StatusPartialContent</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;hint browser to send serial range requests, response 206, 0-%d/%d\n&#34;</span><span class="p">,</span> <span class="nx">sizePerRequst</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nx">size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Method</span> <span class="o">!=</span> <span class="s">&#34;HEAD&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">written</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">CopyN</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">f</span><span class="p">,</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="nx">written</span> <span class="o">!=</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;desired range size: %d, actual written: %d, err: %v\n\n&#34;</span><span class="p">,</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span> <span class="nx">written</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Browsers include Chrome, FireFox, Safari handle this condition well. Sample server can play with docker and visit <a href="http://localhost:9100">localhost:9100</a> to see browser&rsquo;s behavior</p>
 <div class="highlight"><div class="chroma">
@@ -607,8 +606,8 @@ req bytes=788.1-790MB (may close conn when desired bytes from offset 788.1MB rec
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">docker run --rm -p 9100:9100 zengxu/go-http-range
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --rm -p 9100:9100 zengxu/go-http-range
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Full sample code is <a href="https://github.com/phosae/samples/tree/main/2023/go-http-range">here</a>.</p>
 <h2 id="can-server-side-control-the-size-of-each-range-request">Can Server Side Control the Size of Each Range Request?</h2>
@@ -647,35 +646,35 @@ req bytes=788.1-790MB (may close conn when desired bytes from offset 788.1MB rec
 </span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">httpRange</span> <span class="kd">struct</span> <span class="p">{</span>
-	<span class="nx">start</span><span class="p">,</span> <span class="nx">length</span> <span class="kt">int64</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">parseRange</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">size</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">([]</span><span class="nx">httpRange</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">b</span> <span class="p">=</span> <span class="s">&#34;bytes=&#34;</span>
-  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">ra</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">b</span><span class="p">):],</span> <span class="s">&#34;,&#34;</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">start</span><span class="p">,</span> <span class="nx">end</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Cut</span><span class="p">(</span><span class="nx">ra</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">)</span>
-    <span class="kd">var</span> <span class="nx">r</span> <span class="nx">httpRange</span>
-    <span class="o">...</span>
-    <span class="nx">i</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">end</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
-      <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span>
-      <span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">&gt;</span> <span class="nx">size</span><span class="o">-</span><span class="nx">r</span><span class="p">.</span><span class="nx">start</span> <span class="p">{</span>
-        <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="nx">size</span> <span class="o">-</span> <span class="nx">r</span><span class="p">.</span><span class="nx">start</span>
-      <span class="p">}</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-      <span class="nx">i</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">end</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
-      <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">||</span> <span class="nx">r</span><span class="p">.</span><span class="nx">start</span> <span class="p">&gt;</span> <span class="nx">i</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;invalid range&#34;</span><span class="p">)</span>
-      <span class="p">}</span>
-      <span class="k">if</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">size</span> <span class="p">{</span>
-        <span class="nx">i</span> <span class="p">=</span> <span class="nx">size</span> <span class="o">-</span> <span class="mi">1</span>
-      <span class="p">}</span>
-      <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="nx">i</span> <span class="o">-</span> <span class="nx">r</span><span class="p">.</span><span class="nx">start</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">httpRange</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">start</span><span class="p">,</span> <span class="nx">length</span> <span class="kt">int64</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">parseRange</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">size</span> <span class="kt">int64</span><span class="p">)</span> <span class="p">([]</span><span class="nx">httpRange</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">const</span> <span class="nx">b</span> <span class="p">=</span> <span class="s">&#34;bytes=&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">ra</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Split</span><span class="p">(</span><span class="nx">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">b</span><span class="p">):],</span> <span class="s">&#34;,&#34;</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">start</span><span class="p">,</span> <span class="nx">end</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Cut</span><span class="p">(</span><span class="nx">ra</span><span class="p">,</span> <span class="s">&#34;-&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">var</span> <span class="nx">r</span> <span class="nx">httpRange</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">i</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">end</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">1000</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">&gt;</span> <span class="nx">size</span><span class="o">-</span><span class="nx">r</span><span class="p">.</span><span class="nx">start</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="nx">size</span> <span class="o">-</span> <span class="nx">r</span><span class="p">.</span><span class="nx">start</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">i</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">strconv</span><span class="p">.</span><span class="nf">ParseInt</span><span class="p">(</span><span class="nx">end</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">||</span> <span class="nx">r</span><span class="p">.</span><span class="nx">start</span> <span class="p">&gt;</span> <span class="nx">i</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;invalid range&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="nx">i</span> <span class="o">&gt;=</span> <span class="nx">size</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">i</span> <span class="p">=</span> <span class="nx">size</span> <span class="o">-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">r</span><span class="p">.</span><span class="nx">length</span> <span class="p">=</span> <span class="nx">i</span> <span class="o">-</span> <span class="nx">r</span><span class="p">.</span><span class="nx">start</span> <span class="o">+</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>This works well with Chrome and FireFox. The browser will send serial range request, like <code>bytes=5_000_300-</code>, <code>bytes=10_000_300-</code>, <code>bytes=15_000_300-</code>, until the end of file reached.</p>
 <p>The full sample code is <a href="https://github.com/phosae/samples/tree/main/2023/go-http-range">here</a>. You can run the server in Docker and visit <a href="http://localhost:9100/">localhost:9100</a> in Chrome or FireFox to verify result</p>
@@ -699,23 +698,23 @@ req bytes=788.1-790MB (may close conn when desired bytes from offset 788.1MB rec
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">docker run --rm -p 9100:9100 zengxu/go-http-range
-
-...
-<span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>3244032-
-response range bytes 3244032-8244031, <span class="m">4882</span> KB
-
-
-<span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>8244032-
-response range bytes 8244032-13244031, <span class="m">4882</span> KB
-
-
-<span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>13244032-
-response range bytes 13244032-18244031, <span class="m">4882</span> KB
-...
-<span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>53244032-
-response range bytes 53244032-53591653, <span class="m">339</span> KB
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --rm -p 9100:9100 zengxu/go-http-range
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>3244032-
+</span></span><span class="line"><span class="cl">response range bytes 3244032-8244031, <span class="m">4882</span> KB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>8244032-
+</span></span><span class="line"><span class="cl">response range bytes 8244032-13244031, <span class="m">4882</span> KB
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>13244032-
+</span></span><span class="line"><span class="cl">response range bytes 13244032-18244031, <span class="m">4882</span> KB
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>::1<span class="o">]</span>:58426 request range <span class="nv">bytes</span><span class="o">=</span>53244032-
+</span></span><span class="line"><span class="cl">response range bytes 53244032-53591653, <span class="m">339</span> KB
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>As Safari always set the last-byte-pos, if the server response another last-byte-pos than desired position, the browser reject to play the video.</p>
 <h2 id="how-can-server-side-handle-video-stream-of-dynamic-size">How Can Server Side Handle Video Stream of Dynamic Size?</h2>
@@ -745,28 +744,28 @@ response range bytes 53244032-53591653, <span class="m">339</span> KB
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">rangeVideo</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">f</span><span class="p">,</span> <span class="nx">size</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">openfile</span><span class="p">(</span><span class="nx">vpart1</span><span class="p">)</span>
-	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-		<span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="mi">500</span><span class="p">)</span>
-		<span class="k">return</span>
-	<span class="p">}</span>
-	<span class="k">defer</span> <span class="nx">f</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-  <span class="o">...</span>
-  <span class="nx">ranges</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">parseRange</span><span class="p">(</span><span class="nx">rangeHeader</span><span class="p">,</span> <span class="nx">size</span><span class="p">)</span>
-  <span class="o">...</span>
-  <span class="nx">ra</span> <span class="o">:=</span> <span class="nx">ranges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="k">if</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">start</span><span class="o">+</span><span class="nx">sizePerRequst</span> <span class="p">&gt;</span> <span class="nx">size</span> <span class="o">&amp;&amp;</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span> <span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span> <span class="cm">/* try escape the tail verify */</span> <span class="p">{</span>
-    <span class="nx">f</span><span class="p">,</span> <span class="nx">size</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">openfile</span><span class="p">(</span><span class="nx">vfull</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
-      <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="mi">500</span><span class="p">)</span>
-      <span class="k">return</span>
-    <span class="p">}</span>
-    <span class="k">defer</span> <span class="nx">f</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
-	<span class="p">}</span>
-  <span class="o">...</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">rangeVideo</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">f</span><span class="p">,</span> <span class="nx">size</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">openfile</span><span class="p">(</span><span class="nx">vpart1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="mi">500</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">f</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ranges</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">parseRange</span><span class="p">(</span><span class="nx">rangeHeader</span><span class="p">,</span> <span class="nx">size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ra</span> <span class="o">:=</span> <span class="nx">ranges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">start</span><span class="o">+</span><span class="nx">sizePerRequst</span> <span class="p">&gt;</span> <span class="nx">size</span> <span class="o">&amp;&amp;</span> <span class="nx">ra</span><span class="p">.</span><span class="nx">length</span> <span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span> <span class="cm">/* try escape the tail verify */</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">f</span><span class="p">,</span> <span class="nx">size</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">openfile</span><span class="p">(</span><span class="nx">vfull</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">http</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">(),</span> <span class="mi">500</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">defer</span> <span class="nx">f</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Last two range request looks like this, the server try to update the resource size from 43730385 to 95644582. All browser have same behavior, they reject to fetch more streams and finish play the video.</p>
 <div class="highlight"><div class="chroma">
@@ -790,24 +789,24 @@ response range bytes 53244032-53591653, <span class="m">339</span> KB
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">Browser                                 Server
-+------------------------+              +--------------------------------------------------+           
-| GET / HTTP/1.1         |              | HTTP/1.1 206 Partial Content                     |
-| Host: localhost        |    &lt;-----&gt;   | Content-Range: bytes 37359296-42359295/43730385  |
-| Range: bytes=37359296- |              | Content-Length: 5000000                          |
-+------------------------+              | ...                                              |
-                                        | (body: 5000000 bytes of video)                   |
-                                        +--------------------------------------------------+
-
-Browser                                 Server
-+------------------------+              +--------------------------------------------------+           
-| GET / HTTP/1.1         |              | HTTP/1.1 206 Partial Content                     |
-| Host: localhost        |    &lt;-----&gt;   | Content-Range: bytes 42359296-43730384/95644582  |
-| Range: bytes=42359296- |              | Content-Length: 1371089                          |
-+------------------------+              | ...                                              |
-                                        | (body: 1371089 bytes of video)                   |
-                                        +--------------------------------------------------+
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Browser                                 Server
+</span></span><span class="line"><span class="cl">+------------------------+              +--------------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET / HTTP/1.1         |              | HTTP/1.1 206 Partial Content                     |
+</span></span><span class="line"><span class="cl">| Host: localhost        |    &lt;-----&gt;   | Content-Range: bytes 37359296-42359295/43730385  |
+</span></span><span class="line"><span class="cl">| Range: bytes=37359296- |              | Content-Length: 5000000                          |
+</span></span><span class="line"><span class="cl">+------------------------+              | ...                                              |
+</span></span><span class="line"><span class="cl">                                        | (body: 5000000 bytes of video)                   |
+</span></span><span class="line"><span class="cl">                                        +--------------------------------------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Browser                                 Server
+</span></span><span class="line"><span class="cl">+------------------------+              +--------------------------------------------------+           
+</span></span><span class="line"><span class="cl">| GET / HTTP/1.1         |              | HTTP/1.1 206 Partial Content                     |
+</span></span><span class="line"><span class="cl">| Host: localhost        |    &lt;-----&gt;   | Content-Range: bytes 42359296-43730384/95644582  |
+</span></span><span class="line"><span class="cl">| Range: bytes=42359296- |              | Content-Length: 1371089                          |
+</span></span><span class="line"><span class="cl">+------------------------+              | ...                                              |
+</span></span><span class="line"><span class="cl">                                        | (body: 1371089 bytes of video)                   |
+</span></span><span class="line"><span class="cl">                                        +--------------------------------------------------+
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>This sample server can run in Docker directly</p>
 <div class="highlight"><div class="chroma">
@@ -815,8 +814,8 @@ Browser                                 Server
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">docker run --rm -p 9100:9100 zengxu/go-http-range:dynamic
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --rm -p 9100:9100 zengxu/go-http-range:dynamic
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>What if the server side return a size large enough (i.e 100GB) as <code>Content-Length</code> header value for the first time browser requesting resource? Would the browser continually send range requests util 100GB reached? Answer is no. The browser may have some way to detect the actual size of first video(during head/tail verification), when its end reached, they reject to fetch more streams and exit the video play.</p>
 <div class="highlight"><div class="chroma">
@@ -828,12 +827,12 @@ Browser                                 Server
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">Range: bytes=0-          &lt;---&gt;   Content-Range: bytes 0-4999999/1000000000
-Range: bytes=4999999-    &lt;---&gt;   Content-Range: bytes 4999999-9999999/1000000000
-Range: bytes=9999999-    &lt;---&gt;   Content-Range: bytes 9999999-14999999/1000000000
-...
-Range: bytes=9999999-    &lt;---&gt;   Content-Range: bytes 994999999-999999999/1000000000
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Range: bytes=0-          &lt;---&gt;   Content-Range: bytes 0-4999999/1000000000
+</span></span><span class="line"><span class="cl">Range: bytes=4999999-    &lt;---&gt;   Content-Range: bytes 4999999-9999999/1000000000
+</span></span><span class="line"><span class="cl">Range: bytes=9999999-    &lt;---&gt;   Content-Range: bytes 9999999-14999999/1000000000
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Range: bytes=9999999-    &lt;---&gt;   Content-Range: bytes 994999999-999999999/1000000000
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Try sample server with option <code>-dynamic true</code> to verify browser&rsquo;s behavior</p>
 <div class="highlight"><div class="chroma">
@@ -841,8 +840,8 @@ Range: bytes=9999999-    &lt;---&gt;   Content-Range: bytes 994999999-999999999/
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">docker run --rm -p 9100:9100 zengxu/go-http-range:dynamic -dynamic <span class="nb">true</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --rm -p 9100:9100 zengxu/go-http-range:dynamic -dynamic <span class="nb">true</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Bypassing browser&rsquo;s verification need knowledges in video encoding technology and is tricky. The best solution for serving dynamic stream is write a custom one, popular video platforms like <a href="https://www.youtube.com">YouTube</a>, <a href="https://www.twitch.tv">Twitch</a> all use their own video player.</p>
 <h2 id="conclusion">Conclusion</h2>
@@ -964,7 +963,7 @@ Range: bytes=9999999-    &lt;---&gt;   Content-Range: bytes 994999999-999999999/
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -977,6 +976,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

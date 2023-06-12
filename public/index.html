@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/" />
@@ -37,7 +37,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,7 +45,6 @@
 <meta property="og:description" content="曾嗜酒的白日梦客栈" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://www.zeng.dev/" />
-
 <meta itemprop="name" content="ZengXu&#39;s BLOG">
 <meta itemprop="description" content="曾嗜酒的白日梦客栈"><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="ZengXu&#39;s BLOG"/>
@@ -124,6 +123,82 @@
       <div class="content-wrapper">
         <div id="content" class="content">
           <section id="posts" class="posts">
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/2023-k8s-api-codegen/">最不厌其烦的 K8s 代码生成教程</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2023-06-05 18:08 </span>
+      
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      彻底而全面的梳理，甚至提供了复制即用的脚本和镜像&hellip;
+    </div>
+    <div class="read-more">
+      <a href="/post/2023-k8s-api-codegen/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/2023-k8s-apiserver-aggregation-internals/">搞懂 K8s apiserver aggregation</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2023-05-31 18:46 </span>
+      
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      全图文展示 apiserver aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)
+    </div>
+    <div class="read-more">
+      <a href="/post/2023-k8s-apiserver-aggregation-internals/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/2023-k8s-apiserver-from-scratch/">实现一个极简 K8s apiserver</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2023-05-26 07:43 </span>
+      
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      本文实现了一个符合 Kubernetes REST 风格的极简 apiserver，代码量只有 500 行左右。无论是单独运行还是集成到 K8s 集群，它都支持 kubectl 增删改查操作。动手把玩这个 apiserver，可以很好理解 K8s apiserver aggregation 原理，以及 kubectl 与 apiserver 的交互机制
+    </div>
+    <div class="read-more">
+      <a href="/post/2023-k8s-apiserver-from-scratch/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
+    <article class="post">
+  <header class="post-header">
+    <h1 class="post-title"><a class="post-link" href="/post/2023-k8s-api-by-crd/">K8s CustomResourceDefinitions (CRD) 原理</a></h1>
+    <div class="post-meta">
+      <span class="post-time"> 2023-05-19 10:09 </span>
+      
+    </div>
+  </header>
+  
+  <div class="post-content">
+    <div class="post-summary">
+      K8s CustomResourceDefinition (CRD) 为使用者提供了开箱即用的 REST API 拓展能力。使用方只需创建一份 CRD 声明，kube-apiserver 就会自动提供一套成熟的 HTTP REST API，并直接将 Custom Resources 存储到背后存储（通常是 etcd）中。本文由浅入深，先展示了 CRD 的基本使用方式、kubectl 与对应 Custom API 模块的交互原理，再深入探究 CRD 在 kube-apiserver 内部的实现原理，最后对其特性的利弊做了总结
+    </div>
+    <div class="read-more">
+      <a href="/post/2023-k8s-api-by-crd/" class="read-more-link">Read more...</a>
+    </div>
+  </div>
+</article>
+
     <article class="post">
   <header class="post-header">
     <h1 class="post-title"><a class="post-link" href="/post/2023-kubeadm-enable-kubelet-serving-certs/">Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin</a></h1>
@@ -238,82 +313,6 @@
   </div>
 </article>
 
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/2021-denyenv-validating-admission-webhook/">Kubernetes admission webhook server 开发教程</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2021-08-08 21:11 </span>
-      
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      How to implement a Kubernetes validating admission webhook
-    </div>
-    <div class="read-more">
-      <a href="/post/2021-denyenv-validating-admission-webhook/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/2020-container-runtimes/">各种容器运行时都解决了什么问题</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2020-07-01 17:31 </span>
-      
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      容器运行时原理小综述
-    </div>
-    <div class="read-more">
-      <a href="/post/2020-container-runtimes/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/20200510-container-oci/">理解 OCI</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2020-05-10 22:43 </span>
-      
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      Dive into Open Container Initiative
-    </div>
-    <div class="read-more">
-      <a href="/post/20200510-container-oci/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
-
-    <article class="post">
-  <header class="post-header">
-    <h1 class="post-title"><a class="post-link" href="/post/20200428-eureka-multil-cluster-replica/">如何迁移 Spring Cloud Eureka 注册体系至 k8s</a></h1>
-    <div class="post-meta">
-      <span class="post-time"> 2020-04-28 20:32 </span>
-      
-    </div>
-  </header>
-  
-  <div class="post-content">
-    <div class="post-summary">
-      优雅处理 Eureka 跨集群同步
-    </div>
-    <div class="read-more">
-      <a href="/post/20200428-eureka-multil-cluster-replica/" class="read-more-link">Read more...</a>
-    </div>
-  </div>
-</article>
-
     </section>
   
   <nav class="pagination">
@@ -369,7 +368,7 @@
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -382,6 +381,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

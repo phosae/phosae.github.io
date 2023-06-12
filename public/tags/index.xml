@@ -6,13 +6,58 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 22 Apr 2023 10:01:25 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 05 Jun 2023 18:08:17 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>code-generation</title>
+      <link>https://www.zeng.dev/tags/code-generation/</link>
+      <pubDate>Mon, 05 Jun 2023 18:08:17 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/code-generation/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>kubernetes</title>
       <link>https://www.zeng.dev/tags/kubernetes/</link>
-      <pubDate>Sat, 22 Apr 2023 10:01:25 +0800</pubDate>
+      <pubDate>Mon, 05 Jun 2023 18:08:17 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go</title>
+      <link>https://www.zeng.dev/tags/go/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>http</title>
+      <link>https://www.zeng.dev/tags/http/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/http/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>openapi</title>
+      <link>https://www.zeng.dev/tags/openapi/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/openapi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rest</title>
+      <link>https://www.zeng.dev/tags/rest/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/rest/</guid>
       <description></description>
     </item>
     
@@ -44,24 +89,6 @@
     </item>
     
     <item>
-      <title>http</title>
-      <link>https://www.zeng.dev/tags/http/</link>
-      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/http/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>REST</title>
-      <link>https://www.zeng.dev/tags/rest/</link>
-      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/rest/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>API</title>
       <link>https://www.zeng.dev/tags/api/</link>
       <pubDate>Wed, 05 Apr 2023 15:28:41 +0800</pubDate>
@@ -76,15 +103,6 @@
       <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/byte-serving/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Go</title>
-      <link>https://www.zeng.dev/tags/go/</link>
-      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/go/</guid>
       <description></description>
     </item>
     

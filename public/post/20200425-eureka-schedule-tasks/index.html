@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/20200425-eureka-schedule-tasks/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,11 +45,10 @@
 <meta property="og:url" content="https://www.zeng.dev/post/20200425-eureka-schedule-tasks/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-04-25T20:40:29+08:00" />
 <meta property="article:modified_time" content="2020-05-08T00:22:00+08:00" />
-
 <meta itemprop="name" content="从定时任务分析 Eureka 架构设计">
 <meta itemprop="description" content="扒一扒 Eureka 中的定时任务"><meta itemprop="datePublished" content="2020-04-25T20:40:29+08:00" />
 <meta itemprop="dateModified" content="2020-05-08T00:22:00+08:00" />
-<meta itemprop="wordCount" content="5007">
+<meta itemprop="wordCount" content="4541">
 <meta itemprop="keywords" content="Spring Cloud,Eureka,Spring,Java," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="从定时任务分析 Eureka 架构设计"/>
 <meta name="twitter:description" content="扒一扒 Eureka 中的定时任务"/>
@@ -218,36 +217,36 @@
 </span><span class="lnt">29
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">// Eureka Server 任务线程
-Eureka-CacheFillTimer
-Eureka-DeltaRetentionTimer
-Eureka-EvictionTimer
-ReplicaAwareInstanceRegistry - RenewalThresholdUpdater
-Eureka-MeasureRateTime
---- Peers ---
-Eureka-PeerNodesUpdater
-TaskAcceptor-peer1,TaskNonBatchingWorker-peer1-0 // AWS ASG
-TaskAcceptor-peer2,TaskNonBatchingWorker-peer2-0 // AWS ASG
-TaskAcceptor-target_peer1
-TaskBatchingWorker-target_peer1-0
-... 省略 1-18
-TaskBatchingWorker-target_peer1-19
-TaskAcceptor-target_peer2
-TaskBatchingWorker-target_peer2-0
-... 省略 1-18
-TaskBatchingWorker-target_peer2-19
-
-// Eureka Client 任务线程
-DiscoveryClient-0
-DiscoveryClient-1
-DiscoveryClient-InstanceInfoReplicator-0
-DiscoveryClient-HeartbeatExecutor-0
-DiscoveryClient-CacheRefreshExecutor-0
-AsyncResolver-bootstrap-0
-
-// Eureka HTTP Transport 任务线程
-Eureka-JerseyClient-Conn-Cleaner
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">// Eureka Server 任务线程
+</span></span><span class="line"><span class="cl">Eureka-CacheFillTimer
+</span></span><span class="line"><span class="cl">Eureka-DeltaRetentionTimer
+</span></span><span class="line"><span class="cl">Eureka-EvictionTimer
+</span></span><span class="line"><span class="cl">ReplicaAwareInstanceRegistry - RenewalThresholdUpdater
+</span></span><span class="line"><span class="cl">Eureka-MeasureRateTime
+</span></span><span class="line"><span class="cl">--- Peers ---
+</span></span><span class="line"><span class="cl">Eureka-PeerNodesUpdater
+</span></span><span class="line"><span class="cl">TaskAcceptor-peer1,TaskNonBatchingWorker-peer1-0 // AWS ASG
+</span></span><span class="line"><span class="cl">TaskAcceptor-peer2,TaskNonBatchingWorker-peer2-0 // AWS ASG
+</span></span><span class="line"><span class="cl">TaskAcceptor-target_peer1
+</span></span><span class="line"><span class="cl">TaskBatchingWorker-target_peer1-0
+</span></span><span class="line"><span class="cl">... 省略 1-18
+</span></span><span class="line"><span class="cl">TaskBatchingWorker-target_peer1-19
+</span></span><span class="line"><span class="cl">TaskAcceptor-target_peer2
+</span></span><span class="line"><span class="cl">TaskBatchingWorker-target_peer2-0
+</span></span><span class="line"><span class="cl">... 省略 1-18
+</span></span><span class="line"><span class="cl">TaskBatchingWorker-target_peer2-19
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Eureka Client 任务线程
+</span></span><span class="line"><span class="cl">DiscoveryClient-0
+</span></span><span class="line"><span class="cl">DiscoveryClient-1
+</span></span><span class="line"><span class="cl">DiscoveryClient-InstanceInfoReplicator-0
+</span></span><span class="line"><span class="cl">DiscoveryClient-HeartbeatExecutor-0
+</span></span><span class="line"><span class="cl">DiscoveryClient-CacheRefreshExecutor-0
+</span></span><span class="line"><span class="cl">AsyncResolver-bootstrap-0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">// Eureka HTTP Transport 任务线程
+</span></span><span class="line"><span class="cl">Eureka-JerseyClient-Conn-Cleaner
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="server">Server</h2>
 <p>以下定时任务处理 Get 请求 2 级缓存和增量 delta 队列</p>
@@ -288,15 +287,15 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 使用 java.util.Timer 定时执行
-</span><span class="c1">// 每 30s 从 readWriteCacheMap 同步
-</span><span class="c1"></span><span class="k">if</span> <span class="o">(</span><span class="n">shouldUseReadOnlyResponseCache</span><span class="o">)</span> <span class="o">{</span>
-  <span class="n">timer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">getCacheUpdateTask</span><span class="o">(),</span>
-          <span class="k">new</span> <span class="n">Date</span><span class="o">(((</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">/</span> <span class="n">responseCacheUpdateIntervalMs</span><span class="o">)</span> <span class="o">*</span> <span class="n">responseCacheUpdateIntervalMs</span><span class="o">)</span>
-                  <span class="o">+</span> <span class="n">responseCacheUpdateIntervalMs</span><span class="o">),</span>
-          <span class="n">responseCacheUpdateIntervalMs</span><span class="o">);</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 使用 java.util.Timer 定时执行
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 每 30s 从 readWriteCacheMap 同步
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="o">(</span><span class="n">shouldUseReadOnlyResponseCache</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">timer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">getCacheUpdateTask</span><span class="o">(),</span>
+</span></span><span class="line"><span class="cl">          <span class="k">new</span> <span class="n">Date</span><span class="o">(((</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">/</span> <span class="n">responseCacheUpdateIntervalMs</span><span class="o">)</span> <span class="o">*</span> <span class="n">responseCacheUpdateIntervalMs</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                  <span class="o">+</span> <span class="n">responseCacheUpdateIntervalMs</span><span class="o">),</span>
+</span></span><span class="line"><span class="cl">          <span class="n">responseCacheUpdateIntervalMs</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>根据 2 级响应缓存时效，结合后文会提到的客户端缓存时长 30s，可以量化 Eureka 的弱一致性。</p>
 <p>假设某个实例在退出前取消注册，server 会 invalidate readWriteCache，因此最长存在 60s(readOnlyCache 30s + clientCache 30s) 延迟；假设某个实例在发送完 heart-beat 后立刻退出且没取消注册，那么可能存在 120s 延迟(readOnlyCache 30s + evict every 60s + clientCache 30s)。即使禁用 readOnlyCache，最大也会存在 90s 延迟。</p>
@@ -311,13 +310,13 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">    
-</span><span class="w">    </span><span class="nt">use-read-only-response-cache</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w">    </span><span class="nt">response-cache-auto-expiration-in-seconds</span><span class="p">:</span><span class="w"> </span><span class="m">180</span><span class="w"> </span><span class="c"># readWriteCache 180s 过期</span><span class="w">
-</span><span class="w">    </span><span class="nt">response-cache-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">30000</span><span class="w"> </span><span class="c"># 30s readOnlyCache 30s 同步</span><span class="w">
-</span><span class="w">    </span><span class="nt">initial-capacity-of-response-cache</span><span class="p">:</span><span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="c"># readWriteCache 容量</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">use-read-only-response-cache</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">response-cache-auto-expiration-in-seconds</span><span class="p">:</span><span class="w"> </span><span class="m">180</span><span class="w"> </span><span class="c"># readWriteCache 180s 过期</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">response-cache-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">30000</span><span class="w"> </span><span class="c"># 30s readOnlyCache 30s 同步</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">initial-capacity-of-response-cache</span><span class="p">:</span><span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="c"># readWriteCache 容量</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="deltaretentiontimer">DeltaRetentionTimer</h3>
 <p>Eureka client 向 server 获取实例列表时，一般会使用增量获取而非全量，这样做可以减少传输数据量、并降低响应时间。</p>
@@ -345,23 +344,23 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 任务随 AbstractInstanceRegistry 构造函数启动调度
-</span><span class="c1"></span><span class="k">this</span><span class="o">.</span><span class="na">deltaRetentionTimer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">getDeltaRetentionTask</span><span class="o">(),</span>
-      <span class="n">serverConfig</span><span class="o">.</span><span class="na">getDeltaRetentionTimerIntervalInMs</span><span class="o">(),</span>
-      <span class="n">serverConfig</span><span class="o">.</span><span class="na">getDeltaRetentionTimerIntervalInMs</span><span class="o">());</span>
-<span class="c1">// timer task
-</span><span class="c1"></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
-  <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">RecentlyChangedItem</span><span class="o">&gt;</span> <span class="n">it</span> <span class="o">=</span> <span class="n">recentlyChangedQueue</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
-  <span class="k">while</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
-      <span class="k">if</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">next</span><span class="o">().</span><span class="na">getLastUpdateTime</span><span class="o">()</span> <span class="o">&lt;</span>
-              <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">serverConfig</span><span class="o">.</span><span class="na">getRetentionTimeInMSInDeltaQueue</span><span class="o">())</span> <span class="o">{</span>
-          <span class="n">it</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
-      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-          <span class="k">break</span><span class="o">;</span>
-      <span class="o">}</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 任务随 AbstractInstanceRegistry 构造函数启动调度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">this</span><span class="o">.</span><span class="na">deltaRetentionTimer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="n">getDeltaRetentionTask</span><span class="o">(),</span>
+</span></span><span class="line"><span class="cl">      <span class="n">serverConfig</span><span class="o">.</span><span class="na">getDeltaRetentionTimerIntervalInMs</span><span class="o">(),</span>
+</span></span><span class="line"><span class="cl">      <span class="n">serverConfig</span><span class="o">.</span><span class="na">getDeltaRetentionTimerIntervalInMs</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// timer task
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">RecentlyChangedItem</span><span class="o">&gt;</span> <span class="n">it</span> <span class="o">=</span> <span class="n">recentlyChangedQueue</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="k">while</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">it</span><span class="o">.</span><span class="na">next</span><span class="o">().</span><span class="na">getLastUpdateTime</span><span class="o">()</span> <span class="o">&lt;</span>
+</span></span><span class="line"><span class="cl">              <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">serverConfig</span><span class="o">.</span><span class="na">getRetentionTimeInMSInDeltaQueue</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">it</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="k">break</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>相关配置如下</p>
 <div class="highlight"><div class="chroma">
@@ -376,15 +375,15 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">disable-delta</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">    </span><span class="c"># 废弃功能配置，早期实现会在本地获取不到 delta 时，会向所有远程实例获取 delta</span><span class="w">
-</span><span class="w">    </span><span class="c"># 现在 Eureka server 会客户端声明远程 Region 列表决定是否向远程实例获取 delta</span><span class="w">
-</span><span class="w">    </span><span class="c"># disable-delta-for-remote-regions: false </span><span class="w">
-</span><span class="w">    </span><span class="nt">delta-retention-timer-interval-in-ms</span><span class="p">:</span><span class="w"> </span><span class="m">30000</span><span class="w"> </span><span class="c"># 定时任务每 30s 执行一次</span><span class="w">
-</span><span class="w">    </span><span class="nt">retention-time-in-m-s-in-delta-queue</span><span class="p">:</span><span class="w"> </span><span class="m">180000</span><span class="w"> </span><span class="c"># 清理超过 3 分钟未更新的实例</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">disable-delta</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 废弃功能配置，早期实现会在本地获取不到 delta 时，会向所有远程实例获取 delta</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># 现在 Eureka server 会客户端声明远程 Region 列表决定是否向远程实例获取 delta</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># disable-delta-for-remote-regions: false </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">delta-retention-timer-interval-in-ms</span><span class="p">:</span><span class="w"> </span><span class="m">30000</span><span class="w"> </span><span class="c"># 定时任务每 30s 执行一次</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">retention-time-in-m-s-in-delta-queue</span><span class="p">:</span><span class="w"> </span><span class="m">180000</span><span class="w"> </span><span class="c"># 清理超过 3 分钟未更新的实例</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="taskacceptor--taskbatchingworker">TaskAcceptor &amp; TaskBatchingWorker</h3>
 <p>Eureka server 针对每个集群节点(Peer Node)，都会启动 1 组线程批量处理集群实例信息同步，同步范围包括实例 register、cancel、heartbeat、statusUpdate 和 deleteStatusOverride，这部分逻辑集中在 com.netflix.eureka.cluster.PeerEurekaNode。</p>
@@ -397,11 +396,11 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">max-elements-in-peer-replication-pool</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="c"># pending task queue 最大容量</span><span class="w">
-</span><span class="w">    </span><span class="nt">max-threads-for-peer-replication</span><span class="p">:</span><span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="c"># batch 线程数量</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-elements-in-peer-replication-pool</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="c"># pending task queue 最大容量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-threads-for-peer-replication</span><span class="p">:</span><span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="c"># batch 线程数量</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Acceptor 在设计上使用了 3 级队列，第 1 级包括了最新的实例变更信息，没有显式设置容量限制。</p>
 <ul>
@@ -422,11 +421,11 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">max-threads-for-status-replication</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># batch 线程数量</span><span class="w">
-</span><span class="w">    </span><span class="nt">max-elements-in-status-replication-pool</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="c"># pending task queue 最大容量</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-threads-for-status-replication</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="c"># batch 线程数量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-elements-in-status-replication-pool</span><span class="p">:</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="c"># pending task queue 最大容量</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="evict-任务">Evict 任务</h3>
 <ol>
@@ -443,10 +442,10 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">sever</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">eviction-interval-timer-in-ms</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w"> </span><span class="c"># 默认 60s 一次</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">sever</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">eviction-interval-timer-in-ms</span><span class="p">:</span><span class="w"> </span><span class="m">60000</span><span class="w"> </span><span class="c"># 默认 60s 一次</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="2">
 <li>辅助任务 RenewalThresholdUpdater</li>
@@ -465,13 +464,13 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">     </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否开启自我保护</span><span class="w">
-</span><span class="w">     </span><span class="nt">renewal-percent-threshold</span><span class="p">:</span><span class="w"> </span><span class="m">0.85</span><span class="w"> </span><span class="c"># renew-interval 注册实例预期心跳比例</span><span class="w">
-</span><span class="w">     </span><span class="nt">expected-client-renewal-interval-seconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="c"># 实例心跳间隔</span><span class="w">
-</span><span class="w">     </span><span class="nt">renewal-threshold-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">900000</span><span class="w"> </span><span class="c"># 15 分钟</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="nt">enable-self-preservation</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否开启自我保护</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="nt">renewal-percent-threshold</span><span class="p">:</span><span class="w"> </span><span class="m">0.85</span><span class="w"> </span><span class="c"># renew-interval 注册实例预期心跳比例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="nt">expected-client-renewal-interval-seconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="c"># 实例心跳间隔</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="nt">renewal-threshold-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">900000</span><span class="w"> </span><span class="c"># 15 分钟</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><ol start="3">
 <li>辅助任务 MeasureRateTimer → renewsLastMin</li>
@@ -495,17 +494,17 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">peer-eureka-nodes-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">600000</span><span class="w"> </span><span class="c"># 10*60*1000，默认 10 分钟执行一次，启动延迟 10 分钟</span><span class="w">
-</span><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w"> 
-</span><span class="w">      </span><span class="nt">defaultZone</span><span class="p">:</span><span class="w"> </span><span class="l">http://peer1:8761/eureka/,http://peer2:8762/eureka/</span><span class="w">
-</span><span class="w">  </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">defaultZone</span><span class="w">
-</span><span class="w">  </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">peer-eureka-nodes-update-interval-ms</span><span class="p">:</span><span class="w"> </span><span class="m">600000</span><span class="w"> </span><span class="c"># 10*60*1000，默认 10 分钟执行一次，启动延迟 10 分钟</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">serviceUrl</span><span class="p">:</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">defaultZone</span><span class="p">:</span><span class="w"> </span><span class="l">http://peer1:8761/eureka/,http://peer2:8762/eureka/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">availability-zones</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">shanghai</span><span class="p">:</span><span class="w"> </span><span class="l">defaultZone</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="l">shanghai</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="measureratetimer--numberofreplicationslastmin">MeasureRateTimer → numberOfReplicationsLastMin</h3>
 <p>com.netflix.eureka.registry.PeerAwareInstanceRegistryImpl  定时任务，属性 numberOfReplicationsLastMin。
@@ -534,13 +533,13 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">eureka</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">registerWithEureka</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否注册到 Eureka server</span><span class="w">
-</span><span class="w">    </span><span class="nt">fetchRegistry</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否向 Eureka server 获取注册实例</span><span class="w">
-</span><span class="w">    </span><span class="nt">heartbeat-executor-thread-pool-size</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span><span class="w">    </span><span class="nt">cache-refresh-executor-thread-pool-size</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">eureka</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">client</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">registerWithEureka</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否注册到 Eureka server</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">fetchRegistry</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="c"># 是否向 Eureka server 获取注册实例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">heartbeat-executor-thread-pool-size</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cache-refresh-executor-thread-pool-size</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="cacherefresh">CacheRefresh</h3>
 <p>集群应用列表获取任务，，一般由 scheduler DiscoveryClient-0 线程管理，由 DiscoveryClient-CacheRefreshExecutor-0 或 DiscoveryClient-CacheRefreshExecutor-1 执行，默认 30s 一次。</p>
@@ -596,43 +595,43 @@ Eureka-JerseyClient-Conn-Cleaner
 </span><span class="lnt">36
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">setInstanceStatus</span><span class="o">(</span><span class="n">InstanceStatus</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">InstanceStatus</span> <span class="n">next</span> <span class="o">=</span> <span class="n">instanceStatusMapper</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">return</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="n">InstanceStatus</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">instanceInfo</span><span class="o">.</span><span class="na">setStatus</span><span class="o">(</span><span class="n">next</span><span class="o">);</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">prev</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">for</span> <span class="o">(</span><span class="n">StatusChangeListener</span> <span class="n">listener</span> <span class="o">:</span> <span class="n">listeners</span><span class="o">.</span><span class="na">values</span><span class="o">())</span> <span class="o">{</span>
-            <span class="k">try</span> <span class="o">{</span>
-                <span class="n">listener</span><span class="o">.</span><span class="na">notify</span><span class="o">(</span><span class="k">new</span> <span class="n">StatusChangeEvent</span><span class="o">(</span><span class="n">prev</span><span class="o">,</span> <span class="n">next</span><span class="o">));</span>
-            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-                <span class="n">logger</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;failed to notify listener: {}&#34;</span><span class="o">,</span> <span class="n">listener</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">e</span><span class="o">);</span>
-            <span class="o">}</span>
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="n">statusChangeListener</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ApplicationInfoManager</span><span class="o">.</span><span class="na">StatusChangeListener</span><span class="o">()</span> <span class="o">{</span>
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="s">&#34;statusChangeListener&#34;</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">notify</span><span class="o">(</span><span class="n">StatusChangeEvent</span> <span class="n">statusChangeEvent</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">InstanceStatus</span><span class="o">.</span><span class="na">DOWN</span> <span class="o">==</span> <span class="n">statusChangeEvent</span><span class="o">.</span><span class="na">getStatus</span><span class="o">()</span> <span class="o">||</span>
-                <span class="n">InstanceStatus</span><span class="o">.</span><span class="na">DOWN</span> <span class="o">==</span> <span class="n">statusChangeEvent</span><span class="o">.</span><span class="na">getPreviousStatus</span><span class="o">())</span> <span class="o">{</span>
-            <span class="c1">// log at warn level if DOWN was involved
-</span><span class="c1"></span>            <span class="n">logger</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;Saw local status change event {}&#34;</span><span class="o">,</span> <span class="n">statusChangeEvent</span><span class="o">);</span>
-        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-            <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;Saw local status change event {}&#34;</span><span class="o">,</span> <span class="n">statusChangeEvent</span><span class="o">);</span>
-        <span class="o">}</span>
-        <span class="n">instanceInfoReplicator</span><span class="o">.</span><span class="na">onDemandUpdate</span><span class="o">();</span>
-    <span class="o">}</span>
-<span class="o">};</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">setInstanceStatus</span><span class="o">(</span><span class="n">InstanceStatus</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">InstanceStatus</span> <span class="n">next</span> <span class="o">=</span> <span class="n">instanceStatusMapper</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">next</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">InstanceStatus</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">instanceInfo</span><span class="o">.</span><span class="na">setStatus</span><span class="o">(</span><span class="n">next</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">(</span><span class="n">prev</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="o">(</span><span class="n">StatusChangeListener</span> <span class="n">listener</span> <span class="o">:</span> <span class="n">listeners</span><span class="o">.</span><span class="na">values</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">listener</span><span class="o">.</span><span class="na">notify</span><span class="o">(</span><span class="k">new</span> <span class="n">StatusChangeEvent</span><span class="o">(</span><span class="n">prev</span><span class="o">,</span> <span class="n">next</span><span class="o">));</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">logger</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;failed to notify listener: {}&#34;</span><span class="o">,</span> <span class="n">listener</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">e</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">statusChangeListener</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ApplicationInfoManager</span><span class="o">.</span><span class="na">StatusChangeListener</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="s">&#34;statusChangeListener&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">notify</span><span class="o">(</span><span class="n">StatusChangeEvent</span> <span class="n">statusChangeEvent</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="o">(</span><span class="n">InstanceStatus</span><span class="o">.</span><span class="na">DOWN</span> <span class="o">==</span> <span class="n">statusChangeEvent</span><span class="o">.</span><span class="na">getStatus</span><span class="o">()</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">                <span class="n">InstanceStatus</span><span class="o">.</span><span class="na">DOWN</span> <span class="o">==</span> <span class="n">statusChangeEvent</span><span class="o">.</span><span class="na">getPreviousStatus</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// log at warn level if DOWN was involved
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="n">logger</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&#34;Saw local status change event {}&#34;</span><span class="o">,</span> <span class="n">statusChangeEvent</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&#34;Saw local status change event {}&#34;</span><span class="o">,</span> <span class="n">statusChangeEvent</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="n">instanceInfoReplicator</span><span class="o">.</span><span class="na">onDemandUpdate</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">};</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="asyncresolver-bootstrap-0">AsyncResolver-bootstrap-0</h3>
 <p>逻辑入口 scheduleServerEndpointTask#scheduleServerEndpointTask</p>
@@ -750,7 +749,7 @@ Eureka-JerseyClient-Conn-Cleaner
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -763,6 +762,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

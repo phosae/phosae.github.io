@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/20200405-raspberry-pi-cluster/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,11 +45,10 @@
 <meta property="og:url" content="https://www.zeng.dev/post/20200405-raspberry-pi-cluster/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2020-04-05T10:00:00+08:00" />
 <meta property="article:modified_time" content="2020-04-15T21:30:00+00:00" />
-
 <meta itemprop="name" content="搭建树莓派 k8s 集群">
 <meta itemprop="description" content="自己动手，丰衣足食，利用开发板搭建本地 k8s 集群"><meta itemprop="datePublished" content="2020-04-05T10:00:00+08:00" />
 <meta itemprop="dateModified" content="2020-04-15T21:30:00+00:00" />
-<meta itemprop="wordCount" content="1594">
+<meta itemprop="wordCount" content="1614">
 <meta itemprop="keywords" content="树莓派,Kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="搭建树莓派 k8s 集群"/>
 <meta name="twitter:description" content="自己动手，丰衣足食，利用开发板搭建本地 k8s 集群"/>
@@ -244,21 +243,21 @@
 </span><span class="lnt">14
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ arp -a 
-? <span class="o">(</span>192.168.2.2<span class="o">)</span> at b8:27:eb:51:6e:d7 on bridge100 ifscope <span class="o">[</span>bridge<span class="o">]</span>
-$ ssh ubuntu@192.168.2.2
-Welcome to Ubuntu 18.04.4 LTS <span class="o">(</span>GNU/Linux 5.3.0-1017-raspi2 aarch64<span class="o">)</span>
-  ...
-  System information as of Sun Apr  <span class="m">5</span> 05:09:55 UTC <span class="m">2020</span>
-
-  System load:  0.08               Processes:           <span class="m">113</span>
-  Usage of /:   11.7% of 14.30GB   Users logged in:     <span class="m">0</span>
-  Memory usage: 25%                IP address <span class="k">for</span> eth0: 192.168.2.2
-  Swap usage:   0%
-...
-Last login: Sun Apr  <span class="m">5</span> 01:25:28 <span class="m">2020</span> from 192.168.2.1
-ubuntu@ubuntu:~$
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ arp -a 
+</span></span><span class="line"><span class="cl">? <span class="o">(</span>192.168.2.2<span class="o">)</span> at b8:27:eb:51:6e:d7 on bridge100 ifscope <span class="o">[</span>bridge<span class="o">]</span>
+</span></span><span class="line"><span class="cl">$ ssh ubuntu@192.168.2.2
+</span></span><span class="line"><span class="cl">Welcome to Ubuntu 18.04.4 LTS <span class="o">(</span>GNU/Linux 5.3.0-1017-raspi2 aarch64<span class="o">)</span>
+</span></span><span class="line"><span class="cl">  ...
+</span></span><span class="line"><span class="cl">  System information as of Sun Apr  <span class="m">5</span> 05:09:55 UTC <span class="m">2020</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  System load:  0.08               Processes:           <span class="m">113</span>
+</span></span><span class="line"><span class="cl">  Usage of /:   11.7% of 14.30GB   Users logged in:     <span class="m">0</span>
+</span></span><span class="line"><span class="cl">  Memory usage: 25%                IP address <span class="k">for</span> eth0: 192.168.2.2
+</span></span><span class="line"><span class="cl">  Swap usage:   0%
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Last login: Sun Apr  <span class="m">5</span> 01:25:28 <span class="m">2020</span> from 192.168.2.1
+</span></span><span class="line"><span class="cl">ubuntu@ubuntu:~$
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用 root 权限在 /etc/netplan/ 目录下新建 99_config.yaml 文件，配置开发板地址为 192.168.2.2(其他板依此类推为 192.168.2.3, 192.168.2.4, &hellip;)，配置静态 IP 地址并设置网关地址为 192.168.2.10(即你的 Mac)，之后使用 netplan apply 更改网络配置。</p>
 <div class="highlight"><div class="chroma">
@@ -281,23 +280,23 @@ ubuntu@ubuntu:~$
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml">{<span class="w">
-</span><span class="w"></span><span class="l">cat &lt;&lt;EOF | sudo tee /etc/netplan/99_config.yaml</span><span class="w">
-</span><span class="w"></span><span class="nt">network</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span><span class="w">  </span><span class="nt">renderer</span><span class="p">:</span><span class="w"> </span><span class="l">networkd</span><span class="w">
-</span><span class="w">  </span><span class="nt">ethernets</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">eth0</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">dhcp4</span><span class="p">:</span><span class="w"> </span><span class="kc">no</span><span class="w">
-</span><span class="w">      </span><span class="nt">addresses</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span>- <span class="m">192.168.2.2</span><span class="l">/24</span><span class="w">
-</span><span class="w">      </span><span class="nt">gateway4</span><span class="p">:</span><span class="w"> </span><span class="m">192.168.2.10</span><span class="w">
-</span><span class="w">      </span><span class="nt">nameservers</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">addresses</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">8.8.8.8</span><span class="p">,</span><span class="m">114.114.114.114</span><span class="p">]</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span><span class="w"></span><span class="l">sudo netplan apply 99_config.yaml</span><span class="w">
-</span><span class="w"></span>}<span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl">{<span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">cat &lt;&lt;EOF | sudo tee /etc/netplan/99_config.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">network</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">renderer</span><span class="p">:</span><span class="w"> </span><span class="l">networkd</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">ethernets</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">eth0</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">dhcp4</span><span class="p">:</span><span class="w"> </span><span class="kc">no</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">addresses</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="m">192.168.2.2</span><span class="l">/24</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">gateway4</span><span class="p">:</span><span class="w"> </span><span class="m">192.168.2.10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">nameservers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">addresses</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">8.8.8.8</span><span class="p">,</span><span class="m">114.114.114.114</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">sudo netplan apply 99_config.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>}<span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>4 月 15 拾遗: NetworkManager 也可以使用 netplan 更改网络，只需将 <strong>renderer: networkd</strong> 换成 <strong>renderer: NetworkManager</strong> 即可</p>
 <h3 id="测试网络连通">测试网络连通</h3>
@@ -315,13 +314,13 @@ ubuntu@ubuntu:~$
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">$ sudo apt update
-$ sudo apt install --assume-yes openssh-server 
-$ sudo systemctl enable ssh
-$ sudo systemctl start ssh
-# 防火墙配置
-$ sudo ufw allow ssh 
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">$ sudo apt update
+</span></span><span class="line"><span class="cl">$ sudo apt install --assume-yes openssh-server 
+</span></span><span class="line"><span class="cl">$ sudo systemctl enable ssh
+</span></span><span class="line"><span class="cl">$ sudo systemctl start ssh
+</span></span><span class="line"><span class="cl"># 防火墙配置
+</span></span><span class="line"><span class="cl">$ sudo ufw allow ssh 
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Ubuntu Desktop 网络配置和树莓派 Ubuntu Server 不一样，它使用的是 network-manager, 先通过 <strong>ip a</strong> 获取网卡名 (这里是 enp1s0，很多是 eth0)，在  /etc/network/interfaces 文件设置静态 IP</p>
 <div class="highlight"><div class="chroma">
@@ -336,15 +335,15 @@ $ sudo ufw allow ssh
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">auto lo
-iface lo inet loopback
-
-auto enp1s0
-  iface enp1s0 inet static
-  address 192.168.2.7
-  netmask 255.255.255.0
-  gateway 192.168.2.10
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">auto lo
+</span></span><span class="line"><span class="cl">iface lo inet loopback
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">auto enp1s0
+</span></span><span class="line"><span class="cl">  iface enp1s0 inet static
+</span></span><span class="line"><span class="cl">  address 192.168.2.7
+</span></span><span class="line"><span class="cl">  netmask 255.255.255.0
+</span></span><span class="line"><span class="cl">  gateway 192.168.2.10
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>重启 network-manager</p>
 <div class="highlight"><div class="chroma">
@@ -354,10 +353,10 @@ auto enp1s0
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">$ sudo service network-manager restart
-$ ps aux | grep -i -E &#34;(networkmanager|nm)&#34;
-root      2175  0.0  0.5 502676 18436 ?  Ssl  21:23   0:00 /usr/sbin/NetworkManager --no-daemon
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">$ sudo service network-manager restart
+</span></span><span class="line"><span class="cl">$ ps aux | grep -i -E &#34;(networkmanager|nm)&#34;
+</span></span><span class="line"><span class="cl">root      2175  0.0  0.5 502676 18436 ?  Ssl  21:23   0:00 /usr/sbin/NetworkManager --no-daemon
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Ubuntu Desktop 使用 systemd-resolved 解析 DNS，打开 /etc/systemd/resolved.conf，加入 DNS 服务地址</p>
 <div class="highlight"><div class="chroma">
@@ -367,10 +366,10 @@ root      2175  0.0  0.5 502676 18436 ?  Ssl  21:23   0:00 /usr/sbin/NetworkMana
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text">[Resolve]
-DNS=8.8.8.8 114.114.114.114 192.168.2.10
-FallbackDNS=8.8.4.4
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">[Resolve]
+</span></span><span class="line"><span class="cl">DNS=8.8.8.8 114.114.114.114 192.168.2.10
+</span></span><span class="line"><span class="cl">FallbackDNS=8.8.4.4
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>重启服务</p>
 <div class="highlight"><div class="chroma">
@@ -378,8 +377,8 @@ FallbackDNS=8.8.4.4
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ systemctl restart systemd-resolved
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ systemctl restart systemd-resolved
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>最后，切记链接文件</p>
 <div class="highlight"><div class="chroma">
@@ -387,8 +386,8 @@ FallbackDNS=8.8.4.4
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>测试 DNS 解析</p>
 <div class="highlight"><div class="chroma">
@@ -403,15 +402,15 @@ FallbackDNS=8.8.4.4
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">$ nslookup google.com nslookup google.com
-Server:		8.8.8.8
-Address:	8.8.8.8#53
-
-Name:	google.com
-Address: 93.46.8.90
-Name:	google.com
-Address: 59.24.3.174
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ nslookup google.com nslookup google.com
+</span></span><span class="line"><span class="cl">Server:		8.8.8.8
+</span></span><span class="line"><span class="cl">Address:	8.8.8.8#53
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Name:	google.com
+</span></span><span class="line"><span class="cl">Address: 93.46.8.90
+</span></span><span class="line"><span class="cl">Name:	google.com
+</span></span><span class="line"><span class="cl">Address: 59.24.3.174
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="4-13加入-odyssey-x86-开发板">4-13，加入 ODYSSEY-X86 开发板</h2>
 <p>型号 4 cores @ 1.5-2.5 GHz, 8 GB RAM(LPDDR4), 64 GB eMMc</p>
@@ -437,24 +436,24 @@ Address: 59.24.3.174
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    eth_lan:
-      dhcp4: no
-      dhcp6: no
-      addresses: [192.168.2.8/24]
-      gateway4: 192.168.2.10
-      nameservers:
-        addresses: [8.8.8.8,114.114.114.114,192.168.2.10]
-      match:
-        macaddress: 00:e0:4c:01:0f:6f
-      set-name: eth_lan
-    enp2s0:
-      dhcp4: true
-      dhcp6: true
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">network:
+</span></span><span class="line"><span class="cl">  version: 2
+</span></span><span class="line"><span class="cl">  renderer: networkd
+</span></span><span class="line"><span class="cl">  ethernets:
+</span></span><span class="line"><span class="cl">    eth_lan:
+</span></span><span class="line"><span class="cl">      dhcp4: no
+</span></span><span class="line"><span class="cl">      dhcp6: no
+</span></span><span class="line"><span class="cl">      addresses: [192.168.2.8/24]
+</span></span><span class="line"><span class="cl">      gateway4: 192.168.2.10
+</span></span><span class="line"><span class="cl">      nameservers:
+</span></span><span class="line"><span class="cl">        addresses: [8.8.8.8,114.114.114.114,192.168.2.10]
+</span></span><span class="line"><span class="cl">      match:
+</span></span><span class="line"><span class="cl">        macaddress: 00:e0:4c:01:0f:6f
+</span></span><span class="line"><span class="cl">      set-name: eth_lan
+</span></span><span class="line"><span class="cl">    enp2s0:
+</span></span><span class="line"><span class="cl">      dhcp4: true
+</span></span><span class="line"><span class="cl">      dhcp6: true
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>目前集群长这样</p>
 <img src="/img/2020-04/pi-cluster-0415.jpg" width="500px"/>
@@ -565,7 +564,7 @@ Address: 59.24.3.174
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -578,6 +577,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 

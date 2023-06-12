@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.87.0 with theme even" />
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2023-rest-part1-api/" />
@@ -35,7 +35,7 @@
 
 
 
-<link href="/sass/main.min.002f7338df464ade44c04c92566f06e169f8fc2f54deda7f6dff1fe7badee057.css" rel="stylesheet">
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
@@ -45,11 +45,10 @@
 <meta property="og:url" content="https://www.zeng.dev/post/2023-rest-part1-api/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2023-04-05T15:28:41+08:00" />
 <meta property="article:modified_time" content="2023-04-12T15:28:41+08:00" />
-
 <meta itemprop="name" content="REST: Part 1 - HTTP API 设计思路">
 <meta itemprop="description" content="HTTP REST API 通用设计思路"><meta itemprop="datePublished" content="2023-04-05T15:28:41+08:00" />
 <meta itemprop="dateModified" content="2023-04-12T15:28:41+08:00" />
-<meta itemprop="wordCount" content="6447">
+<meta itemprop="wordCount" content="6455">
 <meta itemprop="keywords" content="REST,HTTP,API," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="REST: Part 1 - HTTP API 设计思路"/>
 <meta name="twitter:description" content="HTTP REST API 通用设计思路"/>
@@ -218,8 +217,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span><span class="nt">&#34;orderId&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&#34;orderValue&#34;</span><span class="p">:</span><span class="mf">99.90</span><span class="p">,</span><span class="nt">&#34;productId&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&#34;quantity&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">&#34;orderId&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&#34;orderValue&#34;</span><span class="p">:</span><span class="mf">99.90</span><span class="p">,</span><span class="nt">&#34;productId&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&#34;quantity&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>便可以推断出如何创建订单</p>
 <ul>
@@ -253,17 +252,17 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-    <span class="nt">&#34;orderID&#34;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
-    <span class="nt">&#34;productID&#34;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
-    <span class="nt">&#34;quantity&#34;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
-    <span class="nt">&#34;orderValue&#34;</span><span class="p">:</span><span class="mf">16.60</span><span class="p">,</span>
-    <span class="nt">&#34;links&#34;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span><span class="nt">&#34;rel&#34;</span><span class="p">:</span><span class="s2">&#34;product&#34;</span><span class="p">,</span><span class="nt">&#34;href&#34;</span><span class="p">:</span><span class="s2">&#34;https://example.com/customers/3&#34;</span><span class="p">,</span> <span class="nt">&#34;action&#34;</span><span class="p">:</span><span class="s2">&#34;GET&#34;</span> <span class="p">},</span>
-        <span class="p">{</span><span class="nt">&#34;rel&#34;</span><span class="p">:</span><span class="s2">&#34;product&#34;</span><span class="p">,</span><span class="nt">&#34;href&#34;</span><span class="p">:</span><span class="s2">&#34;https://example.com/customers/3&#34;</span><span class="p">,</span> <span class="nt">&#34;action&#34;</span><span class="p">:</span><span class="s2">&#34;PUT&#34;</span> <span class="p">}</span>
-    <span class="p">]</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;orderID&#34;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;productID&#34;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;quantity&#34;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;orderValue&#34;</span><span class="p">:</span><span class="mf">16.60</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;links&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">&#34;rel&#34;</span><span class="p">:</span><span class="s2">&#34;product&#34;</span><span class="p">,</span><span class="nt">&#34;href&#34;</span><span class="p">:</span><span class="s2">&#34;https://example.com/customers/3&#34;</span><span class="p">,</span> <span class="nt">&#34;action&#34;</span><span class="p">:</span><span class="s2">&#34;GET&#34;</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="nt">&#34;rel&#34;</span><span class="p">:</span><span class="s2">&#34;product&#34;</span><span class="p">,</span><span class="nt">&#34;href&#34;</span><span class="p">:</span><span class="s2">&#34;https://example.com/customers/3&#34;</span><span class="p">,</span> <span class="nt">&#34;action&#34;</span><span class="p">:</span><span class="s2">&#34;PUT&#34;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>一套达到 Level 3 的 REST API，只需对某几 URI 执行 GET 操作，而无需要任何文档，即可以探索出所有 URIs 及其所有操作方式。</p>
 <h2 id="uri-设计">URI 设计</h2>
@@ -273,8 +272,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">https://&lt;service&gt;.googleapis.com/(&lt;service&gt;/)&lt;version&gt;/{resource/path}
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">https://&lt;service&gt;.googleapis.com/(&lt;service&gt;/)&lt;version&gt;/{resource/path}
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Gmail API 示例 [<a href="https://developers.google.com/gmail/api">3</a>]</p>
 <ul>
@@ -295,8 +294,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">https://&lt;tenant&gt;.&lt;region&gt;.&lt;service&gt;.&lt;cloud&gt;/&lt;service-root&gt;/&lt;resource-collection&gt;/&lt;resource-id&gt;?api-version=YYYY-MM-DD(-preview)
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">https://&lt;tenant&gt;.&lt;region&gt;.&lt;service&gt;.&lt;cloud&gt;/&lt;service-root&gt;/&lt;resource-collection&gt;/&lt;resource-id&gt;?api-version=YYYY-MM-DD(-preview)
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>把 users 信息和 regions 信息放到了域名。对于 Azure 这类全球各地部署的云服务，这样做比较合理。实践中可以根据业务自行设计</p>
 <ul>
@@ -318,10 +317,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">GET https://management.azure.com/subscriptions/{subscriptionId} \
-/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute \
-/virtualMachines/{vmName}?api-version=2022-11-01
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">GET https://management.azure.com/subscriptions/{subscriptionId} \
+</span></span><span class="line"><span class="cl">/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute \
+</span></span><span class="line"><span class="cl">/virtualMachines/{vmName}?api-version=2022-11-01
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>应该说，只要资源从属明确，URL 长点也没关系，比如 Gmail 中大多资源都归属某用户（如 <code>users/*/messages/*</code>），Azure 中大部分资源归属在 <code>subscriptions/*/resourceGroups/*/providers/*</code></p>
 <ul>
@@ -418,77 +417,77 @@
 </span><span class="lnt">70
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ kubectl proxy
-Starting to serve on 127.0.0.1:8001
-
-$ curl 127.0.0.1:8001 <span class="c1"># in another window/panel</span>
-
-<span class="o">{</span>
-  <span class="s2">&#34;paths&#34;</span>: 
-    <span class="s2">&#34;/api&#34;</span>,
-    <span class="s2">&#34;/api/v1&#34;</span>,
-    <span class="s2">&#34;/apis&#34;</span>,
-    <span class="s2">&#34;/apis/apps&#34;</span>,
-    <span class="s2">&#34;/apis/apps/v1&#34;</span>,
-    <span class="s2">&#34;/apis/authentication.k8s.io&#34;</span>,
-    <span class="s2">&#34;/apis/authentication.k8s.io/v1&#34;</span>,
-    <span class="s2">&#34;/apis/autoscaling&#34;</span>,
-    <span class="s2">&#34;/apis/autoscaling/v1&#34;</span>,
-    <span class="s2">&#34;/apis/autoscaling/v2&#34;</span>,
-    <span class="s2">&#34;/apis/batch&#34;</span>,
-    <span class="s2">&#34;/apis/batch/v1&#34;</span>,
-    <span class="s2">&#34;/apis/node.k8s.io&#34;</span>,
-    <span class="s2">&#34;/apis/node.k8s.io/v1&#34;</span>,
-    <span class="s2">&#34;/logs&#34;</span>,
-    <span class="s2">&#34;/metrics&#34;</span>,
-    <span class="s2">&#34;/version&#34;</span>
-  <span class="o">]</span>
-<span class="o">}</span>
-
-$ curl 127.0.0.1:8001/apis/autoscaling/v2
-
-<span class="o">{</span>
-  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;APIResourceList&#34;</span>,
-  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
-  <span class="s2">&#34;groupVersion&#34;</span>: <span class="s2">&#34;autoscaling/v2&#34;</span>,
-  <span class="s2">&#34;resources&#34;</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;horizontalpodautoscalers&#34;</span>,
-      <span class="s2">&#34;singularName&#34;</span>: <span class="s2">&#34;&#34;</span>,
-      <span class="s2">&#34;namespaced&#34;</span>: true,
-      <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;HorizontalPodAutoscaler&#34;</span>,
-      <span class="s2">&#34;verbs&#34;</span>: <span class="o">[</span>
-        <span class="s2">&#34;create&#34;</span>,
-        <span class="s2">&#34;delete&#34;</span>,
-        <span class="s2">&#34;deletecollection&#34;</span>,
-        <span class="s2">&#34;get&#34;</span>,
-        <span class="s2">&#34;list&#34;</span>,
-        <span class="s2">&#34;patch&#34;</span>,
-        <span class="s2">&#34;update&#34;</span>,
-        <span class="s2">&#34;watch&#34;</span>
-      <span class="o">]</span>,
-      <span class="s2">&#34;shortNames&#34;</span>: <span class="o">[</span>
-        <span class="s2">&#34;hpa&#34;</span>
-      <span class="o">]</span>,
-      <span class="s2">&#34;categories&#34;</span>: <span class="o">[</span>
-        <span class="s2">&#34;all&#34;</span>
-      <span class="o">]</span>,
-      <span class="s2">&#34;storageVersionHash&#34;</span>: <span class="s2">&#34;oQlkt7f5j/A=&#34;</span>
-    <span class="o">}</span>,
-    <span class="o">{</span>
-      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;horizontalpodautoscalers/status&#34;</span>,
-      <span class="s2">&#34;singularName&#34;</span>: <span class="s2">&#34;&#34;</span>,
-      <span class="s2">&#34;namespaced&#34;</span>: true,
-      <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;HorizontalPodAutoscaler&#34;</span>,
-      <span class="s2">&#34;verbs&#34;</span>: <span class="o">[</span>
-        <span class="s2">&#34;get&#34;</span>,
-        <span class="s2">&#34;patch&#34;</span>,
-        <span class="s2">&#34;update&#34;</span>
-      <span class="o">]</span>
-    <span class="o">}</span>
-  <span class="o">]</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ kubectl proxy
+</span></span><span class="line"><span class="cl">Starting to serve on 127.0.0.1:8001
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ curl 127.0.0.1:8001 <span class="c1"># in another window/panel</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;paths&#34;</span>: 
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/api&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/api/v1&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/apps&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/apps/v1&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/authentication.k8s.io&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/authentication.k8s.io/v1&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/autoscaling&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/autoscaling/v1&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/autoscaling/v2&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/batch&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/batch/v1&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/node.k8s.io&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/apis/node.k8s.io/v1&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/logs&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/metrics&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;/version&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ curl 127.0.0.1:8001/apis/autoscaling/v2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;APIResourceList&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;groupVersion&#34;</span>: <span class="s2">&#34;autoscaling/v2&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;resources&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;horizontalpodautoscalers&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;singularName&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;namespaced&#34;</span>: true,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;HorizontalPodAutoscaler&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;verbs&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;create&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;delete&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;deletecollection&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;get&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;list&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;patch&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;update&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;watch&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;shortNames&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;hpa&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;categories&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;all&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;storageVersionHash&#34;</span>: <span class="s2">&#34;oQlkt7f5j/A=&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;horizontalpodautoscalers/status&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;singularName&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;namespaced&#34;</span>: true,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;HorizontalPodAutoscaler&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;verbs&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;get&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;patch&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;update&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="o">]</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>注: <a href="https://kubernetes.io/docs/reference/using-api/api-concepts/">Kubernetes</a> 所用 REST library 是 <a href="https://github.com/emicklei/go-restful">emicklei/go-restful</a>。</p>
 <h2 id="methods">Methods</h2>
@@ -556,8 +555,8 @@ $ curl 127.0.0.1:8001/apis/autoscaling/v2
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET /resources/<span class="o">{</span>name<span class="o">}</span>?p1<span class="o">=</span>v1<span class="p">&amp;</span><span class="nv">p2</span><span class="o">=</span>v2<span class="p">&amp;</span><span class="nv">p3</span><span class="o">=</span>v3
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET /resources/<span class="o">{</span>name<span class="o">}</span>?p1<span class="o">=</span>v1<span class="p">&amp;</span><span class="nv">p2</span><span class="o">=</span>v2<span class="p">&amp;</span><span class="nv">p3</span><span class="o">=</span>v3
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>获取资源集合</p>
 <div class="highlight"><div class="chroma">
@@ -565,8 +564,8 @@ $ curl 127.0.0.1:8001/apis/autoscaling/v2
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET /resources?p1<span class="o">=</span>v1<span class="p">&amp;</span><span class="nv">p2</span><span class="o">=</span>v2<span class="p">&amp;</span><span class="nv">p3</span><span class="o">=</span>v3
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET /resources?p1<span class="o">=</span>v1<span class="p">&amp;</span><span class="nv">p2</span><span class="o">=</span>v2<span class="p">&amp;</span><span class="nv">p3</span><span class="o">=</span>v3
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>注意: URL Path 之外请求字段应通过 URL query parameters 传输，而不是存储于 Body</p>
 <blockquote>
@@ -580,8 +579,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET https://library.googleapis.com/v1/shelves/-/books?filter<span class="o">=</span>xxx
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET https://library.googleapis.com/v1/shelves/-/books?filter<span class="o">=</span>xxx
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>或者获取所有书架下的单本书籍</p>
 <div class="highlight"><div class="chroma">
@@ -589,8 +588,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET https://library.googleapis.com/v1/shelves/-/books/<span class="o">{</span>id<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET https://library.googleapis.com/v1/shelves/-/books/<span class="o">{</span>id<span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>如果 List 结果条数过多，按照复杂度可以添加分页、过滤、排序功能</p>
 <p><strong>分页</strong></p>
@@ -600,8 +599,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET /orders?limit<span class="o">=</span>25<span class="p">&amp;</span><span class="nv">offset</span><span class="o">=</span><span class="m">50</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET /orders?limit<span class="o">=</span>25<span class="p">&amp;</span><span class="nv">offset</span><span class="o">=</span><span class="m">50</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Google 引入 page token 并移除了 offset，改由服务端驱动分页。<a href="https://developers.google.com/calendar/api/guides/pagination">Google Calendar</a> 示例: 客户端通过 maxResults 声明单次响应条数，服务端返回 nextPageToken 字段声明还有下一页可供获取</p>
 <div class="highlight"><div class="chroma">
@@ -613,12 +612,12 @@ implementations to reject the request.</p>
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET /calendars/primary/events?maxResults<span class="o">=</span><span class="m">10</span>
-
-//Result contains
-
-<span class="s2">&#34;nextPageToken&#34;</span>: <span class="s2">&#34;CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA&#34;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET /calendars/primary/events?maxResults<span class="o">=</span><span class="m">10</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">//Result contains
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;nextPageToken&#34;</span>: <span class="s2">&#34;CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA&#34;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>客户端下一请求中送入 pageToken 参数，对应上一响应中返回的 nextPageToken</p>
 <div class="highlight"><div class="chroma">
@@ -626,8 +625,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET /calendars/primary/events?maxResults<span class="o">=</span>10<span class="p">&amp;</span><span class="nv">pageToken</span><span class="o">=</span>CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET /calendars/primary/events?maxResults<span class="o">=</span>10<span class="p">&amp;</span><span class="nv">pageToken</span><span class="o">=</span>CiAKGjBpNDd2Nmp2Zml2cXRwYjBpOXA
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Google 主导的 <a href="https://kubernetes.io/docs/reference/using-api/api-concepts/">Kubernetes</a> apiserver 使用 limit（对应 maxResults） 和 continue（对应 pageToken) 语义分页</p>
 <p>客户端申请分页，单页数量 5。apiserver 返回第 1 页 5 条内容，返回 continue 并提示剩余 15 条</p>
@@ -647,19 +646,19 @@ implementations to reject the request.</p>
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl get --raw <span class="s1">&#39;/api/v1/configmaps?limit=5&#39;</span>
-
-<span class="o">{</span>
-  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;ConfigMapList&#34;</span>,
-  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
-  <span class="s2">&#34;metadata&#34;</span>: <span class="o">{</span>
-    <span class="s2">&#34;resourceVersion&#34;</span>: <span class="s2">&#34;21796695&#34;</span>,
-    <span class="s2">&#34;continue&#34;</span>: <span class="s2">&#34;eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTI1ODEsInN0YXJ0IjoiZGVmYXVsdC9teS1kYXByLWRiLXJlZGlzLWhlYWx0aFx1MDAwMCJ9&#34;</span>,
-    <span class="s2">&#34;remainingItemCount&#34;</span>: <span class="m">15</span>
-  <span class="o">}</span>,
-  <span class="s2">&#34;items&#34;</span>: <span class="o">[</span>...<span class="o">]</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl get --raw <span class="s1">&#39;/api/v1/configmaps?limit=5&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;ConfigMapList&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;metadata&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;resourceVersion&#34;</span>: <span class="s2">&#34;21796695&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;continue&#34;</span>: <span class="s2">&#34;eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTI1ODEsInN0YXJ0IjoiZGVmYXVsdC9teS1kYXByLWRiLXJlZGlzLWhlYWx0aFx1MDAwMCJ9&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;remainingItemCount&#34;</span>: <span class="m">15</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;items&#34;</span>: <span class="o">[</span>...<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>调整 limit 为 10，送入 continue 参数获取下一页。apiserver 返回第 2 页 10 条内容，返回 continue 并提示剩余 5 条</p>
 <div class="highlight"><div class="chroma">
@@ -678,19 +677,19 @@ implementations to reject the request.</p>
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl get --raw <span class="s1">&#39;/api/v1/configmaps?limit=10&amp;continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTI1ODEsInN0YXJ0IjoiZGVmYXVsdC9teS1kYXByLWRiLXJlZGlzLWhlYWx0aFx1MDAwMCJ9&#39;</span>
-
-<span class="o">{</span>
-  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;ConfigMapList&#34;</span>,
-  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
-  <span class="s2">&#34;metadata&#34;</span>: <span class="o">{</span>
-    <span class="s2">&#34;resourceVersion&#34;</span>: <span class="s2">&#34;21796695&#34;</span>,
-    <span class="s2">&#34;continue&#34;</span>: <span class="s2">&#34;eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTY2OTUsInN0YXJ0Ijoia3ViZS1zeXN0ZW0va3ViZS1wcm94eVx1MDAwMCJ9&#34;</span>,
-    <span class="s2">&#34;remainingItemCount&#34;</span>:5
-  <span class="o">}</span>,
-  <span class="s2">&#34;items&#34;</span>: <span class="o">[</span>...<span class="o">]</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl get --raw <span class="s1">&#39;/api/v1/configmaps?limit=10&amp;continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTI1ODEsInN0YXJ0IjoiZGVmYXVsdC9teS1kYXByLWRiLXJlZGlzLWhlYWx0aFx1MDAwMCJ9&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;ConfigMapList&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;metadata&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;resourceVersion&#34;</span>: <span class="s2">&#34;21796695&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;continue&#34;</span>: <span class="s2">&#34;eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTY2OTUsInN0YXJ0Ijoia3ViZS1zeXN0ZW0va3ViZS1wcm94eVx1MDAwMCJ9&#34;</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;remainingItemCount&#34;</span>:5
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;items&#34;</span>: <span class="o">[</span>...<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>客户端获取最后 5 条。服务端返回不再返回 continue 和 remainingItemCount。</p>
 <div class="highlight"><div class="chroma">
@@ -707,17 +706,17 @@ implementations to reject the request.</p>
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl get --raw <span class="s1">&#39;/api/v1/configmaps?limit=10&amp;continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTY2OTUsInN0YXJ0Ijoia3ViZS1zeXN0ZW0va3ViZS1wcm94eVx1MDAwMCJ9&#39;</span>
-
-<span class="o">{</span>
-  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;ConfigMapList&#34;</span>,
-  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
-  <span class="s2">&#34;metadata&#34;</span>: <span class="o">{</span>
-    <span class="s2">&#34;resourceVersion&#34;</span>: <span class="s2">&#34;21796695&#34;</span>
-  <span class="o">}</span>,
-  <span class="s2">&#34;items&#34;</span>: <span class="o">[</span>...<span class="o">]</span>
-<span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl get --raw <span class="s1">&#39;/api/v1/configmaps?limit=10&amp;continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MjE3OTY2OTUsInN0YXJ0Ijoia3ViZS1zeXN0ZW0va3ViZS1wcm94eVx1MDAwMCJ9&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;kind&#34;</span>: <span class="s2">&#34;ConfigMapList&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;apiVersion&#34;</span>: <span class="s2">&#34;v1&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;metadata&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;resourceVersion&#34;</span>: <span class="s2">&#34;21796695&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;items&#34;</span>: <span class="o">[</span>...<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>类似地，<a href="https://cloud.google.com/apis/design">Google Cloud API design guide</a> design_patterns/List Pagination 将 maxResults 换成了 page_size，其他没有变化。</p>
 <p><strong>过滤</strong></p>
@@ -805,8 +804,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name eq &#39;Milk&#39;
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name eq &#39;Milk&#39;
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Example: all products with a name not equal to &lsquo;Milk&rsquo;</p>
 <div class="highlight"><div class="chroma">
@@ -814,8 +813,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name ne &#39;Milk&#39;
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name ne &#39;Milk&#39;
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Example: all products with the name &lsquo;Milk&rsquo; that also have a price less than 2.55:</p>
 <div class="highlight"><div class="chroma">
@@ -823,8 +822,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name eq &#39;Milk&#39; and price lt 2.55
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name eq &#39;Milk&#39; and price lt 2.55
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Example: all products that either have the name &lsquo;Milk&rsquo; or have a price less than 2.55:</p>
 <div class="highlight"><div class="chroma">
@@ -832,8 +831,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name eq &#39;Milk&#39; or price lt 2.55
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=name eq &#39;Milk&#39; or price lt 2.55
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Example: all products that have the name &lsquo;Milk&rsquo; or &lsquo;Eggs&rsquo; and have a price less than 2.55:</p>
 <div class="highlight"><div class="chroma">
@@ -841,8 +840,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=(name eq &#39;Milk&#39; or name eq &#39;Eggs&#39;) and price lt 2.55
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/products?$filter=(name eq &#39;Milk&#39; or name eq &#39;Eggs&#39;) and price lt 2.55
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>filter 优先级</p>
 <table>
@@ -915,8 +914,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/people?$orderBy=name
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/people?$orderBy=name
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>示例：返回 people list，按照 name 降序排列</p>
 <div class="highlight"><div class="chroma">
@@ -924,8 +923,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/people?$orderBy=name desc
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/people?$orderBy=name desc
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>示例：返回 people list，先按照 name 降序排列，再按照 hireDate 降序排列</p>
 <div class="highlight"><div class="chroma">
@@ -933,8 +932,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/people?$orderBy=name desc,hireDate
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/people?$orderBy=name desc,hireDate
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>示例：filter 与 orderBy 联合使用</p>
 <div class="highlight"><div class="chroma">
@@ -942,8 +941,8 @@ implementations to reject the request.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">GET https://api.contoso.com/v1.0/people?$filter=name eq &#39;david&#39;&amp;$orderBy=hireDate
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET https://api.contoso.com/v1.0/people?$filter=name eq &#39;david&#39;&amp;$orderBy=hireDate
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><strong>Range-分段返回大对象</strong></p>
 <p>如果资源过大，如视频大文件，服务端可引入 Range 支持 [<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests">5</a>]。</p>
@@ -959,8 +958,8 @@ HEAD is used to obtain metadata about the <a href="https://www.rfc-editor.org/rf
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="nf">HEAD</span> <span class="nn">https://adventure-works.com/products/10?fields=productImage</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="nf">HEAD</span> <span class="nn">https://adventure-works.com/products/10?fields=productImage</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用 HEAD 获取元数据</p>
 <div class="highlight"><div class="chroma">
@@ -972,12 +971,12 @@ HEAD is used to obtain metadata about the <a href="https://www.rfc-editor.org/rf
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">HTTP/1.1 <span class="m">200</span> OK
-
-Accept-Ranges: bytes
-Content-Type: image/jpeg
-Content-Length: <span class="m">4580</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">HTTP/1.1 <span class="m">200</span> OK
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Accept-Ranges: bytes
+</span></span><span class="line"><span class="cl">Content-Type: image/jpeg
+</span></span><span class="line"><span class="cl">Content-Length: <span class="m">4580</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>客户端根据响应结果使用 Range 获取部分数据</p>
 <div class="highlight"><div class="chroma">
@@ -986,9 +985,9 @@ Content-Length: <span class="m">4580</span>
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">GET https://adventure-works.com/products/10?fields<span class="o">=</span>productImage HTTP/1.1
-Range: <span class="nv">bytes</span><span class="o">=</span>0-2499
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">GET https://adventure-works.com/products/10?fields<span class="o">=</span>productImage HTTP/1.1
+</span></span><span class="line"><span class="cl">Range: <span class="nv">bytes</span><span class="o">=</span>0-2499
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>服务端根据声明，返回字节流 0-2499/4580</p>
 <div class="highlight"><div class="chroma">
@@ -1001,19 +1000,17 @@ Range: <span class="nv">bytes</span><span class="o">=</span>0-2499
 </span><span class="lnt">6
 </span><span class="lnt">7
 </span><span class="lnt">8
-</span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">HTTP/1.1 <span class="m">206</span> Partial Content
-
-Accept-Ranges: bytes
-Content-Type: image/jpeg
-Content-Length: <span class="m">2500</span>
-Content-Range: bytes 0-2499/4580
-
-<span class="o">[</span>...<span class="o">]</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">HTTP/1.1 <span class="m">206</span> Partial Content
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Accept-Ranges: bytes
+</span></span><span class="line"><span class="cl">Content-Type: image/jpeg
+</span></span><span class="line"><span class="cl">Content-Length: <span class="m">2500</span>
+</span></span><span class="line"><span class="cl">Content-Range: bytes 0-2499/4580
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>...<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="create-----http-postput">Create &lt;&mdash;&gt; HTTP POST/PUT</h3>
 <p>规范建议使用 POST 或 PUT 表达创建语义。它们之间区别见 <a href="https://www.rfc-editor.org/rfc/rfc9110#section-4.3.4">RFC 9110 4.3.4</a></p>
@@ -1035,10 +1032,10 @@ effect is only known by the origin server.</p>
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="err">POST https://example.com/resources
-</span><span class="err">
-</span><span class="err">{&#34;msg&#34;: &#34;hello&#34;}
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">POST https://example.com/resources
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">{&#34;msg&#34;: &#34;hello&#34;}
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>服务端实现在解析到 Body <code>{&quot;msg&quot;: &quot;hello&quot;}</code> 之后，可以自行生成资源 <code>https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3</code>，体现在 Response Header Location，响应如下内容</p>
 <div class="highlight"><div class="chroma">
@@ -1047,9 +1044,9 @@ effect is only known by the origin server.</p>
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="m">201</span> CREATED
-Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="m">201</span> CREATED
+</span></span><span class="line"><span class="cl">Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>对应内容表现为</p>
 <div class="highlight"><div class="chroma">
@@ -1057,8 +1054,8 @@ Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span><span class="nt">&#34;resource_id&#34;</span><span class="p">:</span><span class="s2">&#34;027bdb6a-4deb-4906-9060-28cc0b1a35f3&#34;</span><span class="p">,</span> <span class="nt">&#34;msg&#34;</span><span class="p">:</span> <span class="s2">&#34;hello&#34;</span><span class="p">,</span> <span class="nt">&#34;extra&#34;</span><span class="p">:</span> <span class="s2">&#34;world&#34;</span><span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">&#34;resource_id&#34;</span><span class="p">:</span><span class="s2">&#34;027bdb6a-4deb-4906-9060-28cc0b1a35f3&#34;</span><span class="p">,</span> <span class="nt">&#34;msg&#34;</span><span class="p">:</span> <span class="s2">&#34;hello&#34;</span><span class="p">,</span> <span class="nt">&#34;extra&#34;</span><span class="p">:</span> <span class="s2">&#34;world&#34;</span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>对于如下 PUT 请求</p>
 <div class="highlight"><div class="chroma">
@@ -1068,10 +1065,10 @@ Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PUT https://example.com/resources/hellomsg
-
-<span class="o">{</span><span class="s2">&#34;resource_id&#34;</span>:<span class="s2">&#34;hellomsg&#34;</span>, <span class="s2">&#34;msg&#34;</span>: <span class="s2">&#34;hello&#34;</span><span class="o">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PUT https://example.com/resources/hellomsg
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;resource_id&#34;</span>:<span class="s2">&#34;hellomsg&#34;</span>, <span class="s2">&#34;msg&#34;</span>: <span class="s2">&#34;hello&#34;</span><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>服务端解析完 Body 之后，发现资源 <code>resources/hellomsg</code> 不存在，尊重 PUT 请求创建如下内容</p>
 <div class="highlight"><div class="chroma">
@@ -1079,8 +1076,8 @@ Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">{&#34;resource_id&#34;:&#34;hellomsg&#34;, &#34;msg&#34;: &#34;hello&#34;}
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{&#34;resource_id&#34;:&#34;hellomsg&#34;, &#34;msg&#34;: &#34;hello&#34;}
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>返回响应如下（无需包含 Location Header</p>
 <div class="highlight"><div class="chroma">
@@ -1088,8 +1085,8 @@ Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="m">201</span> CREATED
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="m">201</span> CREATED
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>通过对比可以看出</p>
 <ul>
@@ -1122,11 +1119,11 @@ Location: https://example.com/resources/027bdb6a-4deb-4906-9060-28cc0b1a35f3
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PATCH https://myapiserver.myk8s.io/api/v1/nodes/node-test
-Content-Type: application/strategic-merge-patch+json
-
-<span class="o">{</span><span class="s2">&#34;spec&#34;</span>:<span class="o">{</span><span class="s2">&#34;unschedulable&#34;</span>:true<span class="o">}}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PATCH https://myapiserver.myk8s.io/api/v1/nodes/node-test
+</span></span><span class="line"><span class="cl">Content-Type: application/strategic-merge-patch+json
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;spec&#34;</span>:<span class="o">{</span><span class="s2">&#34;unschedulable&#34;</span>:true<span class="o">}}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>类似 PUT，更新成功后，可返回 200 (OK) 并在 Body 包含更新后的对象，也可返回 204 (No Content) 同时 Body 置空</p>
 <p>对于异常情况，Update 操作通常可以返回</p>
@@ -1167,8 +1164,8 @@ cannot alter the meaning or target of the request, and might lead some implement
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">POST https://service.name/v1/some/resource/name:customVerb
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">POST https://service.name/v1/some/resource/name:customVerb
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><a href="https://github.com/microsoft/api-guidelines/blob/vNext/azure/Guidelines.md">Microsoft Azure REST API Guidelines</a> 也类似</p>
 <div class="highlight"><div class="chroma">
@@ -1176,8 +1173,8 @@ cannot alter the meaning or target of the request, and might lead some implement
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">POST https://.../&lt;resource-collection&gt;/&lt;resource-id&gt;:&lt;action&gt;?&lt;input parameters&gt;
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">POST https://.../&lt;resource-collection&gt;/&lt;resource-id&gt;:&lt;action&gt;?&lt;input parameters&gt;
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>自定义操作一律应该使用 POST 方法，且成功响应一律为 200（OK）。</p>
 <p>实践中，不一定需要严格这么来。Azure 自家的<a href="https://learn.microsoft.com/en-us/rest/api/mysql/singleserver/servers/start">MySQL 启动 API</a> 就未遵守该建议</p>
@@ -1186,8 +1183,8 @@ cannot alter the meaning or target of the request, and might lead some implement
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">POST https://management.azure.com/subscriptions/<span class="o">{</span>subscriptionId<span class="o">}</span>/resourceGroups/<span class="o">{</span>resourceGroupName<span class="o">}</span>/providers/Microsoft.DBforMySQL/servers/<span class="o">{</span>serverName<span class="o">}</span>/start?api-version<span class="o">=</span>2020-01-01
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">POST https://management.azure.com/subscriptions/<span class="o">{</span>subscriptionId<span class="o">}</span>/resourceGroups/<span class="o">{</span>resourceGroupName<span class="o">}</span>/providers/Microsoft.DBforMySQL/servers/<span class="o">{</span>serverName<span class="o">}</span>/start?api-version<span class="o">=</span>2020-01-01
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><a href="https://kubernetes.io/docs/reference/using-api/api-concepts/">Kubernetes</a> 中许多 API 也是如此</p>
 <ul>
@@ -1207,12 +1204,12 @@ cannot alter the meaning or target of the request, and might lead some implement
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;groupVersion&gt;</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;resourceKind&gt;</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
-</span><span class="w"></span><span class="nt">status</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
-</span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;groupVersion&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;resourceKind&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">status</span><span class="p">:</span><span class="w"> </span>{<span class="l">...}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>spec 存放声明，status 存放状态。status 有单独读取和更新的需求，所以一般都会在标准 Resource URI 上衍生出 status URI，如</p>
 <div class="highlight"><div class="chroma">
@@ -1220,8 +1217,8 @@ cannot alter the meaning or target of the request, and might lead some implement
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">/apis/autoscaling/v2/namespaces/<span class="o">{</span>namespace<span class="o">}</span>/horizontalpodautoscalers/<span class="o">{</span>name<span class="o">}</span>/status
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">/apis/autoscaling/v2/namespaces/<span class="o">{</span>namespace<span class="o">}</span>/horizontalpodautoscalers/<span class="o">{</span>name<span class="o">}</span>/status
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>Status subresource 一般只支持 3 类请求，GET 用于获取整个 subresource，PUT 用于更新整个 subresource，PATCH 用于局部更新某些字段。</p>
 <p>类似地 <a href="https://kubernetes.io/docs/reference/using-api/api-concepts/">Kubernetes</a> 还有 scale subresource。</p>
@@ -1264,24 +1261,24 @@ cannot alter the meaning or target of the request, and might lead some implement
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="nt">&#34;error&#34;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
-    <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;API key not valid. Please pass a valid API key.&#34;</span><span class="p">,</span>
-    <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="s2">&#34;INVALID_ARGUMENT&#34;</span><span class="p">,</span>
-    <span class="nt">&#34;details&#34;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="p">{</span>
-        <span class="nt">&#34;@type&#34;</span><span class="p">:</span> <span class="s2">&#34;type.googleapis.com/google.rpc.ErrorInfo&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;API_KEY_INVALID&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;domain&#34;</span><span class="p">:</span> <span class="s2">&#34;googleapis.com&#34;</span><span class="p">,</span>
-        <span class="nt">&#34;metadata&#34;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&#34;service&#34;</span><span class="p">:</span> <span class="s2">&#34;translate.googleapis.com&#34;</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">]</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;error&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;API key not valid. Please pass a valid API key.&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="s2">&#34;INVALID_ARGUMENT&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;details&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;@type&#34;</span><span class="p">:</span> <span class="s2">&#34;type.googleapis.com/google.rpc.ErrorInfo&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;API_KEY_INVALID&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;domain&#34;</span><span class="p">:</span> <span class="s2">&#34;googleapis.com&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&#34;metadata&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="nt">&#34;service&#34;</span><span class="p">:</span> <span class="s2">&#34;translate.googleapis.com&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>其中 code 与 HTTP Status Code 保持一致，status 提供简短描述（可以复用 HTTP Status Code 描述），message 提供具体错误信息。details 提供更详细信息。用 Google 出品的 <a href="https://kubernetes.io/docs/reference/using-api/api-concepts/">Kubernetes</a> 错误来做说明会更具体一些（注意 reason 提供简短描述）</p>
 <div class="highlight"><div class="chroma">
@@ -1309,28 +1306,28 @@ cannot alter the meaning or target of the request, and might lead some implement
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
-  <span class="err">#...</span> <span class="err">ignore</span> <span class="err">apiVersion,</span> <span class="err">kind,</span> <span class="err">status</span> <span class="err">fields</span>
-  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">409</span><span class="p">,</span>
-  <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;Conflict&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;Operation cannot be fulfilled on configmaps \&#34;my-db-redis-scripts\&#34;: the object has been modified; please apply your changes to the latest version and try again&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;details&#34;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;my-db-redis-scripts&#34;</span><span class="p">,</span>
-    <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;configmaps&#34;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-<span class="err">---</span>
-<span class="p">{</span>
-  <span class="err">#...</span> <span class="err">ignore</span> <span class="err">apiVersion,</span> <span class="err">kind,</span> <span class="err">status</span> <span class="err">fields</span>
-  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">409</span><span class="p">,</span>
-  <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;AlreadyExists&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;pods \&#34;x\&#34; already exists&#34;</span><span class="p">,</span>
-  <span class="nt">&#34;details&#34;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span>
-    <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;pods&#34;</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="err">#...</span> <span class="err">ignore</span> <span class="err">apiVersion,</span> <span class="err">kind,</span> <span class="err">status</span> <span class="err">fields</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">409</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;Conflict&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;Operation cannot be fulfilled on configmaps \&#34;my-db-redis-scripts\&#34;: the object has been modified; please apply your changes to the latest version and try again&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;details&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;my-db-redis-scripts&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;configmaps&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">---</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="err">#...</span> <span class="err">ignore</span> <span class="err">apiVersion,</span> <span class="err">kind,</span> <span class="err">status</span> <span class="err">fields</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">409</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;AlreadyExists&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;pods \&#34;x\&#34; already exists&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;details&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;pods&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>同样是 409 (Conflict)，第一个错误信息表示对象 configmaps/my-db-redis-scripts 修改冲突 (版本控制并发冲突)，第二个表示 pods/x 已经存在。</p>
 <p>客户端仅凭 HTTP Status Code 无法知道具体原因，但是根据 Body 提供的详细描述可以知悉具体原因。</p>
@@ -1460,7 +1457,7 @@ cannot alter the meaning or target of the request, and might lead some implement
 
 
 
-<script type="text/javascript" src="/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js"></script>
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
 <script type="application/javascript">
@@ -1473,6 +1470,9 @@ if (!doNotTrack) {
 }
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
 
 
 
