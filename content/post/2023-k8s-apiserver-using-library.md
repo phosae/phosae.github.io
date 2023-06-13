@@ -112,7 +112,7 @@ type FooConfig struct {
 
 按照 [最不厌其烦的 K8s 代码生成教程] 生成代码后，即可着手开始构建 apiserver。
 
-## apiserver supports hello.zeng.dev/v1 
+## The hello.zeng.dev/v1's CRUD Implementation
 
 支持 hello.zeng.dev/v1 的新 apiserver 主要看 2 个 commits 即可，[build apiserver ontop library] 和 [apiserver by lib: add etcd store]。
 
@@ -128,20 +128,211 @@ type FooConfig struct {
           └── registry
               └── foo.go       # 实现框架接口 rest.StandardStorage，实现 foo CRUD
 
-[k8s.io/apiserver] 中枢纽就是 [GenericAPIServer](https://github.com/kubernetes/apiserver/blob/ed61fb1c78ab5dcf99235126eee4969c3ab5ca84/pkg/server/genericapiserver.go#LL105C6-L105C22)。
+pkg/apiserver/apiserver.go 作用就是构建 [k8s.io/apiserver] 枢纽 —— [GenericAPIServer]。
 所有组件都会体现在这个结构体中。
 
-_ 最核心的文件就 2 个 apiserver/apiserver.go 和 registry/foo.go，前者
+```go
+import(
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+    genericapiserver "k8s.io/apiserver/pkg/server"
+)
 
+var (
+	// Scheme defines methods for serializing and deserializing API objects.
+	Scheme = runtime.NewScheme()
+	// Codecs provides methods for retrieving codecs and serializers for specific
+	// versions and content types.
+	Codecs = serializer.NewCodecFactory(Scheme)
+)
 
-[apiserver by lib: add etcd store] 做了更新，支持 etcd 存储
+func init() {
+	hello.Install(Scheme)
 
+	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Group: "", Version: "v1"})
+	unversioned := schema.GroupVersion{Group: "", Version: "v1"}
+	Scheme.AddUnversionedTypes(unversioned,
+		&metav1.Status{},
+		&metav1.APIVersions{},
+		&metav1.APIGroupList{},
+		&metav1.APIGroup{},
+		&metav1.APIResourceList{},
+	)
+}
+
+// New returns a new instance of WardleServer from the given config.
+func (c completedConfig) New() (*HelloApiServer, error) {
+	genericServer, err := c.GenericConfig.New("hello.zeng.dev-apiserver", genericapiserver.NewEmptyDelegate())
+    s := &HelloApiServer{ GenericAPIServer: genericServer}
+
+    apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(hellov1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+    apiGroupInfo.VersionedResourcesStorageMap["v1"] = map[string]rest.Storage{
+		"foos": registry.NewFooApi(),
+	}
+
+    if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+		return nil, err
+	}
+
+    return s, nil
+}
+```
+
+pkg/registry/foo.go 实现了 interface rest.StandardStorage 除 rest.Watcher 之外所有接口
+
+```go
+"k8s.io/apiserver/pkg/registry/rest"
+
+var _ rest.ShortNamesProvider = &fooApi{}
+var _ rest.SingularNameProvider = &fooApi{}
+var _ rest.Getter = &fooApi{}
+var _ rest.Lister = &fooApi{}
+var _ rest.CreaterUpdater = &fooApi{}
+var _ rest.GracefulDeleter = &fooApi{}
+var _ rest.CollectionDeleter = &fooApi{}
+
+// var _ rest.StandardStorage = &fooApi{} // implements all interfaces of rest.StandardStorage except rest.Watcher
+```
+GenericAPIServer 接到 fooApi 和 Scheme 注册之后，便会按照框架协议将它们转化为对应 REST Handlers。
+
+[apiserver by lib: add etcd store] 支持了 etcd 存储
+
+    pkg
+    ├── apiserver
+    │   └── apiserver.go # --enable-etcd-storage=true 则加载 etcd 存储实现
+    ├── cmd
+    │   └── start.go     # --enable-etcd-storage=true 则加载 etcd 配置项们
+    └── registry/hello.zeng.dev/foo
+        ├── etcd.go      # 初始化框架 etcd 存储实现，加载各种策略（CRUD、
+        ├── strategy.go  # 实现各种策略
+        └── mem.go       # mv pkg/registry/foo.go ---> pkg/registry/hello.zeng.dev/foo/mem.go
+
+pkg/apiserver/apiserver.go 改动很小，即支持根据配置调整存储实现，当 enable-etcd-storage 为 true 时使用 etcd 存储实现
+
+```go
+func (c completedConfig) New() (*HelloApiServer, error) {
+	genericServer, _ := c.GenericConfig.New("hello.zeng.dev-apiserver", genericapiserver.NewEmptyDelegate())
+	...
+	s := &HelloApiServer{GenericAPIServer: genericServer}
+
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
+        hellov1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+
+	apiGroupInfo.VersionedResourcesStorageMap["v1"] = map[string]rest.Storage{}
+	if c.ExtraConfig.EnableEtcdStorage {
+		etcdstorage, err := fooregistry.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+		if err != nil {
+			return nil, err
+		}
+		apiGroupInfo.VersionedResourcesStorageMap["v1"]["foos"] = etcdstorage
+	} else {
+		apiGroupInfo.VersionedResourcesStorageMap["v1"]["foos"] = fooregistry.NewMemStore()
+	}
+
+	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+```
+
+pkg/registry/hello.zeng.dev/foo/etcd.go 只有一个 func NewREST，它干的活是
+- 接收 runtime.Scheme 和 RESTOptionsGetter（其返回的 RESTOptions 包含了 rest.StandStorage 接口的 etcd 实现
+- 新建 foo 存储策略 fooStrategy
+- 构建并返回 struct [k8s.io/apiserver pkg/registry/generic/registry.Store]
+
+```go
+package foo
+
+import (
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apiserver/pkg/registry/generic"
+	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
+
+	hellov1 "github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1"
+)
+
+// NewREST returns a RESTStorage object that will work against API services.
+func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*genericregistry.Store, error) {
+	strategy := NewStrategy(scheme)
+
+	store := &genericregistry.Store{
+		NewFunc:                   func() runtime.Object { return &hellov1.Foo{} },
+		NewListFunc:               func() runtime.Object { return &hellov1.FooList{} },
+		PredicateFunc:             MatchFoo,
+		DefaultQualifiedResource:  hellov1.Resource("foos"),
+		SingularQualifiedResource: hellov1.Resource("foos"),
+
+		CreateStrategy: strategy,
+		UpdateStrategy: strategy,
+		DeleteStrategy: strategy,
+		TableConvertor: strategy,
+	}
+	options := &generic.StoreOptions{RESTOptions: optsGetter, AttrFunc: GetAttrs}
+	if err := store.CompleteWithOptions(options); err != nil {
+		return nil, err
+	}
+	return store, nil
+}
+```
+pkg/registry/hello.zeng.dev/foo/strategy.go 实现了 Create/Update/Delete 策略，但它们基本都是空函数，主要就写了个 TableConvertor...。部分策略由 nested runtime.ObjectType 和 names.NameGenerator 实现。
+
+```go
+type fooStrategy struct {
+	runtime.ObjectTyper
+	names.NameGenerator
+}
+
+func (fooStrategy) NamespaceScoped() bool {
+	return true
+}
+
+func (fooStrategy) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (
+    *metav1.Table, error) {/*...*/}
+```
+
+由于 [k8s.io/apiserver pkg/registry/generic/registry.Store] 提供了 etcd 存储实现，因此项目需要做的就是在框架内涂鸦——提供策略。官方库 [kubernertes/pkg/registry](https://github.com/kubernetes/kubernetes/tree/master/pkg/registry) 也采用了这种方式。
+
+## 主要组件梳理
+
+回顾两次 commits，可以发现 [k8s.io/apiserver] 架构相对简单
+
+<img src="/img/2023/k8s-apiserver-install-apis.png" width="700px"/>
+
+每个 APIGroupInfo 中包含了
+- 存储接口实现集 map[string/\*(version\*)/][string/\*(kind_plural\*)/]rest.Storage (rest.Storage 仅是支持注册 GroupVersion 级 API，类似 /apis/hello.zeng.dev/v1，所以实际实现一般为 rest.StandardStorage，这样就可以支持资源 kind 的 CRUD，类似 /apis/hello.zeng.dev/v1/foos)
+- 包含资源 group kinds 的编解码、默认值、转化等信息的 runtime.Scheme
+- Codecs
+  - 支持将 URL Query Params 转化 metav1.CreateOptions，metav1.GetOptions，metav1.UpdateOptions 等的 metav1.ParameterCodec 
+  - 负责 runtime.Scheme 中 Group Kinds 序列化和反序列化的 CodecFactory
+
+APIGroupInfo install 到 [GenericAPIServer] 后，就转化为 
+- Discovery API handlers（ supports `/apis/{group}` `/apis/{group}/{version}`
+- Object/Resource API Handlers (supports CRUD `/apis/{group}/{version}/**/{kind_plural}`) 
+
+[GenericAPIServer] 集成了通用的 HTTP REST Handlers 模块 [k8s.io/apiserver pkg/endpoints]。而 [interface rest.StandardStorage] 为 [k8s.io/apiserver pkg/endpoints] handlers 提供存储策略。
+
+<img src="/img/2023/k8s-registry-store.png" width="700px"/>
+
+实现方可以从 0 到 1 实现 [interface rest.StandardStorage]，类似这里的 mem.go fooApi。
+[k8s.io/apiserver pkg/registry/generic/registry.Store] 实现了 [interface rest.StandardStorage]，
+使用方只需要提供简单 CRUD、校验等策略即可集成到存储层，比如这里的 fooStratedy。
+
+registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 [sotrage.Interface]。storage 下一级 package etcd3 提供了 etcd3 实现，cacher 提供了缓存层。
+[sotrage.Interface] 和 [interface rest.StandardStorage] 等抽象解耦了业务层和存储层，使得项目可以采纳非 etcd 存储，比如
+
+- [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) 使用了内存实现
+- [acorn-io/mink](https://github.com/acorn-io/mink) 则提供了 SQLite、MySQL、PostgreSQL 等的实现
 
 ## apiserver supports hello.zeng.dev/v2
 为支持 hello.zeng.dev/v2，新 apiserver 主要 commits 也是 2 个
 - [apiserver-by-lib: add hello.zeng.dev/v2 internal] 定义了 API 类型到内部类型的默认值设定、类型转换、统一注册等
 - [apiserver-by-lib: supports CRUD hello.zeng.dev/v2 foos] 升级 v1 增删改查逻辑为 v2，且同时支持
 
+## //todo 一个 Object 在 apiserver 中的声明流程 
 
 ## 总结
 使用库代码，或引用、或简单配置，即解决了 [实现一个极简 K8s apiserver] 中遗留的问题
@@ -159,6 +350,11 @@ _ 最核心的文件就 2 个 apiserver/apiserver.go 和 registry/foo.go，前�
 
 [Kubernetes-style API types]: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
 [k8s.io/apiserver]: https://github.com/kubernetes/apiserver
+[GenericAPIServer]: https://github.com/kubernetes/apiserver/blob/ed61fb1c78ab5dcf99235126eee4969c3ab5ca84/pkg/server/genericapiserver.go#L105
+[k8s.io/apiserver pkg/registry/generic/registry.Store]: https://github.com/kubernetes/apiserver/blob/44fa6d28d5b3c41637871486ba3ffaf3a2407632/pkg/registry/generic/registry/store.go#L97
+[k8s.io/apiserver pkg/endpoints]: https://github.com/kubernetes/apiserver/tree/master/pkg/endpoints
+[interface rest.StandardStorage]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305
+[sotrage.Interface]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/interfaces.go#L159-L239
 
 <!-- apiserver using library PRs -->
 [build apiserver ontop library]: https://github.com/phosae/x-kubernetes/commit/4c0df0e726cb041451b09d1fb1be7a88c3c09169
