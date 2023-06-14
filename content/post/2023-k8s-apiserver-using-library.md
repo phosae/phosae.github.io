@@ -4,10 +4,10 @@ date: 2023-06-07T16:11:19+08:00
 lastmod: 2023-06-11T16:11:19+08:00
 draft: true
 keywords: ["kubernetes", "rest", "go", "http", "openapi"]
-description: ""
+description: "The best way to understand K8s apiserver is to implement one yourself"
 tags: ["kubernetes", "rest", "go", "http", "openapi"]
 author: "Zeng Xu"
-summary: "文章摘要"
+summary: "理解 K8s apiserver 的最好方式就是自己动手实现同款"
 
 comment: true
 toc: true
@@ -39,7 +39,10 @@ hideHeaderAndFooter: false
 
 ## API 定义和代码生成
 
-[实现一个极简 K8s apiserver] 展示了 apiserver 的极简实现方式。本文将使用 K8s apiserver 库实现 apiserver。
+[实现一个极简 K8s apiserver] 展示了 apiserver 的极简实现方式。但它还欠缺一些 apiserver 功能，比如 watch 和数据持久。
+而 library [k8s.io/apiserver] 补全了所有欠缺，包括配置即用的鉴权/授权、etcd 集成等。
+
+本文将使用 [k8s.io/apiserver] 实现 apiserver。
 
 首先， API 相关可以变得正式一些。仿照 [k8s.io/api](https://github.com/kubernetes/api) 风格 创建独立 API module [x-kubernetes/api]
 - 目录结构为 {group}/{version}
@@ -135,47 +138,47 @@ pkg/apiserver/apiserver.go 作用就是构建 [k8s.io/apiserver] 枢纽 —— [
 import(
     metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
     "k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
+    "k8s.io/apimachinery/pkg/runtime/schema"
+    "k8s.io/apimachinery/pkg/runtime/serializer"
     genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
 var (
-	// Scheme defines methods for serializing and deserializing API objects.
-	Scheme = runtime.NewScheme()
-	// Codecs provides methods for retrieving codecs and serializers for specific
-	// versions and content types.
-	Codecs = serializer.NewCodecFactory(Scheme)
+    // Scheme defines methods for serializing and deserializing API objects.
+    Scheme = runtime.NewScheme()
+    // Codecs provides methods for retrieving codecs and serializers for specific
+    // versions and content types.
+    Codecs = serializer.NewCodecFactory(Scheme)
 )
 
 func init() {
-	hello.Install(Scheme)
+    hello.Install(Scheme)
 
-	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Group: "", Version: "v1"})
-	unversioned := schema.GroupVersion{Group: "", Version: "v1"}
-	Scheme.AddUnversionedTypes(unversioned,
-		&metav1.Status{},
-		&metav1.APIVersions{},
-		&metav1.APIGroupList{},
-		&metav1.APIGroup{},
-		&metav1.APIResourceList{},
-	)
+    metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Group: "", Version: "v1"})
+    unversioned := schema.GroupVersion{Group: "", Version: "v1"}
+    Scheme.AddUnversionedTypes(unversioned,
+        &metav1.Status{},
+        &metav1.APIVersions{},
+        &metav1.APIGroupList{},
+        &metav1.APIGroup{},
+        &metav1.APIResourceList{},
+    )
 }
 
 // New returns a new instance of WardleServer from the given config.
 func (c completedConfig) New() (*HelloApiServer, error) {
-	genericServer, err := c.GenericConfig.New("hello.zeng.dev-apiserver", genericapiserver.NewEmptyDelegate())
+    genericServer, err := c.GenericConfig.New("hello.zeng.dev-apiserver", genericapiserver.NewEmptyDelegate())
     s := &HelloApiServer{ GenericAPIServer: genericServer}
 
     apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(hellov1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
     apiGroupInfo.VersionedResourcesStorageMap["v1"] = map[string]rest.Storage{
-		"foos": registry.NewFooApi(),
-	}
+        "foos": registry.NewFooApi(),
+    }
 
     if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-		return nil, err
-	}
+        return nil, err
+    }
 
     return s, nil
 }
@@ -214,28 +217,28 @@ pkg/apiserver/apiserver.go 改动很小，即支持根据配置调整存储实�
 
 ```go
 func (c completedConfig) New() (*HelloApiServer, error) {
-	genericServer, _ := c.GenericConfig.New("hello.zeng.dev-apiserver", genericapiserver.NewEmptyDelegate())
-	...
-	s := &HelloApiServer{GenericAPIServer: genericServer}
+    genericServer, _ := c.GenericConfig.New("hello.zeng.dev-apiserver", genericapiserver.NewEmptyDelegate())
+    ...
+    s := &HelloApiServer{GenericAPIServer: genericServer}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
+    apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
         hellov1.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
-	apiGroupInfo.VersionedResourcesStorageMap["v1"] = map[string]rest.Storage{}
-	if c.ExtraConfig.EnableEtcdStorage {
-		etcdstorage, err := fooregistry.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
-		if err != nil {
-			return nil, err
-		}
-		apiGroupInfo.VersionedResourcesStorageMap["v1"]["foos"] = etcdstorage
-	} else {
-		apiGroupInfo.VersionedResourcesStorageMap["v1"]["foos"] = fooregistry.NewMemStore()
-	}
+    apiGroupInfo.VersionedResourcesStorageMap["v1"] = map[string]rest.Storage{}
+    if c.ExtraConfig.EnableEtcdStorage {
+        etcdstorage, err := fooregistry.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+        if err != nil {
+            return nil, err
+        }
+        apiGroupInfo.VersionedResourcesStorageMap["v1"]["foos"] = etcdstorage
+    } else {
+        apiGroupInfo.VersionedResourcesStorageMap["v1"]["foos"] = fooregistry.NewMemStore()
+    }
 
-	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-		return nil, err
-	}
-	return s, nil
+    if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+        return nil, err
+    }
+    return s, nil
 }
 ```
 
@@ -248,46 +251,46 @@ pkg/registry/hello.zeng.dev/foo/etcd.go 只有一个 func NewREST，它干的活
 package foo
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apiserver/pkg/registry/generic"
-	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
+    "k8s.io/apimachinery/pkg/runtime"
+    "k8s.io/apiserver/pkg/registry/generic"
+    genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 
-	hellov1 "github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1"
+    hellov1 "github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1"
 )
 
 // NewREST returns a RESTStorage object that will work against API services.
 func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*genericregistry.Store, error) {
-	strategy := NewStrategy(scheme)
+    strategy := NewStrategy(scheme)
 
-	store := &genericregistry.Store{
-		NewFunc:                   func() runtime.Object { return &hellov1.Foo{} },
-		NewListFunc:               func() runtime.Object { return &hellov1.FooList{} },
-		PredicateFunc:             MatchFoo,
-		DefaultQualifiedResource:  hellov1.Resource("foos"),
-		SingularQualifiedResource: hellov1.Resource("foos"),
+    store := &genericregistry.Store{
+        NewFunc:                   func() runtime.Object { return &hellov1.Foo{} },
+        NewListFunc:               func() runtime.Object { return &hellov1.FooList{} },
+        PredicateFunc:             MatchFoo,
+        DefaultQualifiedResource:  hellov1.Resource("foos"),
+        SingularQualifiedResource: hellov1.Resource("foos"),
 
-		CreateStrategy: strategy,
-		UpdateStrategy: strategy,
-		DeleteStrategy: strategy,
-		TableConvertor: strategy,
-	}
-	options := &generic.StoreOptions{RESTOptions: optsGetter, AttrFunc: GetAttrs}
-	if err := store.CompleteWithOptions(options); err != nil {
-		return nil, err
-	}
-	return store, nil
+        CreateStrategy: strategy,
+        UpdateStrategy: strategy,
+        DeleteStrategy: strategy,
+        TableConvertor: strategy,
+    }
+    options := &generic.StoreOptions{RESTOptions: optsGetter, AttrFunc: GetAttrs}
+    if err := store.CompleteWithOptions(options); err != nil {
+        return nil, err
+    }
+    return store, nil
 }
 ```
 pkg/registry/hello.zeng.dev/foo/strategy.go 实现了 Create/Update/Delete 策略，但它们基本都是空函数，主要就写了个 TableConvertor...。部分策略由 nested runtime.ObjectType 和 names.NameGenerator 实现。
 
 ```go
 type fooStrategy struct {
-	runtime.ObjectTyper
-	names.NameGenerator
+    runtime.ObjectTyper
+    names.NameGenerator
 }
 
 func (fooStrategy) NamespaceScoped() bool {
-	return true
+    return true
 }
 
 func (fooStrategy) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (
@@ -327,10 +330,35 @@ registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 [sotrag
 - [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) 使用了内存实现
 - [acorn-io/mink](https://github.com/acorn-io/mink) 则提供了 SQLite、MySQL、PostgreSQL 等的实现
 
-## apiserver supports hello.zeng.dev/v2
-为支持 hello.zeng.dev/v2，新 apiserver 主要 commits 也是 2 个
+## Supports hello.zeng.dev/v2
+为支持 hello.zeng.dev/v2，新 apiserver commits 如下
 - [apiserver-by-lib: add hello.zeng.dev/v2 internal] 定义了 API 类型到内部类型的默认值设定、类型转换、统一注册等
+- [apiserver-by-lib: gen hello.zeng.dev/v2 internal codes] 生成了 default, conversion, deepcopy 函数
 - [apiserver-by-lib: supports CRUD hello.zeng.dev/v2 foos] 升级 v1 增删改查逻辑为 v2，且同时支持
+
+[k8s.io/apiserver] 使用多版本 API 时 (这里是 [x-kubernetes/api])，需要转化为统一的内部类型
+
+    ~/x-kubernetes/api-aggregation-lib# tree pkg/api/
+    pkg/api/
+    └── hello.zeng.dev
+        ├── doc.go
+        ├── install
+        │   └── install.go
+        ├── register.go
+        ├── types.go
+        ├── v1
+        │   ├── conversion.go
+        │   ├── defaults.go
+        │   ├── doc.go
+        │   └── register.go
+        └── v2
+            ├── defaults.go
+            ├── doc.go
+            └──  register.go
+
+```go
+
+```
 
 ## //todo 一个 Object 在 apiserver 中的声明流程 
 
@@ -360,5 +388,6 @@ registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 [sotrag
 [build apiserver ontop library]: https://github.com/phosae/x-kubernetes/commit/4c0df0e726cb041451b09d1fb1be7a88c3c09169
 [apiserver by lib: add etcd store]: https://github.com/phosae/x-kubernetes/commit/ea08ef93c375163aeb19c556ccfdd61ac8dca7eb
 [apiserver-by-lib: add hello.zeng.dev/v2 internal]: https://github.com/phosae/x-kubernetes/commit/7f30c3df7fe46ca87597e7f0c4d71edb464c4532
+[apiserver-by-lib: gen hello.zeng.dev/v2 internal codes]: https://github.com/phosae/x-kubernetes/commit/e9ab0750243bb7132074bc1e4afc14a8e9988c78
 [apiserver-by-lib: gen hello.zeng.dev/v2 internal codes]: https://github.com/phosae/x-kubernetes/commit/e9ab0750243bb7132074bc1e4afc14a8e9988c78
 [apiserver-by-lib: supports CRUD hello.zeng.dev/v2 foos]: https://github.com/phosae/x-kubernetes/commit/b95522b123c95013cce4b4763a350adf0b40258e
