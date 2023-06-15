@@ -6,7 +6,16 @@
     <description>Recent content in Posts on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 05 Jun 2023 18:08:17 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 07 Jun 2023 16:11:19 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用 library 实现 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</link>
+      <pubDate>Wed, 07 Jun 2023 16:11:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</guid>
+      <description>理解 K8s apiserver 的最好方式就是自己动手实现同款</description>
+    </item>
+    
     <item>
       <title>最不厌其烦的 K8s 代码生成教程</title>
       <link>https://www.zeng.dev/post/2023-k8s-api-codegen/</link>
