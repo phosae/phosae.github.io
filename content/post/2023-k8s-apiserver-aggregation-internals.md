@@ -41,14 +41,14 @@ sequenceDiagrams:
 [实现一个极简 K8s apiserver]: ../2023-k8s-apiserver-from-scratch
 [搞懂 K8s apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
-<!-- [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library -->
+[使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library
 
 本文为 **K8s API 和控制器** 系列文章之一
 - [K8s CustomResourceDefinitions (CRD) 原理]
 - [实现一个极简 K8s apiserver]
 - [搞懂 K8s apiserver aggregation] (本文)
 - [最不厌其烦的 K8s 代码生成教程]
-<!-- - [使用 library 实现 K8s apiserver] -->
+- [使用 library 实现 K8s apiserver]
 
 ## 🤔 How APIService Works
 

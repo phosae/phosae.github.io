@@ -48,7 +48,7 @@
 <meta itemprop="name" content="实现一个极简 K8s apiserver">
 <meta itemprop="description" content="Simplest Kubernetes style apiserver"><meta itemprop="datePublished" content="2023-05-26T07:43:51+08:00" />
 <meta itemprop="dateModified" content="2023-05-31T18:45:00+08:00" />
-<meta itemprop="wordCount" content="3749">
+<meta itemprop="wordCount" content="3771">
 <meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="实现一个极简 K8s apiserver"/>
 <meta name="twitter:description" content="Simplest Kubernetes style apiserver"/>
@@ -148,7 +148,7 @@
     <li><a href="#-implement-api-discovery">🔥 Implement API Discovery</a></li>
     <li><a href="#-generate-openapi-specification">☸️ Generate OpenAPI Specification</a></li>
     <li><a href="#-crud-foo">🦀 CRUD Foo</a></li>
-    <li><a href="#-lets-play">🎮 Let&rsquo;s play</a></li>
+    <li><a href="#-lets-play">🎮 Let&rsquo;s Play</a></li>
     <li><a href="#-summarize">📝 Summarize</a></li>
   </ul>
 </nav>
@@ -156,15 +156,14 @@
 </div>
     <div class="post-content">
       <!-- 系列链接 -->
-<!-- [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library -->
 <p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
 <ul>
 <li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></li>
 <li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a> (本文)</li>
 <li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
+<li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a></li>
 </ul>
-<!-- - [使用 library 实现 K8s apiserver] -->
 <h2 id="-apiservice">👀 APIService</h2>
 <p>如果我们在创建 <code>crd/foos.hello.zeng.dev</code> 之后查询 APIService 列表，会看到一个名为 <code>v1.hello.zeng.dev</code> 的 APIService 对象随之被创建</p>
 <pre><code>kubectl apply -f https://raw.githubusercontent.com/phosae/x-kubernetes/master/api/artifacts/crd/hello.zeng.dev_foos.yaml
@@ -1050,8 +1049,8 @@ return metav1.Status{
 return fmt.Sprintf(kstatusTmplate, fmt.Sprintf(`foos '%s' not found`, &quot;x&quot;), http.StatusText(http.StatusNotFound), &quot;x&quot;, http.StatusNotFound)
 </code></pre>
 <p>其他部分，POST GET DELETE PUT 实现都较为简单，在这里可以查看 <a href="https://github.com/phosae/x-kubernetes/blob/c59960982df64efee4b166e040d8031203173963/apiserver-from-scratch/main.go">apiserver-from-scratch 源码</a>。</p>
-<h2 id="-lets-play">🎮 Let&rsquo;s play</h2>
-<p>拉取代码并设置环境</p>
+<h2 id="-lets-play">🎮 Let&rsquo;s Play</h2>
+<p>拉取项目 <a href="https://github.com/phosae/x-kubernetes">x-kubernetes</a>（并顺手 star ⭐🤩🌈</p>
 <pre><code>git clone https://github.com/phosae/x-kubernetes.git
 cd x-kubernetes
 </code></pre>

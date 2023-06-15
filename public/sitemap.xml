@@ -2,35 +2,70 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://www.zeng.dev/tags/code-generation/</loc>
-    <lastmod>2023-06-11T15:36:17+08:00</lastmod>
+    <loc>https://www.zeng.dev/tags/go/</loc>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/http/</loc>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://www.zeng.dev/tags/kubernetes/</loc>
-    <lastmod>2023-06-11T15:36:17+08:00</lastmod>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/openapi/</loc>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://www.zeng.dev/post/</loc>
-    <lastmod>2023-06-11T15:36:17+08:00</lastmod>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/rest/</loc>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://www.zeng.dev/tags/</loc>
-    <lastmod>2023-06-11T15:36:17+08:00</lastmod>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://www.zeng.dev/</loc>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</loc>
+    <lastmod>2023-06-16T09:11:19+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/code-generation/</loc>
     <lastmod>2023-06-11T15:36:17+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -46,34 +81,6 @@
   <url>
     <loc>https://www.zeng.dev/post/2023-k8s-apiserver-aggregation-internals/</loc>
     <lastmod>2023-05-31T18:46:31+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/tags/go/</loc>
-    <lastmod>2023-05-31T18:45:00+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/tags/http/</loc>
-    <lastmod>2023-05-31T18:45:00+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/tags/openapi/</loc>
-    <lastmod>2023-05-31T18:45:00+08:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.zeng.dev/tags/rest/</loc>
-    <lastmod>2023-05-31T18:45:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>

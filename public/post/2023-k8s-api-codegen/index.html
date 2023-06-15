@@ -48,7 +48,7 @@
 <meta itemprop="name" content="最不厌其烦的 K8s 代码生成教程">
 <meta itemprop="description" content="An exquisitely thorough K8s code generation tutorial"><meta itemprop="datePublished" content="2023-06-05T18:08:17+08:00" />
 <meta itemprop="dateModified" content="2023-06-11T15:36:17+08:00" />
-<meta itemprop="wordCount" content="4306">
+<meta itemprop="wordCount" content="4313">
 <meta itemprop="keywords" content="kubernetes,code-generation," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="最不厌其烦的 K8s 代码生成教程"/>
 <meta name="twitter:description" content="An exquisitely thorough K8s code generation tutorial"/>
@@ -167,15 +167,14 @@
 </div>
     <div class="post-content">
       <!-- 系列链接 -->
-<!-- [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library -->
 <p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
 <ul>
 <li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></li>
 <li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a></li>
 <li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a> (本文)</li>
+<li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a></li>
 </ul>
-<!-- - [使用 library 实现 K8s apiserver] -->
 <h2 id="-kubernetes-code-generator">☸️ Kubernetes code-generator</h2>
 <p>K8s 中大量使用了代码生成，尤其是 API、控制器和客户端。Generators 统一放置在子项目 <a href="https://github.com/kubernetes/code-generator">kubernetes/code-generator</a></p>
 <div class="highlight"><div class="chroma">
@@ -1449,7 +1448,11 @@ client-go
           <a href="/tags/code-generation/">code-generation</a>
           </div>
       <nav class="post-nav">
-        
+        <a class="prev" href="/post/2023-k8s-apiserver-using-library/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">使用 library 实现 K8s apiserver</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
         <a class="next" href="/post/2023-k8s-apiserver-aggregation-internals/">
             <span class="next-text nav-default">搞懂 K8s apiserver aggregation</span>
             <span class="next-text nav-mobile">Next</span>
