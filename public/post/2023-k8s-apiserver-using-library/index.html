@@ -48,7 +48,7 @@
 <meta itemprop="name" content="使用 library 实现 K8s apiserver">
 <meta itemprop="description" content="The best way to understand K8s apiserver is to implement one yourself"><meta itemprop="datePublished" content="2023-06-07T16:11:19+08:00" />
 <meta itemprop="dateModified" content="2023-06-16T09:11:19+08:00" />
-<meta itemprop="wordCount" content="4879">
+<meta itemprop="wordCount" content="5347">
 <meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用 library 实现 K8s apiserver"/>
 <meta name="twitter:description" content="The best way to understand K8s apiserver is to implement one yourself"/>
@@ -916,8 +916,242 @@ pkg/api/
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="-play">🎮 Play</h2>
+<p><strong>Watch</strong></p>
 <img src="/img/2023/apiserver-lib-play-watch.gif" width="700px"/>
-<h2 id="-总结">🔢 总结</h2>
+<p><strong>分页</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># paging</span>
+</span></span><span class="line"><span class="cl">kubectl get --raw <span class="s1">&#39;/apis/hello.zeng.dev/v2/foos?limit=1&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="p">|</span> jq -r <span class="s1">&#39;.apiVersion,.kind,(&#34;item: &#34; + .items[].metadata.namespace + &#34;/&#34; + .items[].metadata.name),(&#34;continue: &#34;+ .metadata.continue)&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">hello.zeng.dev/v2
+</span></span><span class="line"><span class="cl">FooList
+</span></span><span class="line"><span class="cl">item: default/myfoo
+</span></span><span class="line"><span class="cl"><span class="k">continue</span>: eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvbXlmb29cdTAwMDAifQ
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl get --raw <span class="s1">&#39;/apis/hello.zeng.dev/v2/foos?limit=1&amp;continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvbXlmb29cdTAwMDAifQ&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="p">|</span> jq -r <span class="s1">&#39;.apiVersion,.kind,(&#34;item: &#34; + .items[].metadata.namespace + &#34;/&#34; + .items[].metadata.name),(&#34;continue: &#34;+ .metadata.continue)&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">hello.zeng.dev/v2
+</span></span><span class="line"><span class="cl">FooList
+</span></span><span class="line"><span class="cl">item: default/test
+</span></span><span class="line"><span class="cl"><span class="k">continue</span>: eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvdGVzdFx1MDAwMCJ9
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl get --raw <span class="s1">&#39;/apis/hello.zeng.dev/v2/foos?limit=1&amp;continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvdGVzdFx1MDAwMCJ9&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="p">|</span> jq <span class="s1">&#39;.apiVersion,.kind,(&#34;item: &#34; + .items[].metadata.namespace + &#34;/&#34; + .items[].metadata.name),(&#34;continue: &#34;+ .metadata.continue)&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">hello.zeng.dev/v2
+</span></span><span class="line"><span class="cl">FooList
+</span></span><span class="line"><span class="cl">item: kube-public/myfoo
+</span></span><span class="line"><span class="cl"><span class="k">continue</span>:
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>custom apiserver authn/authz 集成 kube-apiserver RBAC</strong></p>
+<p>创建 default/readuser，通过 kube-apiserver RBAC 授予官方资源读取权限</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create -f <span class="s">&lt;&lt; EOF -
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: ServiceAccount
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: readuser
+</span></span></span><span class="line"><span class="cl"><span class="s">---
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: ClusterRoleBinding
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: readuser::view
+</span></span></span><span class="line"><span class="cl"><span class="s">roleRef:
+</span></span></span><span class="line"><span class="cl"><span class="s">  apiGroup: rbac.authorization.k8s.io
+</span></span></span><span class="line"><span class="cl"><span class="s">  kind: ClusterRole
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: view
+</span></span></span><span class="line"><span class="cl"><span class="s">subjects:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - kind: ServiceAccount
+</span></span></span><span class="line"><span class="cl"><span class="s">    name: readuser
+</span></span></span><span class="line"><span class="cl"><span class="s">    namespace: default
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>利用 <a href="https://github.com/phosae/x-kubernetes/blob/229ba83958f5e85b0c46d542b72c2775643e6371/hack/gen-sa-kubeconfig.sh">x-kubernetes/gen-sa-kubeconfig.sh</a> 生成 readuser kubeconfig</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@dev:~/x-kubernetes# ./hack/gen-sa-kubeconfig.sh default readuser
+</span></span><span class="line"><span class="cl">Cluster <span class="s2">&#34;kind-kind&#34;</span> set.
+</span></span><span class="line"><span class="cl">User <span class="s2">&#34;default-readuser&#34;</span> set.
+</span></span><span class="line"><span class="cl">Context <span class="s2">&#34;default&#34;</span> modified.
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;default&#34;</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">root@dev:~/x-kubernetes# ls default-readuser.kubeconfig 
+</span></span><span class="line"><span class="cl">default-readuser.kubeconfig
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>测试 custom apiserver authn/authz，因为 readuser 只能访问官方资源，所以访问 foos 会遭拒</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># forward local 6443 to cluster custom apiserver service 443
+</span></span><span class="line"><span class="cl">kubectl -n hello port-forward svc/apiserver 6443:443
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">KUBECONFIG=default-readuser.kubeconfig k -s https://localhost:6443 --insecure-skip-tls-verify get fo
+</span></span><span class="line"><span class="cl">Error from server (Forbidden): foos.hello.zeng.dev is forbidden: 
+</span></span><span class="line"><span class="cl">User &#34;system:serviceaccount:default:readuser&#34; 
+</span></span><span class="line"><span class="cl">cannot list resource &#34;foos&#34; in API group &#34;hello.zeng.dev&#34; in the namespace &#34;default&#34;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>通过 kube-apiserver RBAC 授予 readuser hello.zeng.dev group 读取权限</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">cat <span class="s">&lt;&lt; EOF | kubectl apply -f -
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: ClusterRole
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: hello-view
+</span></span></span><span class="line"><span class="cl"><span class="s">rules:
+</span></span></span><span class="line"><span class="cl"><span class="s">- apiGroups:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - hello.zeng.dev
+</span></span></span><span class="line"><span class="cl"><span class="s">  resources:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - &#39;*&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s">  verbs:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - get
+</span></span></span><span class="line"><span class="cl"><span class="s">  - list
+</span></span></span><span class="line"><span class="cl"><span class="s">  - watch
+</span></span></span><span class="line"><span class="cl"><span class="s">---
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: rbac.authorization.k8s.io/v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: ClusterRoleBinding
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: readuser::hello-view
+</span></span></span><span class="line"><span class="cl"><span class="s">roleRef:
+</span></span></span><span class="line"><span class="cl"><span class="s">  apiGroup: rbac.authorization.k8s.io
+</span></span></span><span class="line"><span class="cl"><span class="s">  kind: ClusterRole
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: hello-view
+</span></span></span><span class="line"><span class="cl"><span class="s">subjects:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - kind: ServiceAccount
+</span></span></span><span class="line"><span class="cl"><span class="s">    name: readuser
+</span></span></span><span class="line"><span class="cl"><span class="s">    namespace: default
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再测试时 readuser 已经获得了读取权限</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># forward local 6443 to cluster custom apiserver service 443
+</span></span><span class="line"><span class="cl">kubectl -n hello port-forward svc/apiserver 6443:443
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">KUBECONFIG=default-readuser.kubeconfig k -s https://localhost:6443 --insecure-skip-tls-verify get fo
+</span></span><span class="line"><span class="cl">NAME    STATUS   AGE
+</span></span><span class="line"><span class="cl">myfoo            13h
+</span></span><span class="line"><span class="cl">test             12h
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="-总结">🔢 总结</h2>
 <p><a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 主要 package 如下</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">

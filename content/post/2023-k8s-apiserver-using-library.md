@@ -39,7 +39,7 @@ hideHeaderAndFooter: false
 
 看文章的同时，你可以
 
-1. 拉取项目 [x-kubernetes](https://github.com/phosae/x-kubernetes) 设置测试环境（并顺手 star ⭐🤩🌈
+1. 拉取项目 [x-kubernetes] 设置测试环境（并顺手 star ⭐🤩🌈
 
         git clone https://github.com/phosae/x-kubernetes.git
         cd x-kubernetes
@@ -512,7 +512,134 @@ func (c completedConfig) New() (*HelloApiServer, error) {
 
 ## 🎮 Play
 
+**Watch**
+
 <img src="/img/2023/apiserver-lib-play-watch.gif" width="700px"/>
+
+**分页**
+
+```bash
+# paging
+kubectl get --raw '/apis/hello.zeng.dev/v2/foos?limit=1' \
+| jq -r '.apiVersion,.kind,("item: " + .items[].metadata.namespace + "/" + .items[].metadata.name),("continue: "+ .metadata.continue)'
+
+hello.zeng.dev/v2
+FooList
+item: default/myfoo
+continue: eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvbXlmb29cdTAwMDAifQ
+
+kubectl get --raw '/apis/hello.zeng.dev/v2/foos?limit=1&continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvbXlmb29cdTAwMDAifQ' \
+| jq -r '.apiVersion,.kind,("item: " + .items[].metadata.namespace + "/" + .items[].metadata.name),("continue: "+ .metadata.continue)'
+
+hello.zeng.dev/v2
+FooList
+item: default/test
+continue: eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvdGVzdFx1MDAwMCJ9
+
+kubectl get --raw '/apis/hello.zeng.dev/v2/foos?limit=1&continue=eyJ2IjoibWV0YS5rOHMuaW8vdjEiLCJydiI6MTQ2LCJzdGFydCI6ImRlZmF1bHQvdGVzdFx1MDAwMCJ9' \
+| jq '.apiVersion,.kind,("item: " + .items[].metadata.namespace + "/" + .items[].metadata.name),("continue: "+ .metadata.continue)'
+
+hello.zeng.dev/v2
+FooList
+item: kube-public/myfoo
+continue:
+```
+
+**custom apiserver authn/authz 集成 kube-apiserver RBAC**
+
+创建 default/readuser，通过 kube-apiserver RBAC 授予官方资源读取权限
+
+```bash
+kubectl create -f << EOF -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: readuser
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: readuser::view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: ServiceAccount
+    name: readuser
+    namespace: default
+EOF
+```
+
+利用 [x-kubernetes/gen-sa-kubeconfig.sh] 生成 readuser kubeconfig
+
+```bash
+root@dev:~/x-kubernetes# ./hack/gen-sa-kubeconfig.sh default readuser
+Cluster "kind-kind" set.
+User "default-readuser" set.
+Context "default" modified.
+Switched to context "default".
+
+root@dev:~/x-kubernetes# ls default-readuser.kubeconfig 
+default-readuser.kubeconfig
+```
+
+测试 custom apiserver authn/authz，因为 readuser 只能访问官方资源，所以访问 foos 会遭拒
+
+```
+# forward local 6443 to cluster custom apiserver service 443
+kubectl -n hello port-forward svc/apiserver 6443:443
+---
+
+KUBECONFIG=default-readuser.kubeconfig k -s https://localhost:6443 --insecure-skip-tls-verify get fo
+Error from server (Forbidden): foos.hello.zeng.dev is forbidden: 
+User "system:serviceaccount:default:readuser" 
+cannot list resource "foos" in API group "hello.zeng.dev" in the namespace "default"
+```
+
+通过 kube-apiserver RBAC 授予 readuser hello.zeng.dev group 读取权限
+
+```bash
+cat << EOF | kubectl apply -f -
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hello-view
+rules:
+- apiGroups:
+  - hello.zeng.dev
+  resources:
+  - '*'
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: readuser::hello-view
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hello-view
+subjects:
+  - kind: ServiceAccount
+    name: readuser
+    namespace: default
+EOF
+```
+再测试时 readuser 已经获得了读取权限
+```
+# forward local 6443 to cluster custom apiserver service 443
+kubectl -n hello port-forward svc/apiserver 6443:443
+---
+
+KUBECONFIG=default-readuser.kubeconfig k -s https://localhost:6443 --insecure-skip-tls-verify get fo
+NAME    STATUS   AGE
+myfoo            13h
+test             12h
+```
 
 ## 🔢 总结
 [k8s.io/apiserver] 主要 package 如下
@@ -567,6 +694,9 @@ k8s.io/apiserver/pkg
 [k8s.io/apiserver pkg/endpoints]: https://github.com/kubernetes/apiserver/tree/master/pkg/endpoints
 [interface rest.StandardStorage]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305
 [sotrage.Interface]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/interfaces.go#L159-L239
+
+[x-kubernetes]: https://github.com/phosae/x-kubernetes
+[x-kubernetes/gen-sa-kubeconfig.sh]: https://github.com/phosae/x-kubernetes/blob/229ba83958f5e85b0c46d542b72c2775643e6371/hack/gen-sa-kubeconfig.sh
 
 <!-- apiserver using library commits -->
 [commit: build apiserver ontop library]: https://github.com/phosae/x-kubernetes/commit/4c0df0e726cb041451b09d1fb1be7a88c3c09169
