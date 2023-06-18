@@ -48,7 +48,7 @@
 <meta itemprop="name" content="慎重选用 Runtime 类框架开发 K8s apiserver">
 <meta itemprop="description" content="Be cautious in choosing the Runtime type framework for developing K8s apiserver"><meta itemprop="datePublished" content="2023-06-18T16:09:27+08:00" />
 <meta itemprop="dateModified" content="2023-06-18T18:42:27+08:00" />
-<meta itemprop="wordCount" content="1208">
+<meta itemprop="wordCount" content="1211">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="慎重选用 Runtime 类框架开发 K8s apiserver"/>
 <meta name="twitter:description" content="Be cautious in choosing the Runtime type framework for developing K8s apiserver"/>
@@ -376,7 +376,7 @@ type Foo struct {
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>所以显而易见的问题来了：<a href="https://github.com/kubernetes-sigs/apiserver-runtime">sigs.k8s.io/apiserver-runtime</a> 本身也是基于 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 提供了增强。当项目涉及灵活定制策略时，就需要直接使用底层库。结果是，开发者除了要熟悉 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a>，还需要再学一套框架。</p>
+</div><p>所以显而易见的问题来了：<a href="https://github.com/kubernetes-sigs/apiserver-runtime">sigs.k8s.io/apiserver-runtime</a> 本身也是基于 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 提供增强。当项目需要灵活定制策略时，就不可避免需要直接使用底层库。结果是，开发者除了要熟悉 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a>，还需要再学一套框架。</p>
 <p>那为什么不从一开始直接使用 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 呢？</p>
 <p>而且随着 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 提供的功能越来越多，框架更新便必然滞后。这也会增加维护成本。</p>
 <p>使用框架时需要格外警惕，除非你确定项目的生命周期不长，只打算做一锤子买卖。

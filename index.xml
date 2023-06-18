@@ -13,7 +13,7 @@
       <pubDate>Sun, 18 Jun 2023 16:09:27 +0800</pubDate>
       
       <guid>https://www.zeng.dev/post/2023-k8s-apiserver-avoid-using-runtime/</guid>
-      <description>文章摘要</description>
+      <description>apiserver-runtime 本身也是基于 k8s.io/apiserver 提供增强。当项目需要灵活定制策略时，就不可避免需要直接使用底层库。结果是，开发者除了要熟悉 k8s.io 库，还需要再学一套框架。那为什么不从一开始直接使用 k8s.io/apiserver？</description>
     </item>
     
     <item>
