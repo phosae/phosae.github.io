@@ -29,6 +29,7 @@ hideHeaderAndFooter: false
 [搞懂 K8s apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
 [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library
+[慎重选用 Runtime 类框架开发 K8s apiserver]: ../2023-k8s-apiserver-avoid-using-runtime
 
 本文为 **K8s API 和控制器** 系列文章之一
 - [K8s CustomResourceDefinitions (CRD) 原理]
@@ -36,6 +37,7 @@ hideHeaderAndFooter: false
 - [搞懂 K8s apiserver aggregation]
 - [最不厌其烦的 K8s 代码生成教程]
 - [使用 library 实现 K8s apiserver] (本文)
+- [慎重选用 Runtime 类框架开发 K8s apiserver]
 
 看文章的同时，你可以
 
@@ -320,14 +322,14 @@ func (fooStrategy) ConvertToTable(ctx context.Context, object runtime.Object, ta
 
 <img src="/img/2023/k8s-apiserver-install-apis.png" width="700px"/>
 
-每个 APIGroupInfo 中包含了
+每个 [APIGroupInfo] 中包含了
 - 存储接口实现集 map[string/\*(version\*)/][string/\*(kind_plural\*)/]rest.Storage (rest.Storage 仅是支持注册 GroupVersion 级 API，类似 /apis/hello.zeng.dev/v1，所以实际实现一般为 rest.StandardStorage，这样就可以支持资源 kind 的 CRUD，类似 /apis/hello.zeng.dev/v1/foos)
 - 包含资源 group kinds 的编解码、默认值、转化等信息的 [runtime.Scheme]
 - Codecs
   - 支持将 URL Query Params 转化 metav1.CreateOptions，metav1.GetOptions，metav1.UpdateOptions 等的 metav1.ParameterCodec 
   - 负责 API structs（注册在 runtime.Scheme 中）序列化和反序列化的 [struct runtime/serializer.CodecFactory]
 
-APIGroupInfo install 到 [GenericAPIServer] 后，就转化为 
+[APIGroupInfo] install 到 [GenericAPIServer] 后，就转化为 
 - Discovery API handlers（ supports `/apis/{group}` `/apis/{group}/{version}`
 - Object/Resource API Handlers (supports CRUD `/apis/{group}/{version}/**/{kind_plural}`) 
 
@@ -457,7 +459,7 @@ pkg/apis/storage
           │   └── zz_generated.defaults.go
           └── zz_generated.deepcopy.go
 
-引入 API、定义好内部类型、默认值设置函数、转换函数，准备好它们的注册函数之后，实际的业务逻辑改动非常小 [commit: supports CRUD hello.zeng.dev/v2 foos]: 71 additions and 52 deletions (而 [commit: add hello.zeng.dev/v2 internal]: 261 additions and 4 deletions)。改动仅是保证 pkg/api 们都注册到 [runtime.Scheme]，全部引用外部类型改为只引用内部类型，在 APIGroupInfo 中设置好多版本而已。这说明 [k8s.io/apiserver] 包办了大部分事情。
+引入 API、定义好内部类型、默认值设置函数、转换函数，准备好它们的注册函数之后，实际的业务逻辑改动非常小 [commit: supports CRUD hello.zeng.dev/v2 foos]: 71 additions and 52 deletions (而 [commit: add hello.zeng.dev/v2 internal]: 261 additions and 4 deletions)。改动仅是保证 pkg/api 们都注册到 [runtime.Scheme]，全部引用外部类型改为只引用内部类型，在 [APIGroupInfo] 中设置好多版本而已。这说明 [k8s.io/apiserver] 包办了大部分事情。
 
 
 
@@ -702,6 +704,7 @@ k8s.io/apiserver/pkg
 [Kubernetes-style API types]: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
 [k8s.io/apiserver]: https://github.com/kubernetes/apiserver
 [GenericAPIServer]: https://github.com/kubernetes/apiserver/blob/ed61fb1c78ab5dcf99235126eee4969c3ab5ca84/pkg/server/genericapiserver.go#L105
+[APIGroupInfo]: https://github.com/kubernetes/apiserver/blob/1bf7d4daedf7f3a9c31f4922a41a76d1dfa16436/pkg/server/genericapiserver.go#L67-L95
 [k8s.io/apiserver pkg/registry/generic/registry.Store]: https://github.com/kubernetes/apiserver/blob/44fa6d28d5b3c41637871486ba3ffaf3a2407632/pkg/registry/generic/registry/store.go#L97
 [k8s.io/apiserver pkg/endpoints]: https://github.com/kubernetes/apiserver/tree/master/pkg/endpoints
 [interface rest.StandardStorage]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305
