@@ -48,7 +48,7 @@
 <meta itemprop="name" content="使用 library 实现 K8s apiserver">
 <meta itemprop="description" content="The best way to understand K8s apiserver is to implement one yourself"><meta itemprop="datePublished" content="2023-06-07T16:11:19+08:00" />
 <meta itemprop="dateModified" content="2023-06-16T09:11:19+08:00" />
-<meta itemprop="wordCount" content="5674">
+<meta itemprop="wordCount" content="5686">
 <meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用 library 实现 K8s apiserver"/>
 <meta name="twitter:description" content="The best way to understand K8s apiserver is to implement one yourself"/>
@@ -162,6 +162,7 @@
 <li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
 <li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a> (本文)</li>
+<li><a href="../2023-k8s-apiserver-avoid-using-runtime">慎重选用 Runtime 类框架开发 K8s apiserver</a></li>
 </ul>
 <p>看文章的同时，你可以</p>
 <ol>
@@ -634,7 +635,7 @@
 <h2 id="-主要组件梳理">✍️ 主要组件梳理</h2>
 <p>回顾两次 commits，可以发现 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 架构相对简单</p>
 <img src="/img/2023/k8s-apiserver-install-apis.png" width="700px"/>
-<p>每个 APIGroupInfo 中包含了</p>
+<p>每个 <a href="https://github.com/kubernetes/apiserver/blob/1bf7d4daedf7f3a9c31f4922a41a76d1dfa16436/pkg/server/genericapiserver.go#L67-L95">APIGroupInfo</a> 中包含了</p>
 <ul>
 <li>存储接口实现集 map[string/*(version*)/][string/*(kind_plural*)/]rest.Storage (rest.Storage 仅是支持注册 GroupVersion 级 API，类似 /apis/hello.zeng.dev/v1，所以实际实现一般为 rest.StandardStorage，这样就可以支持资源 kind 的 CRUD，类似 /apis/hello.zeng.dev/v1/foos)</li>
 <li>包含资源 group kinds 的编解码、默认值、转化等信息的 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a></li>
@@ -645,7 +646,7 @@
 </ul>
 </li>
 </ul>
-<p>APIGroupInfo install 到 <a href="https://github.com/kubernetes/apiserver/blob/ed61fb1c78ab5dcf99235126eee4969c3ab5ca84/pkg/server/genericapiserver.go#L105">GenericAPIServer</a> 后，就转化为</p>
+<p><a href="https://github.com/kubernetes/apiserver/blob/1bf7d4daedf7f3a9c31f4922a41a76d1dfa16436/pkg/server/genericapiserver.go#L67-L95">APIGroupInfo</a> install 到 <a href="https://github.com/kubernetes/apiserver/blob/ed61fb1c78ab5dcf99235126eee4969c3ab5ca84/pkg/server/genericapiserver.go#L105">GenericAPIServer</a> 后，就转化为</p>
 <ul>
 <li>Discovery API handlers（ supports <code>/apis/{group}</code> <code>/apis/{group}/{version}</code></li>
 <li>Object/Resource API Handlers (supports CRUD <code>/apis/{group}/{version}/**/{kind_plural}</code>)</li>
@@ -820,7 +821,7 @@
       │   └── zz_generated.defaults.go
       └── zz_generated.deepcopy.go
 </code></pre>
-<p>引入 API、定义好内部类型、默认值设置函数、转换函数，准备好它们的注册函数之后，实际的业务逻辑改动非常小 <a href="https://github.com/phosae/x-kubernetes/commit/b95522b123c95013cce4b4763a350adf0b40258e">commit: supports CRUD hello.zeng.dev/v2 foos</a>: 71 additions and 52 deletions (而 <a href="https://github.com/phosae/x-kubernetes/commit/7f30c3df7fe46ca87597e7f0c4d71edb464c4532">commit: add hello.zeng.dev/v2 internal</a>: 261 additions and 4 deletions)。改动仅是保证 pkg/api 们都注册到 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a>，全部引用外部类型改为只引用内部类型，在 APIGroupInfo 中设置好多版本而已。这说明 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 包办了大部分事情。</p>
+<p>引入 API、定义好内部类型、默认值设置函数、转换函数，准备好它们的注册函数之后，实际的业务逻辑改动非常小 <a href="https://github.com/phosae/x-kubernetes/commit/b95522b123c95013cce4b4763a350adf0b40258e">commit: supports CRUD hello.zeng.dev/v2 foos</a>: 71 additions and 52 deletions (而 <a href="https://github.com/phosae/x-kubernetes/commit/7f30c3df7fe46ca87597e7f0c4d71edb464c4532">commit: add hello.zeng.dev/v2 internal</a>: 261 additions and 4 deletions)。改动仅是保证 pkg/api 们都注册到 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a>，全部引用外部类型改为只引用内部类型，在 <a href="https://github.com/kubernetes/apiserver/blob/1bf7d4daedf7f3a9c31f4922a41a76d1dfa16436/pkg/server/genericapiserver.go#L67-L95">APIGroupInfo</a> 中设置好多版本而已。这说明 <a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 包办了大部分事情。</p>
 <h2 id="-按配置引入组件">⚙️ 按配置引入组件</h2>
 <p><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a> 提到了官方 kube-apiserver 处理请求的一般流程</p>
 <p>request ➡️ filterchain ➡️ kube-aggregator ➡️ apiservers</p>
@@ -1240,7 +1241,11 @@
           <a href="/tags/openapi/">openapi</a>
           </div>
       <nav class="post-nav">
-        
+        <a class="prev" href="/post/2023-k8s-apiserver-avoid-using-runtime/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">慎重选用 Runtime 类框架开发 K8s apiserver</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
         <a class="next" href="/post/2023-k8s-api-codegen/">
             <span class="next-text nav-default">最不厌其烦的 K8s 代码生成教程</span>
             <span class="next-text nav-mobile">Next</span>

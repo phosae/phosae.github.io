@@ -6,7 +6,16 @@
     <description>Recent content on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 07 Jun 2023 16:11:19 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 18 Jun 2023 16:09:27 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>慎重选用 Runtime 类框架开发 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-avoid-using-runtime/</link>
+      <pubDate>Sun, 18 Jun 2023 16:09:27 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-avoid-using-runtime/</guid>
+      <description>文章摘要</description>
+    </item>
+    
     <item>
       <title>使用 library 实现 K8s apiserver</title>
       <link>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</link>
