@@ -7,7 +7,7 @@ keywords: ["kubernetes"]
 description: "Be cautious in choosing the Runtime type framework for developing K8s apiserver"
 tags: ["kubernetes"]
 author: "Zeng Xu"
-summary: "文章摘要"
+summary: "apiserver-runtime 本身也是基于 k8s.io/apiserver 提供增强。当项目需要灵活定制策略时，就不可避免需要直接使用底层库。结果是，开发者除了要熟悉 k8s.io 库，还需要再学一套框架。那为什么不从一开始直接使用 k8s.io/apiserver？"
 
 comment: true
 toc: false
@@ -172,7 +172,7 @@ func main() {
 }
 ```
 
-所以显而易见的问题来了：[sigs.k8s.io/apiserver-runtime] 本身也是基于 [k8s.io/apiserver] 提供了增强。当项目涉及灵活定制策略时，就需要直接使用底层库。结果是，开发者除了要熟悉 [k8s.io/apiserver]，还需要再学一套框架。
+所以显而易见的问题来了：[sigs.k8s.io/apiserver-runtime] 本身也是基于 [k8s.io/apiserver] 提供增强。当项目需要灵活定制策略时，就不可避免需要直接使用底层库。结果是，开发者除了要熟悉 [k8s.io/apiserver]，还需要再学一套框架。
 
 那为什么不从一开始直接使用 [k8s.io/apiserver] 呢？
 
