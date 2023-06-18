@@ -322,10 +322,10 @@ func (fooStrategy) ConvertToTable(ctx context.Context, object runtime.Object, ta
 
 每个 APIGroupInfo 中包含了
 - 存储接口实现集 map[string/\*(version\*)/][string/\*(kind_plural\*)/]rest.Storage (rest.Storage 仅是支持注册 GroupVersion 级 API，类似 /apis/hello.zeng.dev/v1，所以实际实现一般为 rest.StandardStorage，这样就可以支持资源 kind 的 CRUD，类似 /apis/hello.zeng.dev/v1/foos)
-- 包含资源 group kinds 的编解码、默认值、转化等信息的 runtime.Scheme
+- 包含资源 group kinds 的编解码、默认值、转化等信息的 [runtime.Scheme]
 - Codecs
   - 支持将 URL Query Params 转化 metav1.CreateOptions，metav1.GetOptions，metav1.UpdateOptions 等的 metav1.ParameterCodec 
-  - 负责 runtime.Scheme 中 Group Kinds 序列化和反序列化的 CodecFactory
+  - 负责 API structs（注册在 runtime.Scheme 中）序列化和反序列化的 [struct runtime/serializer.CodecFactory]
 
 APIGroupInfo install 到 [GenericAPIServer] 后，就转化为 
 - Discovery API handlers（ supports `/apis/{group}` `/apis/{group}/{version}`
@@ -355,14 +355,19 @@ registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 [sotrag
 
 1. 任意类型不论对外有多少个版本，其内存版本唯一。
    该内存版本一般称之为 Memory/Internal/Hub Version（以下称之为内存版本或者内部版本）
-2. 在多个版本之中，可以设置 preferredVersion（一般为最高级版本）。
+2. `func (s *Scheme) SetVersionPriority(versions ...schema.GroupVersion) error` --> 在多个版本之间，需要显式设置 preferredVersion。
   `kubectl {action} {kind}` 默认取 preferredVersion，写入存储的一般也是 preferredVersion。
   `GET /apis/{group}` 可以获取该 group 的 preferredVersion 信息
 3. 由外而内经过计算写入存储，会经历这个转换 RequestVersion kind ➡️ MemoryVersion kind ➡️ StorageVersion kind
 4. 从存储经过计算返回客户端，则经历这个转换 StorageVersion kind ➡️ MemoryVersion kind ➡️ RequestVersion kind
-5. 普通版本🔄内存版本：核心在于两个版本之间的自由转换。对应的转换函数存储在 [runtime.Scheme]
+5. 普通版本🔄内存版本：核心在于版本之间的两两转换。
+   因此需要向 [runtime.Scheme] 注册转换函数 `func (s *Scheme) AddConversionFunc(from, to interface{}, fn conversion.ConversionFunc) error`
 
 <img src="/img/2023/k8s-api-multiversion-conv.png" width="700px"/>
+
+[k8s.io/apiserver] 版本转换实现是 [struct runtime/serializer.CodecFactory]，实现了 [interface runtime.NegotiatedSerializer]（面向 HTTP 层）和 [interface runtime.StorageSerializer]（面向存储层）。核心使用方式
+1. `func SupportedMediaTypes() []SerializerInfo` 返回最底层的 encode/decode 实现 (struct 🔄 binary)，使用方根据 mediaType 选择最佳 encoder/decoder
+2. `func EncoderForVersion(serializer Encoder, gv GroupVersioner) Encoder` 和 `DecoderToVersion(serializer Decoder, gv GroupVersioner) Decoder` 接收 encoder/decoder 和 GroupVersioner，返回出支持将 struct encode/decode 到某个特定版本的包装实现（正是这个包装实现提供了 encode/decode 增强，支持版本转换、设置默认值等）
 
 类似 [Kubernetes]，
 对外 API 库 (k8s.io/api) 仅包含外部 API 定义，仅提供了注册、protobuf 定义和 deepcopy，
@@ -421,6 +426,8 @@ pkg/apis/storage
 - pkg/api/{group}/{version}/ 有外部 version 默认值函数 defaults.go，有 conversion.go 协助版本转换 external 🔄 internal，有 register.go 简单引用并包装 [x-kubernetes/api] 注册
 - pkg/install/install.go 注册所有版本到 [runtime.Scheme]
 
+⚠️⚠️⚠️ 实现上，在 {group}/types.go 文件中定义 internal struct 非必要。比如可以挑选最新的 API struct，同时将它注册为 external version 和 internal version，只要定义好版本之间的转换即可。
+
       ~/x-kubernetes/api-aggregation-lib# tree pkg/api/
       pkg/api/
       └── hello.zeng.dev
@@ -451,6 +458,8 @@ pkg/apis/storage
           └── zz_generated.deepcopy.go
 
 引入 API、定义好内部类型、默认值设置函数、转换函数，准备好它们的注册函数之后，实际的业务逻辑改动非常小 [commit: supports CRUD hello.zeng.dev/v2 foos]: 71 additions and 52 deletions (而 [commit: add hello.zeng.dev/v2 internal]: 261 additions and 4 deletions)。改动仅是保证 pkg/api 们都注册到 [runtime.Scheme]，全部引用外部类型改为只引用内部类型，在 APIGroupInfo 中设置好多版本而已。这说明 [k8s.io/apiserver] 包办了大部分事情。
+
+
 
 ## ⚙️ 按配置引入组件
 
@@ -684,6 +693,9 @@ k8s.io/apiserver/pkg
 
 [Kubernetes]: https://github.com/kubernetes/kubernetes
 [runtime.Scheme]: https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46
+[interface runtime.NegotiatedSerializer]: https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/interfaces.go#L167-L177
+[interface runtime.StorageSerializer]: https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/interfaces.go#L204-L218
+[struct runtime/serializer.CodecFactory]: https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/serializer/codec_factory.go#L125
 [极简 K8s apiserver types]: https://github.com/phosae/x-kubernetes/blob/c59960982df64efee4b166e040d8031203173963/apiserver-from-scratch/main.go#L278-L300
 [x-kubernetes/api]: https://github.com/phosae/x-kubernetes/tree/master/api
 

@@ -48,7 +48,7 @@
 <meta itemprop="name" content="使用 library 实现 K8s apiserver">
 <meta itemprop="description" content="The best way to understand K8s apiserver is to implement one yourself"><meta itemprop="datePublished" content="2023-06-07T16:11:19+08:00" />
 <meta itemprop="dateModified" content="2023-06-16T09:11:19+08:00" />
-<meta itemprop="wordCount" content="5347">
+<meta itemprop="wordCount" content="5674">
 <meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用 library 实现 K8s apiserver"/>
 <meta name="twitter:description" content="The best way to understand K8s apiserver is to implement one yourself"/>
@@ -637,11 +637,11 @@
 <p>每个 APIGroupInfo 中包含了</p>
 <ul>
 <li>存储接口实现集 map[string/*(version*)/][string/*(kind_plural*)/]rest.Storage (rest.Storage 仅是支持注册 GroupVersion 级 API，类似 /apis/hello.zeng.dev/v1，所以实际实现一般为 rest.StandardStorage，这样就可以支持资源 kind 的 CRUD，类似 /apis/hello.zeng.dev/v1/foos)</li>
-<li>包含资源 group kinds 的编解码、默认值、转化等信息的 runtime.Scheme</li>
+<li>包含资源 group kinds 的编解码、默认值、转化等信息的 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a></li>
 <li>Codecs
 <ul>
 <li>支持将 URL Query Params 转化 metav1.CreateOptions，metav1.GetOptions，metav1.UpdateOptions 等的 metav1.ParameterCodec</li>
-<li>负责 runtime.Scheme 中 Group Kinds 序列化和反序列化的 CodecFactory</li>
+<li>负责 API structs（注册在 runtime.Scheme 中）序列化和反序列化的 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/serializer/codec_factory.go#L125">struct runtime/serializer.CodecFactory</a></li>
 </ul>
 </li>
 </ul>
@@ -672,14 +672,20 @@
 <ol>
 <li>任意类型不论对外有多少个版本，其内存版本唯一。
 该内存版本一般称之为 Memory/Internal/Hub Version（以下称之为内存版本或者内部版本）</li>
-<li>在多个版本之中，可以设置 preferredVersion（一般为最高级版本）。
+<li><code>func (s *Scheme) SetVersionPriority(versions ...schema.GroupVersion) error</code> &ndash;&gt; 在多个版本之间，需要显式设置 preferredVersion。
 <code>kubectl {action} {kind}</code> 默认取 preferredVersion，写入存储的一般也是 preferredVersion。
 <code>GET /apis/{group}</code> 可以获取该 group 的 preferredVersion 信息</li>
 <li>由外而内经过计算写入存储，会经历这个转换 RequestVersion kind ➡️ MemoryVersion kind ➡️ StorageVersion kind</li>
 <li>从存储经过计算返回客户端，则经历这个转换 StorageVersion kind ➡️ MemoryVersion kind ➡️ RequestVersion kind</li>
-<li>普通版本🔄内存版本：核心在于两个版本之间的自由转换。对应的转换函数存储在 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a></li>
+<li>普通版本🔄内存版本：核心在于版本之间的两两转换。
+因此需要向 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a> 注册转换函数 <code>func (s *Scheme) AddConversionFunc(from, to interface{}, fn conversion.ConversionFunc) error</code></li>
 </ol>
 <img src="/img/2023/k8s-api-multiversion-conv.png" width="700px"/>
+<p><a href="https://github.com/kubernetes/apiserver">k8s.io/apiserver</a> 版本转换实现是 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/serializer/codec_factory.go#L125">struct runtime/serializer.CodecFactory</a>，实现了 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/interfaces.go#L167-L177">interface runtime.NegotiatedSerializer</a>（面向 HTTP 层）和 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/interfaces.go#L204-L218">interface runtime.StorageSerializer</a>（面向存储层）。核心使用方式</p>
+<ol>
+<li><code>func SupportedMediaTypes() []SerializerInfo</code> 返回最底层的 encode/decode 实现 (struct 🔄 binary)，使用方根据 mediaType 选择最佳 encoder/decoder</li>
+<li><code>func EncoderForVersion(serializer Encoder, gv GroupVersioner) Encoder</code> 和 <code>DecoderToVersion(serializer Decoder, gv GroupVersioner) Decoder</code> 接收 encoder/decoder 和 GroupVersioner，返回出支持将 struct encode/decode 到某个特定版本的包装实现（正是这个包装实现提供了 encode/decode 增强，支持版本转换、设置默认值等）</li>
+</ol>
 <p>类似 <a href="https://github.com/kubernetes/kubernetes">Kubernetes</a>，
 对外 API 库 (k8s.io/api) 仅包含外部 API 定义，仅提供了注册、protobuf 定义和 deepcopy，
 内部库（pkg/api 和 pkg/apis）则提供了类型默认值设置、类型字段校验、内外类型转换这些贴近业务的函数。</p>
@@ -781,34 +787,29 @@
 </div>
 </div><p>回过头看 <a href="https://github.com/phosae/x-kubernetes/commit/7f30c3df7fe46ca87597e7f0c4d71edb464c4532">commit: add hello.zeng.dev/v2 internal</a> 也采用了类似结构</p>
 <ul>
-<li>
-<p>pkg/api/{group}/types.go 存放 internal version</p>
-</li>
-<li>
-<p>pkg/api/{group}/{version}/ 有外部 version 默认值函数 defaults.go，有 conversion.go 协助版本转换 external 🔄 internal，有 register.go 简单引用并包装 <a href="https://github.com/phosae/x-kubernetes/tree/master/api">x-kubernetes/api</a> 注册</p>
-</li>
-<li>
-<p>pkg/install/install.go 注册所有版本到 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a></p>
-<pre><code>~/x-kubernetes/api-aggregation-lib# tree pkg/api/
-pkg/api/
-└── hello.zeng.dev
-    ├── install
-    │   └── install.go
-    ├── v1
-    │   ├── conversion.go
-    │   ├── defaults.go
-    │   ├── doc.go
-    │   └── register.go
-    ├── v2
-    │   ├── defaults.go
-    │   ├── doc.go
-    │   └── register.go
-    ├── doc.go
-    ├── register.go
-    └── types.go
-</code></pre>
-</li>
+<li>pkg/api/{group}/types.go 存放 internal version</li>
+<li>pkg/api/{group}/{version}/ 有外部 version 默认值函数 defaults.go，有 conversion.go 协助版本转换 external 🔄 internal，有 register.go 简单引用并包装 <a href="https://github.com/phosae/x-kubernetes/tree/master/api">x-kubernetes/api</a> 注册</li>
+<li>pkg/install/install.go 注册所有版本到 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a></li>
 </ul>
+<p>⚠️⚠️⚠️ 实现上，在 {group}/types.go 文件中定义 internal struct 非必要。比如可以挑选最新的 API struct，同时将它注册为 external version 和 internal version，只要定义好版本之间的转换即可。</p>
+<pre><code>  ~/x-kubernetes/api-aggregation-lib# tree pkg/api/
+  pkg/api/
+  └── hello.zeng.dev
+      ├── install
+      │   └── install.go
+      ├── v1
+      │   ├── conversion.go
+      │   ├── defaults.go
+      │   ├── doc.go
+      │   └── register.go
+      ├── v2
+      │   ├── defaults.go
+      │   ├── doc.go
+      │   └── register.go
+      ├── doc.go
+      ├── register.go
+      └── types.go
+</code></pre>
 <p>大部分 default funcs, conversion funcs 全部由自动生成。执行 <a href="https://github.com/phosae/x-kubernetes/blob/229ba83958f5e85b0c46d542b72c2775643e6371/api-aggregation-lib/hack/update-codegen-docker.sh">./hack/update-codegen-docker.sh</a> 之后，由各目录 doc.go 生成声明产生这些生成文件 <a href="https://github.com/phosae/x-kubernetes/commit/e9ab0750243bb7132074bc1e4afc14a8e9988c78">commit: gen hello.zeng.dev/v2 internal codes</a></p>
 <pre><code>  pkg/api/
   └── hello.zeng.dev
