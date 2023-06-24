@@ -422,9 +422,9 @@ spec:                         | spec:           <--- 所期望的资源状态（
 
 🪬🪬🪬 Kubernetes 1.25+ [CRD validation rules](https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules) 进入 beta，可在 OpenAPI Spec 基础上设置更强大的字段约束。
 
-🪬🪬🪬 kubectl apply 会利用 OpenAPI Spec 确定资源支持的 Patch 类型，kubectl explain 输出的资源字段来自于 OpenAPI Spec。kubectl 插件 [kubernetes-sigs/kubectl-validate](https://github.com/kubernetes-sigs/kubectl-validate) 支持在客户端使用 OpenAPI Spec 校验资源对象（接近 --dry-run=server）。
+🪬🪬🪬 kubectl apply 会利用 OpenAPI Spec 确定资源支持的 Patch 类型，kubectl explain 输出的资源字段来自于 OpenAPI Spec。kubectl 插件 [kubernetes-sigs/kubectl-validate](https://github.com/kubernetes-sigs/kubectl-validate) 支持在客户端使用 OpenAPI Spec 校验资源对象（接近 `--dry-run=server`）。
 
-解释了 API Discovery 如何可能和如何使用 API 之后，到达了最后一个问题：API 资源处理和持久如何可能。
+解释了 API Discovery 如何可能和如何使用 API 之后，到达了最后一个问题：**API 资源处理和持久如何可能?**
 
 这得从路由层说起，kube-apiserver [通过委托模式串联 apiextensions-apiserver 模块](https://github.com/kubernetes/kubernetes/blob/e11c5284ad01554b60c29b8d3f6337f2c735e7fb/cmd/kube-apiserver/app/server.go#L192-L208) 获得了 CRD 处理能力
 
@@ -451,7 +451,7 @@ HTTP 请求路由流程如下
 - /apis/hello.zeng.dev/v1/namespaces/{namespace}/foos
 - /apis/hello.zeng.dev/v1/namespaces/{namespace}/foos/{name}
 
-原理是模块内 [customresource_handler] 提供了 `/apis/{group}/{version}/(<kind_plural> | namespaces/{namespace}/<kind_plural> | namespaces/{namespace}/{kind_plural}/{name})` 通配。[customresource_handler] 实时读取所有 CRD 信息，负责 custom resources 的 CRUD 操作，并持有一个 [RESTStorage](https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/registry/customresource) (实现通常为 etcd)。在 API 层业务（通用校验、解码转换、admission 等）成功后，[customresource_handler] 调用 RESTStorage 实施对象持久化。
+原理是模块内 [customresource_handler] 提供了 `/apis/{group}/{version}/({kind_plural} | namespaces/{namespace}/{kind_plural} | namespaces/{namespace}/{kind_plural}/{name})` 通配。[customresource_handler] 实时读取所有 CRD 信息，负责 custom resources 的 CRUD 操作，并持有一个 [RESTStorage](https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/registry/customresource) (实现通常为 etcd)。在 API 层业务（通用校验、解码转换、admission 等）成功后，[customresource_handler] 调用 RESTStorage 实施对象持久化。
 
 
 路由 `/apis` 实际是 `/apis/{group}/{version}` 和 `/apis/{group}` 的聚合，由 kube-apiserver 的 kube-aggregator 模块提供，将在后面章节介绍。
@@ -525,7 +525,7 @@ type FooList struct {
 controller-gen schemapatch:manifests=./artifacts/crd paths=./... output:dir=./artifacts/crd
 ```
 
-即可动态生成 OpenAPI schemas (changes trace: git diff a5469c0 38dcc40 -- artifacts/crd/hello.zeng.dev_foos.yaml)
+即可动态生成 OpenAPI schemas (changes trace: git diff a5469c0 38dcc40 \-\- artifacts/crd/hello.zeng.dev_foos.yaml)
 
 ```yaml
 apiVersion: apiextensions.k8s.io/v1
