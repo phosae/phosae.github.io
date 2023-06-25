@@ -1,5 +1,4 @@
 # site base on hugo v0.109.0
-# todo migrate googleAnalytics (UA) -> Google Analytics 4 (GA4)
 
 baseURL = "https://www.zeng.dev/"
 languageCode = "en"
