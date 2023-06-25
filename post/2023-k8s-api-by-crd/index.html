@@ -48,7 +48,7 @@
 <meta itemprop="name" content="K8s CustomResourceDefinitions (CRD) 原理">
 <meta itemprop="description" content="K8s CustomResourceDefinition internals"><meta itemprop="datePublished" content="2023-05-19T10:09:09+08:00" />
 <meta itemprop="dateModified" content="2023-05-27T17:29:00+08:00" />
-<meta itemprop="wordCount" content="5387">
+<meta itemprop="wordCount" content="5382">
 <meta itemprop="keywords" content="kubernetes,rest," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="K8s CustomResourceDefinitions (CRD) 原理"/>
 <meta name="twitter:description" content="K8s CustomResourceDefinition internals"/>
@@ -821,8 +821,8 @@
 </div>
 </div><p>它们是 <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/#required-fields">Kubernetes objects 必须字段</a> 。尽管 CRD OpenAPIV3 Schema 并不包含 apiVersion, kind 和 metadata 字段， <a href="https://github.com/kubernetes/apiextensions-apiserver">apiextensions-apiserver 模块</a> 会 <a href="https://github.com/kubernetes/apiextensions-apiserver/blob/e0b0416bf23396ad7fb7007b264f5c04062590bc/pkg/registry/customresource/validator.go">强制保证这些字段</a>。</p>
 <p>🪬🪬🪬 Kubernetes 1.25+ <a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules">CRD validation rules</a> 进入 beta，可在 OpenAPI Spec 基础上设置更强大的字段约束。</p>
-<p>🪬🪬🪬 kubectl apply 会利用 OpenAPI Spec 确定资源支持的 Patch 类型，kubectl explain 输出的资源字段来自于 OpenAPI Spec。kubectl 插件 <a href="https://github.com/kubernetes-sigs/kubectl-validate">kubernetes-sigs/kubectl-validate</a> 支持在客户端使用 OpenAPI Spec 校验资源对象（接近 &ndash;dry-run=server）。</p>
-<p>解释了 API Discovery 如何可能和如何使用 API 之后，到达了最后一个问题：API 资源处理和持久如何可能。</p>
+<p>🪬🪬🪬 kubectl apply 会利用 OpenAPI Spec 确定资源支持的 Patch 类型，kubectl explain 输出的资源字段来自于 OpenAPI Spec。kubectl 插件 <a href="https://github.com/kubernetes-sigs/kubectl-validate">kubernetes-sigs/kubectl-validate</a> 支持在客户端使用 OpenAPI Spec 校验资源对象（接近 <code>--dry-run=server</code>）。</p>
+<p>解释了 API Discovery 如何可能和如何使用 API 之后，到达了最后一个问题：<strong>API 资源处理和持久如何可能?</strong></p>
 <p>这得从路由层说起，kube-apiserver <a href="https://github.com/kubernetes/kubernetes/blob/e11c5284ad01554b60c29b8d3f6337f2c735e7fb/cmd/kube-apiserver/app/server.go#L192-L208">通过委托模式串联 apiextensions-apiserver 模块</a> 获得了 CRD 处理能力</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -860,7 +860,7 @@
 <li>/apis/hello.zeng.dev/v1/namespaces/{namespace}/foos</li>
 <li>/apis/hello.zeng.dev/v1/namespaces/{namespace}/foos/{name}</li>
 </ul>
-<p>原理是模块内 <a href="https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go">customresource_handler</a> 提供了 <code>/apis/{group}/{version}/(&lt;kind_plural&gt; | namespaces/{namespace}/&lt;kind_plural&gt; | namespaces/{namespace}/{kind_plural}/{name})</code> 通配。<a href="https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go">customresource_handler</a> 实时读取所有 CRD 信息，负责 custom resources 的 CRUD 操作，并持有一个 <a href="https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/registry/customresource">RESTStorage</a> (实现通常为 etcd)。在 API 层业务（通用校验、解码转换、admission 等）成功后，<a href="https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go">customresource_handler</a> 调用 RESTStorage 实施对象持久化。</p>
+<p>原理是模块内 <a href="https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go">customresource_handler</a> 提供了 <code>/apis/{group}/{version}/({kind_plural} | namespaces/{namespace}/{kind_plural} | namespaces/{namespace}/{kind_plural}/{name})</code> 通配。<a href="https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go">customresource_handler</a> 实时读取所有 CRD 信息，负责 custom resources 的 CRUD 操作，并持有一个 <a href="https://github.com/kubernetes/apiextensions-apiserver/tree/master/pkg/registry/customresource">RESTStorage</a> (实现通常为 etcd)。在 API 层业务（通用校验、解码转换、admission 等）成功后，<a href="https://github.com/kubernetes/apiextensions-apiserver/blob/master/pkg/apiserver/customresource_handler.go">customresource_handler</a> 调用 RESTStorage 实施对象持久化。</p>
 <p>路由 <code>/apis</code> 实际是 <code>/apis/{group}/{version}</code> 和 <code>/apis/{group}</code> 的聚合，由 kube-apiserver 的 kube-aggregator 模块提供，将在后面章节介绍。</p>
 <p>总结上述内容如下</p>
 <img src="/img/2023/crd-2discovery-2resource.png" width="888px"/>
@@ -982,7 +982,7 @@
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">controller-gen schemapatch:manifests<span class="o">=</span>./artifacts/crd <span class="nv">paths</span><span class="o">=</span>./... output:dir<span class="o">=</span>./artifacts/crd
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>即可动态生成 OpenAPI schemas (changes trace: git diff a5469c0 38dcc40 &ndash; artifacts/crd/hello.zeng.dev_foos.yaml)</p>
+</div><p>即可动态生成 OpenAPI schemas (changes trace: git diff a5469c0 38dcc40 -- artifacts/crd/hello.zeng.dev_foos.yaml)</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
