@@ -341,7 +341,8 @@ func (fooStrategy) ConvertToTable(ctx context.Context, object runtime.Object, ta
 [k8s.io/apiserver pkg/registry/generic/registry.Store] 实现了 [interface rest.StandardStorage]，
 使用方只需要提供简单 CRUD、校验等策略即可集成到存储层，比如这里的 fooStratedy。
 
-registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 [sotrage.Interface]。storage 下一级 package etcd3 提供了 etcd3 实现，cacher 提供了缓存层。
+registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 [sotrage.Interface]。
+storage 下一级 [package etcd3/store.go] 提供了 etcd3 实现，[package cacher/cacher.go] 提供了缓存层实现。
 [sotrage.Interface] 和 [interface rest.StandardStorage] 等抽象解耦了业务层和存储层，使得项目可以采纳非 etcd 存储，比如
 
 - [Kubernetes Metrics Server](https://github.com/kubernetes-sigs/metrics-server) 使用了内存实现
@@ -709,6 +710,8 @@ k8s.io/apiserver/pkg
 [k8s.io/apiserver pkg/endpoints]: https://github.com/kubernetes/apiserver/tree/master/pkg/endpoints
 [interface rest.StandardStorage]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305
 [sotrage.Interface]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/interfaces.go#L159-L239
+[package etcd3/store.go]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/etcd3/store.go
+[package cacher/cacher.go]: https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/cacher/cacher.go
 
 [x-kubernetes]: https://github.com/phosae/x-kubernetes
 [x-kubernetes/gen-sa-kubeconfig.sh]: https://github.com/phosae/x-kubernetes/blob/229ba83958f5e85b0c46d542b72c2775643e6371/hack/gen-sa-kubeconfig.sh
