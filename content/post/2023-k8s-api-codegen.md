@@ -26,6 +26,7 @@ hideHeaderAndFooter: false
 
 <!-- 系列链接 -->
 [K8s CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[K8s 多版本 API 转换最佳实践]: ../2023-k8s-api-multi-version-conversion-best-practice
 [实现一个极简 K8s apiserver]: ../2023-k8s-apiserver-from-scratch
 [搞懂 K8s apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
@@ -34,6 +35,7 @@ hideHeaderAndFooter: false
 
 本文为 **K8s API 和控制器** 系列文章之一
 - [K8s CustomResourceDefinitions (CRD) 原理]
+- [K8s 多版本 API 转换最佳实践]
 - [实现一个极简 K8s apiserver]
 - [搞懂 K8s apiserver aggregation]
 - [最不厌其烦的 K8s 代码生成教程] (本文)

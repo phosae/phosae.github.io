@@ -4,9 +4,9 @@ date: 2021-08-08T21:11:28+08:00
 lastmod: 2023-04-28T11:25:00+08:00
 draft: false
 
-keywords: ["kubernetes", "container"]
+keywords: ["kubernetes", "container", "webhook"]
 description: ""
-tags: ["kubernetes", "container"]
+tags: ["kubernetes", "container", "webhook"]
 author: "Zeng Xu"
 summary: "How to implement a Kubernetes validating admission webhook"
 

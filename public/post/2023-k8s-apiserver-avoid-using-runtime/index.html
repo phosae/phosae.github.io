@@ -48,7 +48,7 @@
 <meta itemprop="name" content="慎重选用 Runtime 类框架开发 K8s apiserver">
 <meta itemprop="description" content="Be cautious in choosing the Runtime type framework for developing K8s apiserver"><meta itemprop="datePublished" content="2023-06-18T16:09:27+08:00" />
 <meta itemprop="dateModified" content="2023-06-18T18:42:27+08:00" />
-<meta itemprop="wordCount" content="1211">
+<meta itemprop="wordCount" content="1222">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="慎重选用 Runtime 类框架开发 K8s apiserver"/>
 <meta name="twitter:description" content="Be cautious in choosing the Runtime type framework for developing K8s apiserver"/>
@@ -143,6 +143,7 @@
 <p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
 <ul>
 <li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></li>
+<li><a href="../2023-k8s-api-multi-version-conversion-best-practice">K8s 多版本 API 转换最佳实践</a></li>
 <li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a></li>
 <li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
@@ -408,7 +409,11 @@ type Foo struct {
           <a href="/tags/kubernetes/">kubernetes</a>
           </div>
       <nav class="post-nav">
-        
+        <a class="prev" href="/post/2023-k8s-api-multi-version-conversion-best-practice/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">K8s 多版本 API 转换最佳实践</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
         <a class="next" href="/post/2023-k8s-apiserver-using-library/">
             <span class="next-text nav-default">使用 library 实现 K8s apiserver</span>
             <span class="next-text nav-mobile">Next</span>

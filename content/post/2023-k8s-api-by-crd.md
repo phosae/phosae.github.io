@@ -38,6 +38,7 @@ sequenceDiagrams:
 
 <!-- 系列链接 -->
 [CustomResourceDefinitions (CRD) 原理]: ../2023-k8s-api-by-crd
+[K8s 多版本 API 转换最佳实践]: ../2023-k8s-api-multi-version-conversion-best-practice
 [实现一个极简 apiserver]: ../2023-k8s-apiserver-from-scratch
 [搞懂 apiserver aggregation]: ../2023-k8s-apiserver-aggregation-internals
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
@@ -46,6 +47,7 @@ sequenceDiagrams:
 
 本文为 **K8s API 和控制器** 系列文章之一
 - [CustomResourceDefinitions (CRD) 原理] (本文)
+- [K8s 多版本 API 转换最佳实践]
 - [实现一个极简 apiserver]
 - [搞懂 apiserver aggregation]
 - [最不厌其烦的 K8s 代码生成教程]
@@ -604,6 +606,8 @@ CustomResourceDefinition 是拓展 K8s API 最便捷方式，没有之一。[api
 - API 绑定在 kube-apiserver 进程，无法单独对外提供服务，无法实施 API 分流，定制性低
 
 后续篇章会基于同样的 API 库，展示各种 custom apiserver 集成方式，方便比较优劣。
+
+如果对 CRD 的多版本 API 转换有兴趣，可以移步查阅 [K8s 多版本 API 转换最佳实践]。
 
 Custom API 往往需要配合控制器，才能发挥其强大能力。本文仅介绍了 CustomResourceDefinition 的使用姿势和实现原理。控制器相关将在后续篇章介绍。
 

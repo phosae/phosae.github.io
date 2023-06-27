@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>K8s 多版本 API 转换最佳实践 - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="Best practices for multi-version API conversion in Kubernetes" /><meta name="keywords" content="kubernetes, go, webhook" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="K8s 多版本 API 转换最佳实践" />
+<meta property="og:description" content="Best practices for multi-version API conversion in Kubernetes" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-06-19T23:19:19+08:00" />
+<meta property="article:modified_time" content="2023-06-27T18:15:00+08:00" />
+<meta itemprop="name" content="K8s 多版本 API 转换最佳实践">
+<meta itemprop="description" content="Best practices for multi-version API conversion in Kubernetes"><meta itemprop="datePublished" content="2023-06-19T23:19:19+08:00" />
+<meta itemprop="dateModified" content="2023-06-27T18:15:00+08:00" />
+<meta itemprop="wordCount" content="2432">
+<meta itemprop="keywords" content="kubernetes,go,webhook," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="K8s 多版本 API 转换最佳实践"/>
+<meta name="twitter:description" content="Best practices for multi-version API conversion in Kubernetes"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">K8s 多版本 API 转换最佳实践</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-19 23:19 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#versions-in-apiserver">Versions in apiserver</a></li>
+    <li><a href="#versions-in-crd">Versions in CRD</a></li>
+    <li><a href="#best-practice-for-objects-conversion">Best Practice for Objects Conversion</a></li>
+    <li><a href="#hands-on-conversion-webhook-server">Hands on Conversion Webhook Server</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <!-- 系列链接 -->
+<p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
+<ul>
+<li><a href="../2023-k8s-api-by-crd">CustomResourceDefinitions (CRD) 原理</a></li>
+<li><a href="../2023-k8s-api-multi-version-conversion-best-practice">K8s 多版本 API 转换最佳实践</a> (本文)</li>
+<li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 apiserver</a></li>
+<li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 apiserver aggregation</a></li>
+<li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
+<li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a></li>
+<li><a href="../2023-k8s-apiserver-avoid-using-runtime">慎重选用 Runtime 类框架开发 K8s apiserver</a></li>
+</ul>
+<h2 id="versions-in-apiserver">Versions in apiserver</h2>
+<p><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a> 讲到了 apiserver 中多版本 API 转换的核心 —— 定义内部版本，将其作为所有外部版本转换的枢纽 (Hub)。内部版本可随代码变动，而外部版本则保持着 API 稳定。</p>
+<img src="/img/2023/k8s-api-multiversion-conv.png" width="700px">
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">~/x-kubernetes/api# tree hello.zeng.dev/ <span class="c1"># here defines the external API</span>
+</span></span><span class="line"><span class="cl">hello.zeng.dev/
+</span></span><span class="line"><span class="cl">├── v1
+</span></span><span class="line"><span class="cl">│   └── types.go                         <span class="c1"># here defines the v1 kinds</span>
+</span></span><span class="line"><span class="cl">└── v2
+</span></span><span class="line"><span class="cl">    └── types.go                         <span class="c1"># here defines the v2 kinds</span>
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">~/x-kubernetes/api-aggregation-lib# tree pkg/api/ <span class="c1"># here defines the internal API and the conversion</span>
+</span></span><span class="line"><span class="cl">pkg/api/
+</span></span><span class="line"><span class="cl">└── hello.zeng.dev
+</span></span><span class="line"><span class="cl">    ├── v1
+</span></span><span class="line"><span class="cl">    │   └── conversion.go                         <span class="c1"># here defines v1 🔄 internal</span>
+</span></span><span class="line"><span class="cl">    ├── v2
+</span></span><span class="line"><span class="cl">    │   └── zz_generated.conversion.go            <span class="c1"># here defines v2 🔄 internal</span>
+</span></span><span class="line"><span class="cl">    └── types.go                                  <span class="c1"># here defines the internal version</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="versions-in-crd">Versions in CRD</h2>
+<p>K8s CRD <code>spec.versions</code> 本身是一个数组，可以为对应的 Custom Resource 定义多个版本 API。</p>
+<p><a href="https://github.com/phosae/x-kubernetes/tree/master/api">x-kubernetes/api</a> 引入 v2 时，也同时更新了对应 CRD (见 <a href="https://github.com/phosae/x-kubernetes/commit/8cc7165a09ea4f01f3f4c132e20e5c060910f379#diff-4a9a9951613b198ef33362bf60e70c5f9af66d67fc4410c5a582db90471fa65d">Commit: add hello.zeng.dev/v2</a>)，并在 <a href="https://github.com/phosae/x-kubernetes/commit/6ef463dc1d251f2f267de9598e98453cbad3fe57#diff-4a9a9951613b198ef33362bf60e70c5f9af66d67fc4410c5a582db90471fa65d">Commit: gen v2 codes</a> 生成了 CRD OpenAPIV3 Schema。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apiextensions.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">CustomResourceDefinition</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">foos.hello.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">hello.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">names</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Foo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">versions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">served</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>- <span class="w">  </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+   storage</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+ - name</span><span class="p">:</span><span class="w"> </span><span class="l">v2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+   served</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+   storage</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+   additionalPrinterColumns</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;{...}&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+   schema</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">+     openAPIV3Schema</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>CRD 每版本有两个 bool 字段</p>
+<ul>
+<li>served 表示是否对外暴露，可用于废弃 API</li>
+<li>storage 表示是否为存储版本，所有版本中有且只有一个可以为 true</li>
+</ul>
+<p><a href="https://github.com/phosae/x-kubernetes/commit/8cc7165a09ea4f01f3f4c132e20e5c060910f379#diff-4a9a9951613b198ef33362bf60e70c5f9af66d67fc4410c5a582db90471fa65d">Commit: add hello.zeng.dev/v2</a> 除了增加 v2 版本 API 之外，同时将 storage version 调整为 v2。</p>
+<p>CRD 定义的 Custom Resource 在 kube-apiserver 各层次的表现形式是</p>
+<ul>
+<li>存储: Storage Version（在 custom apiserver 实现中是 preferredVersion）</li>
+<li>内存: API Version（在 custom apiserver 实现中是内部版本）</li>
+<li>API: API Version</li>
+</ul>
+<div class="mermaid">---
+title: Version Switch of Custom Resource By CRD
+---
+flowchart LR
+    etcd-Storage_Version --> Memory-API_Version --> API-API_Version
+</div>
+<p>当存储版本和内存版本不一致时，就需要进行版本转换。这便轮到 CRD 字段 <code>spec.conversion</code> 出场。CRD 支持两种转换策略：None 和 Webhook。None 仅是将存储字节进行 JSON 反序列化到对应版本，字段对不上时就会产生损失。所以常用策略是 Webhook。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apiextensions.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">CustomResourceDefinition</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">foos.hello.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">hello.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">names</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Foo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l">Namespaced</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">conversion</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l">Webhook</span><span class="w"> </span><span class="c"># or None</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">webhook</span><span class="p">:</span><span class="w">  </span><span class="c"># webhook config when strategy is &#39;Webhook&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">clientConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">caBundle</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;...&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">foo-crd-converter</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/convert/hello.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">443</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">conversionReviewVersions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">v1</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>当存储版本为 v2，且 etcd 中只存有 v2 时，转换关系很容易理解</p>
+<ul>
+<li>如果请求 API 版本为 v1，需要调用 webhook 做转换</li>
+<li>如果请求 API 版本为 v2，则无需调用 webhook</li>
+</ul>
+<p>因此，Webhook</p>
+<ul>
+<li>在读取方向，需要支持 v2 ➡️ v1</li>
+<li>在写入方向，需要支持 v1 ➡️ v2</li>
+</ul>
+<div class="mermaid">---
+title: Version Conversion of Custom Resource By CRD
+---
+flowchart LR
+    storage_v2 <-->|webhook| Memory_v1 <--> API_foos.v1.hello.zeng.dev
+    storage_v2 <--> Memory_v2 <--> API_foos.v2.hello.zeng.dev
+</div>
+<p>考虑到原先的 storage version 为 v1，现在的 storage version 为 v2。因此存储中可能同时存在 v1 v2 两个版本，实际的转换关系应该是这样的</p>
+<div class="mermaid">---
+title: Version Conversion of Custom Resource By CRD
+---
+flowchart LR
+    storage_v1 <-->Memory_v1
+    storage_v1 <-->|webhook| Memory_v2
+
+    storage_v2 <-->|webhook| Memory_v1
+    storage_v2 <--> Memory_v2
+
+    Memory_v1 <--> API_foos.v1.hello.zeng.dev
+    Memory_v2 <--> API_foos.v2.hello.zeng.dev
+</div>
+<p>⚠️🧿 注意：只有发生更新写入，已存储的对象才会被更新为最新的 storage version</p>
+<p>此时，Webhook 没有啥变化，还是仅需提供两种转换</p>
+<ul>
+<li>在读取方向，需要支持 v1 ➡️ v2，v2 ➡️ v1</li>
+<li>在写入方向，需要支持 v1 ➡️ v2，v2 ➡️ v1</li>
+</ul>
+<p>设想一些更复杂的场景，假设 API 经历了 5 个 storage version 变更 (v1apha1 ⬆️ v1apha2 ⬆️ v1beta1 ⬆️ v1 ⬆️ v2)</p>
+<ul>
+<li>v1apha1 ⬆️ v1apha2 ⬆️ v1beta1: 需要支持 6 种转换</li>
+<li>v1apha1 ⬆️ v1apha2 ⬆️ v1beta1 ⬆️ v1: 需要支持 12 种转换</li>
+<li>v1apha1 ⬆️ v1apha2 ⬆️ v1beta1 ⬆️ v1 ⬆️ v2: 需要支持 20 种转换</li>
+</ul>
+<div class="mermaid">---
+title: Version Conversion of Custom Resource By CRD
+---
+flowchart TD
+    v1apha1 <-->|webhook| v1apha2
+    v1apha1 <-->|webhook| v1beta1
+    v1apha1 <-->|webhook| v1
+    v1apha1 <-->|webhook| v2
+    v1apha2 <-->|webhook| v1beta1
+    v1apha2 <-->|webhook| v1
+    v1apha2 <-->|webhook| v2
+    v1beta1 <-->|webhook| v1
+    v1beta1 <-->|webhook| v2
+    v1      <-->|webhook| v2
+</div>
+<p>推演到 v1apha1 ⬆️ &hellip; ⬆️ n，需要支持 n*(n-1) 种转换，每增加一个版本，增加的转换关系是 2*(n-1)，其中 n 指版本数量。</p>
+<h2 id="best-practice-for-objects-conversion">Best Practice for Objects Conversion</h2>
+<p>综合上述分析，不难发现处理版本转换的最佳实践：定义唯一内部版本，所有转换围绕内部版本进行。这样每增加一个 API 版本，仅需增加 2 个转换函数。</p>
+<style> .mermaid svg { width: 72%;} </style>
+<div class="mermaid">---
+title: Internal As Hub Type
+---
+flowchart LR
+    v1alpha1-->|convert|hub((internal))
+    v1alpha2-->|convert|hub((internal))
+    v1beta1 -->|convert|hub((internal))
+    v1      -->|convert|hub((internal))
+    v2      -->|convert|hub((internal))
+
+    hub((internal))-->|convert|v1alpha1
+    hub((internal))-->|convert|v1alpha2
+    hub((internal))-->|convert|v1beta1
+    hub((internal))-->|convert|v1
+    hub((internal))-->|convert|v2
+</div>
+<p>写一个 apiserver 提供 API，只需照搬 kube-apiserver 即遵循了最佳实践。</p>
+<p>基于 CRD 提供 API，遵循版本转换的最佳实践的方式有这么几种</p>
+<ol>
+<li>🌓 在 CRD 引入之初，将某个版本（如 v1alpha1）定义为内部 Hub 版本，并且不对外暴露 (served=false)，外部版本和 storage version 按照 v1alpha2 ➡️ v1beta1 ➡️ v1beta2 ➡️ v1 ➡️ v2 演进，所有转换围绕非公开版本 v1alpha1 进行</li>
+<li>🌚 总是使用最新版本（如 v2）做 Hub，每次更新版本后，都把存储中的资源对象更新到最新版本</li>
+<li>✅ 在 Webhook Server 中定义内部 Hub 版本，CRD API 版本随意增加，Storage 版本随意更新，转换时，总是先将源版本转换到内部版本，在从内部版本转换到目标版本</li>
+</ol>
+<p><a href="Kubebuilder">Kubebuilder</a> 采用了类似 1 的方式，这种方法会造成 CRD 定义不明。看到 served=false，你会以为是某个可以废弃的 API 版本，而不是什么内部版本。</p>
+<p>2 在实际操作上比较麻烦，对应项目 <a href="https://github.com/kubernetes-sigs/kube-storage-version-migrator">kube-storage-version-migrator</a> 也很久不更新了，因此不推荐。</p>
+<p>最好的方式是 3，内部版本永远只存在内存中。它贴着代码走，随代码演进就行。</p>
+<h2 id="hands-on-conversion-webhook-server">Hands on Conversion Webhook Server</h2>
+<p>Webhook Server 实现方式和 apiserver 异曲同工，先定义内部 api，并使用和 apiserver 一致的方式生成转换函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">~/x-kubernetes/api/crdconversion# tree internal/api/ <span class="c1"># here defines the internal API and the conversion</span>
+</span></span><span class="line"><span class="cl">internal/api/
+</span></span><span class="line"><span class="cl">└── hello.zeng.dev
+</span></span><span class="line"><span class="cl">    ├── install
+</span></span><span class="line"><span class="cl">    │   └── install.go     <span class="c1"># here defines helper funcs for Scheme installation</span>
+</span></span><span class="line"><span class="cl">    ├── v1
+</span></span><span class="line"><span class="cl">    │   └── conversion.go  <span class="c1"># here defines v1 🔄 internal</span>
+</span></span><span class="line"><span class="cl">    ├── v2
+</span></span><span class="line"><span class="cl">    │   └── zz_generated.conversion.go  <span class="c1"># here defines v2 🔄 internal</span>
+</span></span><span class="line"><span class="cl">    └── types.go  <span class="c1"># here defines the internal version</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>主要转换过程如下</p>
+<ol>
+<li>kube-apiserver 向 webhook-server 发起 POST 请求，输入数据为 ConversionReview，其 ConversionReview.Requset 中包含了 3 个字段
+<ul>
+<li>UID 用于唯一标识该请求，webhook-server 需要在相应中返回</li>
+<li>desiredAPIVersion 表示目标版本</li>
+<li>objects 中包含了 storageAPIVersion 对象</li>
+</ul>
+</li>
+<li>webhook-server 解析请求为程序结构体/对象，读取 ConversionReview.Requset 并开始转换
+<ul>
+<li>转换 storageAPIVersion 为 internalAPIVersion</li>
+<li>转换 internalAPIVersion 为 desiredAPIVersion</li>
+</ul>
+</li>
+<li>webhook-server 构建 ConversionReview 并返回 ConversionReview.Response, Response 中包含如下内容
+<ul>
+<li>UID 对应于 ConversionReview.Requset.UID</li>
+<li>convertedObjects 包含了转换后的 desiredAPIVersion 对象</li>
+<li>result 表示转换是否成功，<code>{&quot;status&quot;: &quot;Success&quot;}</code> 表示成功 <code>{&quot;status&quot;: &quot;Failure&quot;}</code> 表示失败</li>
+</ul>
+</li>
+</ol>
+<div class="mermaid">sequenceDiagram 
+%%{init: { 'sequence': {
+'noteAlign': 'left', 'messageAlign': 'center'
+}}}%%
+
+actor kubectl/HTTPClient
+
+kubectl/HTTPClient ->>+ kube-apiserver: LIST foos.v1.hello.zeng.dev
+
+Note over kube-apiserver,webhook-server: ConversionReview<br/>Request<br/>UID: 1234<br/>DesiredAPIVersion: hello.zeng.dev/v1<br/>objects: [v2_obj/myfoo, v2_obj/test]
+kube-apiserver ->>+ webhook-server: POST /convert/hello.zeng.dev
+
+
+webhook-server ->> webhook-server: do convert:<br/>1. decode to internalAPIVersion<br/> 2. encode to DesiredAPIVersion
+
+webhook-server ->> kube-apiserver: done and response with 200
+Note over kube-apiserver,webhook-server: ConversionReview<br/>Response<br/>UID: 1234<br/>convertedObjects: [v1_obj/myfoo, v1_obj/test]<br/>result: {"status": "Success"}
+
+kube-apiserver ->>-kubectl/HTTPClient: return foos.v1.hello.zeng.dev list
+</div>
+<p>对象转换处理代码如下，核心就是往 Scheme 注册 API 和转换函数，利用 k8s.io/apimachinery versioning serializer decode/encode 转换即可</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">apix</span> <span class="s">&#34;k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/install&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">apixv1</span> <span class="s">&#34;k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;k8s.io/apimachinery/pkg/runtime&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;k8s.io/apimachinery/pkg/runtime/schema&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">kjson</span> <span class="s">&#34;k8s.io/apimachinery/pkg/runtime/serializer/json&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;k8s.io/apimachinery/pkg/runtime/serializer/versioning&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nx">helloinstall</span> <span class="s">&#34;github.com/phosae/x-kubernetes/api/crdconversion/internal/api/hello.zeng.dev/install&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">scheme</span>          <span class="p">=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">NewScheme</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">kjsonSerializer</span> <span class="p">=</span> <span class="nx">kjson</span><span class="p">.</span><span class="nf">NewSerializer</span><span class="p">(</span><span class="nx">kjson</span><span class="p">.</span><span class="nx">DefaultMetaFactory</span><span class="p">,</span> <span class="nx">scheme</span><span class="p">,</span> <span class="nx">scheme</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">apix</span><span class="p">.</span><span class="nf">Install</span><span class="p">(</span><span class="nx">scheme</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nf">AddMetaToScheme</span><span class="p">(</span><span class="nx">scheme</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">helloinstall</span><span class="p">.</span><span class="nf">Install</span><span class="p">(</span><span class="nx">scheme</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ConvertHello</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">apixv1</span><span class="p">.</span><span class="nx">ConversionRequest</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">apixv1</span><span class="p">.</span><span class="nx">ConversionResponse</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">resp</span> <span class="o">:=</span> <span class="nx">apixv1</span><span class="p">.</span><span class="nx">ConversionResponse</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">desiredGV</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">schema</span><span class="p">.</span><span class="nf">ParseGroupVersion</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">DesiredAPIVersion</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">groupVersioner</span> <span class="o">:=</span> <span class="nx">schema</span><span class="p">.</span><span class="nf">GroupVersions</span><span class="p">([]</span><span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersion</span><span class="p">{</span><span class="nx">desiredGV</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">codec</span> <span class="o">:=</span> <span class="nx">versioning</span><span class="p">.</span><span class="nf">NewCodec</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">kjsonSerializer</span><span class="p">,</span>                       <span class="c1">// decoder
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">kjsonSerializer</span><span class="p">,</span>                       <span class="c1">// encoder
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">runtime</span><span class="p">.</span><span class="nf">UnsafeObjectConvertor</span><span class="p">(</span><span class="nx">scheme</span><span class="p">),</span> <span class="c1">// convertor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">scheme</span><span class="p">,</span>                                <span class="c1">// creator
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">scheme</span><span class="p">,</span>                                <span class="c1">// typer
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="kc">nil</span><span class="p">,</span>                                   <span class="c1">// defaulter
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">groupVersioner</span><span class="p">,</span>                        <span class="c1">// encodeVersion
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">runtime</span><span class="p">.</span><span class="nx">InternalGroupVersioner</span><span class="p">,</span>        <span class="c1">// decodeVersion
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">scheme</span><span class="p">.</span><span class="nf">Name</span><span class="p">(),</span>                         <span class="c1">// originalSchemeName
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">convertedObjects</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">RawExtension</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Objects</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">raw</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Objects</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">decodedObject</span><span class="p">,</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">codec</span><span class="p">.</span><span class="nf">Decode</span><span class="p">(</span><span class="nx">raw</span><span class="p">.</span><span class="nx">Raw</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to decode into apiVersion: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">buf</span> <span class="o">:=</span> <span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">codec</span><span class="p">.</span><span class="nf">Encode</span><span class="p">(</span><span class="nx">decodedObject</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">buf</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;failed to convert to desired apiVersion: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">convertedObjects</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nx">RawExtension</span><span class="p">{</span><span class="nx">Raw</span><span class="p">:</span> <span class="nx">buf</span><span class="p">.</span><span class="nf">Bytes</span><span class="p">()}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">resp</span><span class="p">.</span><span class="nx">ConvertedObjects</span> <span class="p">=</span> <span class="nx">convertedObjects</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">resp</span><span class="p">,</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>最后，你可以直接 clone 并把玩源代码（麻烦顺手 star ⭐🤩🌈</p>
+<pre><code>git clone https://github.com/phosae/x-kubernetes.git
+cd x-kubernetes &amp;&amp; make localenv
+cd api/crdconversion
+make deploy
+</code></pre>
+<p>延伸阅读</p>
+<ol>
+<li><a href="https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definition-versioning">Kubernetes Documentation: Versions in CustomResourceDefinitions</a></li>
+<li><a href="https://kubebuilder.io/multiversion-tutorial/conversion.html">Kubebuilder doc: multiversion-tutorial</a></li>
+</ol>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-27 18:15
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/go/">go</a>
+          <a href="/tags/webhook/">webhook</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/2023-k8s-apiserver-avoid-using-runtime/">
+            <span class="next-text nav-default">慎重选用 Runtime 类框架开发 K8s apiserver</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2023-06-19 23:19:19 \u002b0800 CST',
+        title: 'K8s 多版本 API 转换最佳实践',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+
+
+
+
+
+</body>
+</html>
