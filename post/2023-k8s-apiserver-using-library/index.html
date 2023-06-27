@@ -48,7 +48,7 @@
 <meta itemprop="name" content="使用 library 实现 K8s apiserver">
 <meta itemprop="description" content="The best way to understand K8s apiserver is to implement one yourself"><meta itemprop="datePublished" content="2023-06-07T16:11:19+08:00" />
 <meta itemprop="dateModified" content="2023-06-16T09:11:19+08:00" />
-<meta itemprop="wordCount" content="5686">
+<meta itemprop="wordCount" content="5695">
 <meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="使用 library 实现 K8s apiserver"/>
 <meta name="twitter:description" content="The best way to understand K8s apiserver is to implement one yourself"/>
@@ -158,6 +158,7 @@
 <p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
 <ul>
 <li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></li>
+<li><a href="../2023-k8s-api-multi-version-conversion-best-practice">K8s 多版本 API 转换最佳实践</a></li>
 <li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a></li>
 <li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
@@ -656,7 +657,8 @@
 <p>实现方可以从 0 到 1 实现 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305">interface rest.StandardStorage</a>，类似这里的 mem.go fooApi。
 <a href="https://github.com/kubernetes/apiserver/blob/44fa6d28d5b3c41637871486ba3ffaf3a2407632/pkg/registry/generic/registry/store.go#L97">k8s.io/apiserver pkg/registry/generic/registry.Store</a> 实现了 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305">interface rest.StandardStorage</a>，
 使用方只需要提供简单 CRUD、校验等策略即可集成到存储层，比如这里的 fooStratedy。</p>
-<p>registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/interfaces.go#L159-L239">sotrage.Interface</a>。storage 下一级 package etcd3 提供了 etcd3 实现，cacher 提供了缓存层。
+<p>registry.Store 并不直接与 etcd 交互，而是持有了抽象接口 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/interfaces.go#L159-L239">sotrage.Interface</a>。
+storage 下一级 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/etcd3/store.go">package etcd3/store.go</a> 提供了 etcd3 实现，<a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/cacher/cacher.go">package cacher/cacher.go</a> 提供了缓存层实现。
 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/storage/interfaces.go#L159-L239">sotrage.Interface</a> 和 <a href="https://github.com/kubernetes/apiserver/blob/0d8046157b1b4d137b6d9f84d9f9edb332c72890/pkg/registry/rest/rest.go#L290-L305">interface rest.StandardStorage</a> 等抽象解耦了业务层和存储层，使得项目可以采纳非 etcd 存储，比如</p>
 <ul>
 <li><a href="https://github.com/kubernetes-sigs/metrics-server">Kubernetes Metrics Server</a> 使用了内存实现</li>

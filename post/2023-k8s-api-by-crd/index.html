@@ -48,7 +48,7 @@
 <meta itemprop="name" content="K8s CustomResourceDefinitions (CRD) 原理">
 <meta itemprop="description" content="K8s CustomResourceDefinition internals"><meta itemprop="datePublished" content="2023-05-19T10:09:09+08:00" />
 <meta itemprop="dateModified" content="2023-05-27T17:29:00+08:00" />
-<meta itemprop="wordCount" content="5382">
+<meta itemprop="wordCount" content="5426">
 <meta itemprop="keywords" content="kubernetes,rest," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="K8s CustomResourceDefinitions (CRD) 原理"/>
 <meta name="twitter:description" content="K8s CustomResourceDefinition internals"/>
@@ -157,6 +157,7 @@
 <p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
 <ul>
 <li><a href="../2023-k8s-api-by-crd">CustomResourceDefinitions (CRD) 原理</a> (本文)</li>
+<li><a href="../2023-k8s-api-multi-version-conversion-best-practice">K8s 多版本 API 转换最佳实践</a></li>
 <li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 apiserver</a></li>
 <li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 apiserver aggregation</a></li>
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
@@ -1114,6 +1115,7 @@
 <li>API 绑定在 kube-apiserver 进程，无法单独对外提供服务，无法实施 API 分流，定制性低</li>
 </ul>
 <p>后续篇章会基于同样的 API 库，展示各种 custom apiserver 集成方式，方便比较优劣。</p>
+<p>如果对 CRD 的多版本 API 转换有兴趣，可以移步查阅 <a href="../2023-k8s-api-multi-version-conversion-best-practice">K8s 多版本 API 转换最佳实践</a>。</p>
 <p>Custom API 往往需要配合控制器，才能发挥其强大能力。本文仅介绍了 CustomResourceDefinition 的使用姿势和实现原理。控制器相关将在后续篇章介绍。</p>
 <!-- apiextensions-apiserver timeline -->
 <!-- API Aggregation timeline -->

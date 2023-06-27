@@ -6,7 +6,16 @@
     <description>Recent content on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 18 Jun 2023 16:09:27 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 19 Jun 2023 23:19:19 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s 多版本 API 转换最佳实践</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</guid>
+      <description>规范的 K8s APIVersion 往往会经历由 alpha 到 beta 最后到 stable 的过程，API 转换就成了应有之义。本文提供多版本 API 转换的最佳实践。本文详细讲述了基于 CRD 提供多版本 API 时的困境和解决办法，并提供了一个基于最佳实践的 Conversion Webhook Server 实现</description>
+    </item>
+    
     <item>
       <title>慎重选用 Runtime 类框架开发 K8s apiserver</title>
       <link>https://www.zeng.dev/post/2023-k8s-apiserver-avoid-using-runtime/</link>
