@@ -267,3 +267,4 @@ Error from server (nginx is using env vars): admission webhook "denyenv.zeng.dev
 * [Certificate Trust Chain](https://en.wikipedia.org/wiki/File:Chain_Of_Trust.svg)
 * [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security)
 * [cert-manager](https://cert-manager.io/docs/configuration/selfsigned/)
+* [A Guide to Kubernetes Admission Controllers](https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/)

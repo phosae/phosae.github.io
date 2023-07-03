@@ -74,7 +74,7 @@ sequenceDiagrams:
 [K8s CustomResourceDefinitions (CRD) 原理] 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，最后再返回 404。
 
 实际上 kube-apiserver 模块又以委托模式组合在 kube-aggregator 模块内。
-官方内置 API Groups 的处理和三方便用使用了同一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但是代理模式上有所区别
+官方内置 API Groups 和三方 API Groups 使用了同一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但在代理模式上有所区别
 
 1. 每个内置 API GroupVersion 对应 APIService 都会打上 Local 标识，诸如 `/api/**`, `/apis/apps/**`, `/apis/batch/**`, `/apis/{crd.group}` 等路径，直接通过模块委托交给同进程 kube-apiserver 模块处理，而非走网络代理
 2. Discovery API 和 OpenAPI Specification 由 HTTP 请求聚合改为了直接读内存聚合
