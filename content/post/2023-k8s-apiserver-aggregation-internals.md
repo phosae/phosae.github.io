@@ -4,7 +4,7 @@ date: 2023-05-31T18:46:31+08:00
 lastmod: 2023-05-31T18:46:31+08:00
 draft: false
 keywords: ["kubernetes"]
-description: "understanding apiserver aggregation in Kuberntes"
+description: "understanding apiserver aggregation in Kubernetes"
 tags: ["kubernetes"]
 author: "Zeng Xu"
 summary: "全图文展示 apiserver aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)"
@@ -67,7 +67,7 @@ sequenceDiagrams:
 
 ⚠️⚠️⚠️ 注意 ⚠️⚠️⚠️
 1. kube-aggregator 通过路径 `/apis/{spec.group}/{spec.version}` 发起存活检测，如果未通过，访问三方 apiserver 时 proxyHandler 返回 `503 Service Unavailable`
-2. 如果三方 apiserver 只提供 Specification v2，kube-aggregator 会自动转换出一份 v3 版本
+2. 如果三方 apiserver 只提供 OpenAPI Specification v2，kube-aggregator 会自动转换出一份 v3 版本
 
 ## 👑 The Builtin Aggregation and HandlerChain
 
@@ -305,8 +305,6 @@ kube-apiserver ->>- hello-apiserver: 200 OK with SubjectAccessReview<br/>status.
 hello-apiserver ->> hello-apiserver: execute delete
 hello-apiserver ->> kubectl/AnyClient: 200 OK
 ```
-
-<!-- <img src="/img/2023/custom-apiserver-delegate-authn-authz.png" width="700px" height="700px"/> -->
 
 🪬🪬🪬 目前 X-Remote-* headers 没有携带 authz 信息。无论 kube-apiserver 是否先执行了 authz，custom apiserver 都要 authn 之后要进行执行 authz。
 
