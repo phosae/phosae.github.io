@@ -48,7 +48,7 @@
 <meta itemprop="name" content="慎重选用 Runtime 类框架开发 K8s apiserver">
 <meta itemprop="description" content="Be cautious in choosing the Runtime type framework for developing K8s apiserver"><meta itemprop="datePublished" content="2023-06-18T16:09:27+08:00" />
 <meta itemprop="dateModified" content="2023-06-18T18:42:27+08:00" />
-<meta itemprop="wordCount" content="1222">
+<meta itemprop="wordCount" content="1228">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="慎重选用 Runtime 类框架开发 K8s apiserver"/>
 <meta name="twitter:description" content="Be cautious in choosing the Runtime type framework for developing K8s apiserver"/>
@@ -149,6 +149,7 @@
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
 <li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a></li>
 <li><a href="../2023-k8s-apiserver-avoid-using-runtime">慎重选用 Runtime 类框架开发 K8s apiserver</a>（本文）</li>
+<li><a href="../2023-k8s-api-admission">K8s API Admission Control and Policy</a></li>
 </ul>
 <p><a href="https://github.com/kubernetes-sigs/apiserver-runtime">sigs.k8s.io/apiserver-runtime</a> 试图用 <a href="https://github.com/kubernetes-sigs/kubebuilder">kubebuilder</a> 构建控制器的理念提供一套快速构建 apiserver 框架，它做了如下事情</p>
 <p>引入了 <a href="https://github.com/kubernetes-sigs/apiserver-runtime/blob/33c90185692756252ad3e36c5a940167d0de8f41/pkg/builder/resource/types.go#L30">resource.Object interface</a> <a href="https://github.com/kubernetes-sigs/apiserver-runtime/blob/main/pkg/builder/resource/resourcestrategy/interface.go">resourcestrategy interfaces</a> 等各种接口集合</p>

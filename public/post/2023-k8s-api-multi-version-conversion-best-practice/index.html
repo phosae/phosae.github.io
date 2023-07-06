@@ -48,7 +48,7 @@
 <meta itemprop="name" content="K8s 多版本 API 转换最佳实践">
 <meta itemprop="description" content="Best practices for multi-version API conversion in Kubernetes"><meta itemprop="datePublished" content="2023-06-19T23:19:19+08:00" />
 <meta itemprop="dateModified" content="2023-06-27T18:15:00+08:00" />
-<meta itemprop="wordCount" content="2432">
+<meta itemprop="wordCount" content="2438">
 <meta itemprop="keywords" content="kubernetes,go,webhook," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="K8s 多版本 API 转换最佳实践"/>
 <meta name="twitter:description" content="Best practices for multi-version API conversion in Kubernetes"/>
@@ -161,6 +161,7 @@
 <li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a></li>
 <li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a></li>
 <li><a href="../2023-k8s-apiserver-avoid-using-runtime">慎重选用 Runtime 类框架开发 K8s apiserver</a></li>
+<li><a href="../2023-k8s-api-admission">K8s API Admission Control and Policy</a></li>
 </ul>
 <h2 id="versions-in-apiserver">Versions in apiserver</h2>
 <p><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a> 讲到了 apiserver 中多版本 API 转换的核心 —— 定义内部版本，将其作为所有外部版本转换的枢纽 (Hub)。内部版本可随代码变动，而外部版本则保持着 API 稳定。</p>
@@ -638,7 +639,11 @@ make deploy
           <a href="/tags/webhook/">webhook</a>
           </div>
       <nav class="post-nav">
-        
+        <a class="prev" href="/post/2023-k8s-api-admission/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">K8s API Admission Control and Policy</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
         <a class="next" href="/post/2023-k8s-apiserver-avoid-using-runtime/">
             <span class="next-text nav-default">慎重选用 Runtime 类框架开发 K8s apiserver</span>
             <span class="next-text nav-mobile">Next</span>

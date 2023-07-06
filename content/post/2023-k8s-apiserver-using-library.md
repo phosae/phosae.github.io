@@ -31,6 +31,7 @@ hideHeaderAndFooter: false
 [最不厌其烦的 K8s 代码生成教程]: ../2023-k8s-api-codegen
 [使用 library 实现 K8s apiserver]: ../2023-k8s-apiserver-using-library
 [慎重选用 Runtime 类框架开发 K8s apiserver]: ../2023-k8s-apiserver-avoid-using-runtime
+[K8s API Admission Control and Policy]: ../2023-k8s-api-admission
 
 本文为 **K8s API 和控制器** 系列文章之一
 - [K8s CustomResourceDefinitions (CRD) 原理]
@@ -40,6 +41,7 @@ hideHeaderAndFooter: false
 - [最不厌其烦的 K8s 代码生成教程]
 - [使用 library 实现 K8s apiserver] (本文)
 - [慎重选用 Runtime 类框架开发 K8s apiserver]
+- [K8s API Admission Control and Policy]
 
 看文章的同时，你可以
 

@@ -1,13 +1,13 @@
 ---
-title: "K8s Admission Control and Policy"
+title: "K8s API Admission Control and Policy"
 date: 2023-06-19T23:19:35+08:00
 lastmod: 2023-06-19T23:19:35+08:00
-draft: true
+draft: false
 keywords: ["kubernetes", "policy", "webhook", "plugin", "go"]
-description: ""
+description: "K8s API Admission Control and Policy"
 tags: ["kubernetes", "policy", "webhook", "plugin", "go"]
 author: "Zeng Xu"
-summary: "文章摘要"
+summary: "This post provides an overview of Admission Controllers in Kubernetes, including their implementation and usage. Third-party admission controllers can be integrated into kube-apiserver by implementing them as admission webhooks. Many policy engines have appeared in the community on top of admission webhooks. This post introduces two policy engines, OPA/Gatekeeper and Kyverno. Finally, it covers the official policy engine, ValidatingAdmissionPolicy."
 
 comment: true
 toc: true
@@ -32,7 +32,7 @@ hideHeaderAndFooter: false
 [The most thorough K8s code generation tutorial]: ../2023-k8s-api-codegen
 [Implement K8s apiserver using library]: ../2023-k8s-apiserver-using-library
 [Why custom K8s apiserver should avoid runtime?]: ../2023-k8s-apiserver-avoid-using-runtime
-[K8s Admission Control and Policy]: ../2023-k8s-api-admission
+[K8s API Admission Control and Policy]: ../2023-k8s-api-admission
 
 This post is one of the **K8s API and Controllers** series
 - [K8s CustomResourceDefinitions (CRD) internals]
@@ -42,16 +42,17 @@ This post is one of the **K8s API and Controllers** series
 - [The most thorough K8s code generation tutorial]
 - [Implement K8s apiserver using library]
 - [Why custom K8s apiserver should avoid runtime?]
-- [K8s Admission Control and Policy] (this post)
+- [K8s API Admission Control and Policy] (this post)
 
 ## 🎟️ What is Admission Control in K8s
 
-Any API request comming to kube-apiserver normmaly follow these steps
-1. firstly pass filterchain, in which kube-apiserver do authn/authz to it
-2. then dispatched by kube-aggregator to corresponding sub apiserver's HTTP mux
-3. after decoding/conversion/defaulting with [runtime.Scheme]
-4. **corresponding sub apiserver perform admission control on the request**
-5. RESTStorage strategy will be executed and it finally be persisted to etcd
+Admission control is a module in kube-apiserver that intercepts requests before an object is persisted but after the request is authenticated and authorized. 
+Any API request coming to kube-apiserver follows these steps:
+1. Firstly, it passes filterchain, in which kube-apiserver does authn/authz to it
+2. Then, it is dispatched by kube-aggregator to the corresponding sub apiserver's HTTP mux
+3. After decoding/conversion/defaulting with [runtime.Scheme]
+4. **The corresponding sub apiserver performs admission control on the request**
+5. RESTStorage strategy will be executed, and it finally is persisted to etcd
 
 The admission control is performed by [Admission Controllers].
 
@@ -62,8 +63,8 @@ The admission control is performed by [Admission Controllers].
 
 <img src="/img/2023/k8s-admission-and-policy.png" width="800px"/>
 
-[Admission Controllers] are quite common in K8s, take Pod creation as an example.
-In v1.27.3 (and most previous versions), during creation a Pod will be mutated by ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controller as show below
+[Admission Controllers] are quite common in K8s, For example (in v1.27.3 and most previous versions),
+during the creation of a Pod, it will be mutated by ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controller. As show below
 
 ```shell
 cat << EOF | kubectl create --dry-run=server -o yaml -f -
@@ -139,25 +140,28 @@ status:
   qosClass: BestEffort  # podStrategy.PrepareForCreate
 ```
 
-Creating a Pod with namespaces that not exist in cluster will got a 404 response, which was done by NamespaceLifecycle Admission Controller.
+When attempting to create a Pod within a namespace that does not exist in the cluster, a 404 response will be returned. This is handled by the NamespaceLifecycle Admission Controller.
 
 ```shell
 kubectl -n ns-not-exist run nginx --image=nginx
 Error from server (NotFound): namespaces "ns-not-exist" not found
 ```
 
-Admission controllers perform deep inspection of a given request (including content), some of them just validate it and determine whether its allowed (like NamespaceLifecycle Admission Controller), while the other may mutate the content (like ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controller).
+Admission controllers perform deep inspection of a given request (including content).
+Some controllers, such as the NamespaceLifecycle Admission Controller, validate the request and determine its admissibility. 
+Others, like the ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controllers, may mutate the content of the request.
 
-All of the [Admission Controllers] are built in kube-apiserver. You can take further raading for details.
+All of the [Admission Controllers] are compiled-in kube-apiserver. For more detailed information, please click the link provided.
 
 ## 🧿 Admission internals
 
 Admission is a module in [k8s.io/apiserver pkg/admission]. In which these interfaces are exposed to apiserver developer 
-- An admission controller must implement Interface.Handles to decide whether to handle the incoming operation (CREATE, UPDATE, DELETE, or CONNECT), and MutationInterface or ValidationInterface to make admission decision.
-- The MutationInterface is also an admission Interface (by nesting). Its function `Admit` makes an admission decision, and is allowed mutate request object
-- The ValidationInterface is quite similar to MutationInterface, but its function `Validate` is not allowed to mutate request object
+- An admission controller must implement Interface.Handles to decide whether to handle the incoming operation (CREATE, UPDATE, DELETE, or CONNECT), and MutationInterface or ValidationInterface to make an admission decision.
+- The MutationInterface is also an admission Interface (by nesting). Its function `Admit` makes an admission decision, and is allowed mutate the request object
+- The ValidationInterface is quite similar to MutationInterface, but its function `Validate` is not allowed to mutate the request object
 
-All admission controllers are implementation of MutationInterface or ValidationInterface. MutationInterface implementation can mutate and validate request content, but ValidationInterface implementation can only validate request content.
+All admission controllers are implementation of MutationInterface or ValidationInterface.
+MutationInterface implementation can mutate and validate request content, but ValidationInterface implementation can only validate request content.
 
 ```
 package admission
@@ -186,13 +190,13 @@ type ValidationInterface interface {
 	Validate(ctx context.Context, a Attributes, o ObjectInterfaces) (err error)
 }
 ```
-The official kube-apiserver has many [built-in admission plugins] ontop of the admission package, 
+The official kube-apiserver has many [built-in admission plugins] on top of the admission package, 
 and here's the detail of [built-in admission plugins register].
 These built-in plugins are commonly known as [Admission Controllers]. 
 
 ## ✍️ Write an Admission Controller in apiserver
 
-As admission control is performed after dispatch of kube-aggregator, custom apiserver should implement admission controllers by itself.
+As admission control is performed after the dispatch of kube-aggregator, the custom apiserver should implement admission controllers by itself.
 
 👻👻👻 If interested in K8s apiserver aggregation, you can read this post: [K8s apiserver aggregation internals].
 
@@ -253,14 +257,123 @@ Things happen in kube-apiserver are quite similar to it in custom apiserver
 - ValidatingAdmissionPolicy
 - ValidatingAdmissionWebhook
 
-NamespaceLifecycle mostly for custom object creation. The others for dynamic policy.
+NamespaceLifecycle is mostly used for custom object creation. The others are intended for dynamic policies.
 
 ## 🔮 Webhook and Policy
 
-All of the [Admission Controllers] are built in apiserver. Among them there're three special guys
+All of the [Admission Controllers] are compiled-in kube-apiserver, with three notable guys
 1. MutatingAdmissionWebhook 
-2. ValidatingAdmissionPolicy
-3. ValidatingAdmissionWebhook
+2. ValidatingAdmissionWebhook
+3. ValidatingAdmissionPolicy
+
+MutatingAdmissionWebhook and ValidatingAdmissionWebhook controller make third-party admission controller possible.
+This two controller dynamically load and unload webhook configurations at runtime. 
+The actual admisson controls are delegated to webhooks configured.
+
+Applying the MutatingWebhookConfiguration below will install a mutating webhook to cluster.
+Matching requests (any request with action create or update of any resources) will be forwarded to and reviewed by this webhook.
+
+```yaml
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration # or ValidatingWebhookConfiguration
+metadata:
+  name: zeng.dev
+webhooks:
+- admissionReviewVersions: ["v1"] # accept admission/v1 AdmissionReview
+  clientConfig:
+    caBundle: ""
+    # url: https://127.0.01:8000/validate # url or K8s service
+    service: {"name": "foo", "namespace":"default", "port": 443, "path": "/admission"}
+  name: hello.zeng.dev
+  sideEffects: None
+  rules:
+  - apiGroups: ['*']     # match all apiGroups, ["", "apps"] match core group and apps group
+    apiVersions: ['*']   # match all apiVersions, ["v1", "v1beta1"] match apiVersions v1 and v1beta1
+    operations: ["CREATE", "UPDATE"]
+    resources: ["*"]     # match all resources
+  namespaceSelector: {}  # match all namesapces can use .matchExpressions to limit matching range
+```
+
+During admission control, MutatingAdmissionWebhook controller sends a `admission/v1 AdmissionReview` to this mutating webhook, with comming request in AdmissionReview.Request.
+The webhook can decode the object from request, provide its mutation as JSONPatch in AdmissionReview.Response.
+
+If mutation and validation succeed, return AdmissionReview.Response with `allowed: true`, otherwise with `allowed: false`.
+
+```mermaid
+flowchart LR
+
+apiserver --> |AdmissionReview<br/>Request| webhook-server
+webhook-server --> |AdmissionReview<br/>Response<br/>allowed: true/false<br/>result:...jsonpatch| apiserver
+
+webhook-server --> |mutate/validate<br/>object| webhook-server 
+```
+
+MutatingAdmissionWebhook admission controller calls any mutating webhooks which match the request. 
+Matching webhooks are called in serial; each one may modify the object if it desires.
+
+ValidatingAdmissionWebhook admission controller calls any validating webhooks which match the request. 
+Matching webhooks are called in parallel; if any of them rejects the request, the request fails. 
+
+**Validating webhooks must not mutate the object. So mutating webhooks can work as validating webhooks, but not vice versa.**
+
+Mutating webhooks are similar to the built-in controller implements admission.MutationInterface, while
+validating webhooks are similar to the built-in controller implements admission.ValidationInterface.
+
+<img src="/img/2023/k8s-admission-and-policy-webhook.png" width="600px"/>
+
+Admission webhooks are super powerful in K8s. A well-known example of mutating webhook is istio's [automatic sidecar injection](https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/#automatic-sidecar-injection).
+
+[OPA/Gatekeeper] and [Kyverno] are popular policy engines based on admission webhook. Policies are defined as CRDs in Kubernetes. 
+Once [OPA/Gatekeeper] or [Kyverno] deployed, user simply need to provide they policies as custom resources.
+Webhook module of [OPA/Gatekeeper] and [Kyverno] will load user-defined policies and apply mutations/validations to the comming reuqest.
+
+Out-of-the-box policies widely used in K8s community are provided and can be found at [OPA/Gatekeeper Library] and [Kyverno Policies].
+Some of them are:
+- Restrict Image Registries
+- Pod Security Policies, such as enforce Pod spec.allowPrivilegeEscalation to false
+- Automount Service Account Token for Pod
+- Disallows all Services with type LoadBalancer
+- Enforce Container Resources
+- Add Certificates as a Volume
+- Add Tolerations
+- Disallow CRI socket mounts
+
+For custom resources by custom apiserver, apply admisson control is simple and straightforward.
+For custom resources by CRDs, the only option is the admission webhook.
+Does any constraits, like validate resource field, deserve to implement and deploy a admission webhook?
+
+In v1.26 Kubernetes imports Validating Admission Policy (powered by controller ValidatingAdmissionPolicy). 
+
+> Validating admission policies offer a declarative, in-process alternative to validating admission webhooks.
+
+<img src="/img/2023/k8s-admission-and-policy-built-in-cel.png" width="500px"/>
+
+ValidatingAdmissionPolicy is the official policy engine that use the [Common Expression Language (CEL)] to declare the validation rules of a policy. Compared to [OPA/Gatekeeper] and [Kyverno], Validating Admission Policy are really at early stage now (2023-7). Out-of-the-box policies are rare. 
+
+Usage details can be found at [Kubernetes Documentation: Validating Admission Policy]. 
+
+Repo [douglasmakey/k8s-validating-admission-policy] also provides good example.
+
+Repo [kubescape/cel-admission-library](https://github.com/kubescape/cel-admission-library) contains out-of-the-box policies.
+
+✅ The relationship between Validating Admission Policy and popular policy engines (such as [OPA/Gatekeeper], [Kyverno]) is not a matter of choosing one over the other, it can be a complementary relationship. [OPA/Gatekeeper] have [integration with K8s Validating Admission Policy](https://github.com/open-policy-agent/gatekeeper/issues/2682).
+
+## ✍️ Write an Admission Webhook
+
+My repo [denyenv-validating-admission-webhook](https://github.com/phosae/denyenv-validating-admission-webhook) is a validating webhook example.
+
+//todo add mutating webhook example
+
+## 📖 Further Reading
+
+- [Admission Controllers]
+- [OPA/Gatekeeper Library]
+- [Kyverno Policies]
+- [Kubernetes Documentation: Validating Admission Policy]
+- [Common Expression Language (CEL)]
+- [Playing with Common Expression Language](https://flavio.castelli.me/2022/07/21/playing-with-common-expression-language/)
+- [KEP-492: Admission Webhooks](https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/492-admission-webhooks)
+- [KEP-3488: CEL for Admission Control](https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/3488-cel-admission-control)
 
 [k8s.io/apiserver pkg/admission]: https://github.com/kubernetes/apiserver/tree/master/pkg/admission
 [built-in admission plugins]: https://github.com/kubernetes/kubernetes/tree/master/plugin/pkg/admission
@@ -271,8 +384,11 @@ All of the [Admission Controllers] are built in apiserver. Among them there're t
 
 [OPA/Gatekeeper]: https://github.com/open-policy-agent/gatekeeper
 [Kyverno]: https://github.com/kyverno/kyverno
-[Validating Admission Policy]: https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
+[OPA/Gatekeeper Library]: https://open-policy-agent.github.io/gatekeeper-library/website/
+[Kyverno Policies]: https://kyverno.io/policies/
+
 [Kubernetes Documentation: Validating Admission Policy]: https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
-<!-- https://github.com/douglasmakey/k8s-validating-admission-policy -->
+[Common Expression Language (CEL)]: https://github.com/google/cel-spec
+[douglasmakey/k8s-validating-admission-policy]: https://github.com/douglasmakey/k8s-validating-admission-policy
 
 [x-kubernetes commit: add admission]: https://github.com/phosae/x-kubernetes/commit/c2bfa30485677249374dbb582e8a111c0b897f0c
