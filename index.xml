@@ -6,7 +6,16 @@
     <description>Recent content on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 19 Jun 2023 23:19:19 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 19 Jun 2023 23:19:35 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s API Admission Control and Policy</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-admission/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-admission/</guid>
+      <description>This post provides an overview of Admission Controllers in Kubernetes, including their implementation and usage. Third-party admission controllers can be integrated into kube-apiserver by implementing them as admission webhooks. Many policy engines have appeared in the community on top of admission webhooks. This post introduces two policy engines, OPA/Gatekeeper and Kyverno. Finally, it covers the official policy engine, ValidatingAdmissionPolicy.</description>
+    </item>
+    
     <item>
       <title>K8s 多版本 API 转换最佳实践</title>
       <link>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</link>
