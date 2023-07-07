@@ -61,7 +61,7 @@ The admission control is performed by [Admission Controllers].
 > but after the request is authenticated and authorized.
 
 
-<img src="/img/2023/k8s-admission-and-policy.png" width="800px"/>
+<img src="/img/2023/k8s-admission-and-policy.png" width="650px"/>
 
 [Admission Controllers] are quite common in K8s, For example (in v1.27.3 and most previous versions),
 during the creation of a Pod, it will be mutated by ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controller. As show below
@@ -294,10 +294,10 @@ webhooks:
   namespaceSelector: {}  # match all namesapces can use .matchExpressions to limit matching range
 ```
 
-During admission control, MutatingAdmissionWebhook controller sends a `admission/v1 AdmissionReview` to this mutating webhook, with comming request in AdmissionReview.Request.
-The webhook can decode the object from request, provide its mutation as JSONPatch in AdmissionReview.Response.
+During admission control, MutatingAdmissionWebhook controller sends a [admission/v1 AdmissionReview] to this mutating webhook, with comming request in AdmissionReview.Request.
+The webhook decodes the object from request, provides its mutation as JSONPatch in AdmissionReview.Response, and returns an [admission/v1 AdmissionReview] back to the apiserver.
 
-If mutation and validation succeed, return AdmissionReview.Response with `allowed: true`, otherwise with `allowed: false`.
+If mutation and validation succeed, return AdmissionReview with Response field `allowed: true`, otherwise with `allowed: false`.
 
 ```mermaid
 flowchart LR
@@ -323,11 +323,13 @@ validating webhooks are similar to the built-in controller implements admission.
 
 Admission webhooks are super powerful in K8s. A well-known example of mutating webhook is istio's [automatic sidecar injection](https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/#automatic-sidecar-injection).
 
-[OPA/Gatekeeper] and [Kyverno] are popular policy engines based on admission webhook. Policies are defined as CRDs in Kubernetes. 
+Another example is building policy management system based on admission webhook. 
+[OPA/Gatekeeper] and [Kyverno] are popular policy engines. Its policies are defined as CRDs in Kubernetes native way. 
+
 Once [OPA/Gatekeeper] or [Kyverno] deployed, user simply need to provide they policies as custom resources.
 Webhook module of [OPA/Gatekeeper] and [Kyverno] will load user-defined policies and apply mutations/validations to the comming reuqest.
 
-Out-of-the-box policies widely used in K8s community are provided and can be found at [OPA/Gatekeeper Library] and [Kyverno Policies].
+A Policy management system can enforce best practice for K8s usage, thereby improving cluster security, among other benefits. Out-of-the-box policies widely used in K8s community can be found at [OPA/Gatekeeper Library] and [Kyverno Policies].
 Some of them are:
 - Restrict Image Registries
 - Pod Security Policies, such as enforce Pod spec.allowPrivilegeEscalation to false
@@ -382,6 +384,7 @@ My repo [denyenv-validating-admission-webhook](https://github.com/phosae/denyenv
 [runtime.Scheme]: https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46
 [k8s.io/apiserver pkg/server/options.NewAdmissionOptions]: https://github.com/kubernetes/apiserver/blob/0e613811b6d0e41341abffac5a2f423eeee0fbaf/pkg/server/options/admission.go#L81-L95
 
+[admission/v1 AdmissionReview]: https://github.com/kubernetes/api/blob/master/admission/v1/types.go#L28-L37
 [OPA/Gatekeeper]: https://github.com/open-policy-agent/gatekeeper
 [Kyverno]: https://github.com/kyverno/kyverno
 [OPA/Gatekeeper Library]: https://open-policy-agent.github.io/gatekeeper-library/website/

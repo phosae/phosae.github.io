@@ -233,7 +233,7 @@ flowchart LR
     hub((internal))-->|convert|v2
 ```
 
-写一个 apiserver 提供 API，只需照搬 kube-apiserver 即遵循了最佳实践。
+使用 apiserver 提供 API，只需照搬 kube-apiserver package 结构即遵循了最佳实践。
 
 基于 CRD 提供 API，遵循版本转换的最佳实践的方式有这么几种
 1. 🌓 在 CRD 引入之初，将某个版本（如 v1alpha1）定义为内部 Hub 版本，并且不对外暴露 (served=false)，外部版本和 storage version 按照 v1alpha2 ➡️ v1beta1 ➡️ v1beta2 ➡️ v1 ➡️ v2 演进，所有转换围绕非公开版本 v1alpha1 进行
@@ -263,14 +263,14 @@ internal/api/
 ```
 
 主要转换过程如下
-1. kube-apiserver 向 webhook-server 发起 POST 请求，输入数据为 ConversionReview，其 ConversionReview.Requset 中包含了 3 个字段
+1. kube-apiserver 向 webhook-server 发起 POST 请求，输入数据为 ConversionReview。它携带的 Requset 对象包含了 3 个字段
    * UID 用于唯一标识该请求，webhook-server 需要在相应中返回
    * desiredAPIVersion 表示目标版本
    * objects 中包含了 storageAPIVersion 对象
 2. webhook-server 解析请求为程序结构体/对象，读取 ConversionReview.Requset 并开始转换
    * 转换 storageAPIVersion 为 internalAPIVersion
    * 转换 internalAPIVersion 为 desiredAPIVersion
-3. webhook-server 构建 ConversionReview 并返回 ConversionReview.Response, Response 中包含如下内容
+3. webhook-server 同样返回 ConversionReview 给 kube-apiserver。转换结果包含在 Response 字段。ConversionReview.Response 内容如下
    * UID 对应于 ConversionReview.Requset.UID
    * convertedObjects 包含了转换后的 desiredAPIVersion 对象
    * result 表示转换是否成功，`{"status": "Success"}` 表示成功 `{"status": "Failure"}` 表示失败
