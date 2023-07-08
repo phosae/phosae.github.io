@@ -1,7 +1,7 @@
 ---
 title: "K8s API Admission Control and Policy"
 date: 2023-06-19T23:19:35+08:00
-lastmod: 2023-06-19T23:19:35+08:00
+lastmod: 2023-07-06T:17:35+08:00
 draft: false
 keywords: ["kubernetes", "policy", "webhook", "plugin", "go"]
 description: "K8s API Admission Control and Policy"

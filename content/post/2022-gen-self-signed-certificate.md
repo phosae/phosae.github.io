@@ -1,7 +1,7 @@
 ---
 title: "Generate Self-Signed Certificate"
 date: 2022-07-06T14:16:05+08:00
-lastmod: 2022-07-07T14:16:05+08:00
+lastmod: 2023-05-01T14:16:05+08:00
 draft: false
 keywords: ["ssl", "tls", "go"]
 description: "Generate Self-Signed Certificate"
@@ -167,8 +167,8 @@ $ wget https://raw.githubusercontent.com/golang/go/master/src/crypto/tls/generat
 
 # replace --ecdsa-curve P256 with --rsa-bits 2048 to generate RSA key
 $ go run generate_cert.go --host example.com,127.0.0.1,::1  --ecdsa-curve P256 --ca --start-date "Jan 1 00:00:00 1970" --duration=1000000h
-2023/07/07 17:57:16 wrote cert.pem
-2023/07/07 17:57:16 wrote key.pem
+2022/07/06 17:57:16 wrote cert.pem
+2022/07/06 17:57:16 wrote key.pem
 
 $ openssl x509 -in cert.pem -text -noout
 Certificate:
