@@ -48,7 +48,7 @@
 <meta itemprop="name" content="K8s API Admission Control and Policy">
 <meta itemprop="description" content="K8s API Admission Control and Policy"><meta itemprop="datePublished" content="2023-06-19T23:19:35+08:00" />
 <meta itemprop="dateModified" content="2023-06-19T23:19:35+08:00" />
-<meta itemprop="wordCount" content="1931">
+<meta itemprop="wordCount" content="1966">
 <meta itemprop="keywords" content="kubernetes,policy,webhook,plugin,go," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="K8s API Admission Control and Policy"/>
 <meta name="twitter:description" content="K8s API Admission Control and Policy"/>
@@ -181,7 +181,7 @@ Any API request coming to kube-apiserver follows these steps:</p>
 the Kubernetes API server prior to persistence of the object,
 but after the request is authenticated and authorized.</p>
 </blockquote>
-<img src="/img/2023/k8s-admission-and-policy.png" width="800px"/>
+<img src="/img/2023/k8s-admission-and-policy.png" width="650px"/>
 <p><a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a> are quite common in K8s, For example (in v1.27.3 and most previous versions),
 during the creation of a Pod, it will be mutated by ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controller. As show below</p>
 <div class="highlight"><div class="chroma">
@@ -567,9 +567,9 @@ Matching requests (any request with action create or update of any resources) wi
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespaceSelector</span><span class="p">:</span><span class="w"> </span>{}<span class="w">  </span><span class="c"># match all namesapces can use .matchExpressions to limit matching range</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>During admission control, MutatingAdmissionWebhook controller sends a <code>admission/v1 AdmissionReview</code> to this mutating webhook, with comming request in AdmissionReview.Request.
-The webhook can decode the object from request, provide its mutation as JSONPatch in AdmissionReview.Response.</p>
-<p>If mutation and validation succeed, return AdmissionReview.Response with <code>allowed: true</code>, otherwise with <code>allowed: false</code>.</p>
+</div><p>During admission control, MutatingAdmissionWebhook controller sends a <a href="https://github.com/kubernetes/api/blob/master/admission/v1/types.go#L28-L37">admission/v1 AdmissionReview</a> to this mutating webhook, with comming request in AdmissionReview.Request.
+The webhook decodes the object from request, provides its mutation as JSONPatch in AdmissionReview.Response, and returns an <a href="https://github.com/kubernetes/api/blob/master/admission/v1/types.go#L28-L37">admission/v1 AdmissionReview</a> back to the apiserver.</p>
+<p>If mutation and validation succeed, return AdmissionReview with Response field <code>allowed: true</code>, otherwise with <code>allowed: false</code>.</p>
 <div class="mermaid">flowchart LR
 
 apiserver --> |AdmissionReview<br/>Request| webhook-server
@@ -586,10 +586,11 @@ Matching webhooks are called in parallel; if any of them rejects the request, th
 validating webhooks are similar to the built-in controller implements admission.ValidationInterface.</p>
 <img src="/img/2023/k8s-admission-and-policy-webhook.png" width="600px"/>
 <p>Admission webhooks are super powerful in K8s. A well-known example of mutating webhook is istio&rsquo;s <a href="https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/#automatic-sidecar-injection">automatic sidecar injection</a>.</p>
-<p><a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> and <a href="https://github.com/kyverno/kyverno">Kyverno</a> are popular policy engines based on admission webhook. Policies are defined as CRDs in Kubernetes.
-Once <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> or <a href="https://github.com/kyverno/kyverno">Kyverno</a> deployed, user simply need to provide they policies as custom resources.
+<p>Another example is building policy management system based on admission webhook.
+<a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> and <a href="https://github.com/kyverno/kyverno">Kyverno</a> are popular policy engines. Its policies are defined as CRDs in Kubernetes native way.</p>
+<p>Once <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> or <a href="https://github.com/kyverno/kyverno">Kyverno</a> deployed, user simply need to provide they policies as custom resources.
 Webhook module of <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> and <a href="https://github.com/kyverno/kyverno">Kyverno</a> will load user-defined policies and apply mutations/validations to the comming reuqest.</p>
-<p>Out-of-the-box policies widely used in K8s community are provided and can be found at <a href="https://open-policy-agent.github.io/gatekeeper-library/website/">OPA/Gatekeeper Library</a> and <a href="https://kyverno.io/policies/">Kyverno Policies</a>.
+<p>A Policy management system can enforce best practice for K8s usage, thereby improving cluster security, among other benefits. Out-of-the-box policies widely used in K8s community can be found at <a href="https://open-policy-agent.github.io/gatekeeper-library/website/">OPA/Gatekeeper Library</a> and <a href="https://kyverno.io/policies/">Kyverno Policies</a>.
 Some of them are:</p>
 <ul>
 <li>Restrict Image Registries</li>

@@ -268,6 +268,27 @@
   </url>
   
   <url>
+    <loc>https://www.zeng.dev/post/2023-gen-self-signed-certificate/</loc>
+    <lastmod>2022-07-07T14:16:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/ssl/</loc>
+    <lastmod>2022-07-07T14:16:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/tls/</loc>
+    <lastmod>2022-07-07T14:16:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</loc>
     <lastmod>2023-04-28T11:25:00+08:00</lastmod>
     <changefreq>weekly</changefreq>

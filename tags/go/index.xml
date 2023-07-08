@@ -53,6 +53,15 @@
     </item>
     
     <item>
+      <title>Generate Self-Signed Certificate</title>
+      <link>https://www.zeng.dev/post/2023-gen-self-signed-certificate/</link>
+      <pubDate>Wed, 06 Jul 2022 14:16:05 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-gen-self-signed-certificate/</guid>
+      <description>Notes of generating self-signed certificate using OpenSSL, CFSSL and Golang</description>
+    </item>
+    
+    <item>
       <title>Java &amp; Go 并发编程对比</title>
       <link>https://www.zeng.dev/post/2019-java2go-concurrency/</link>
       <pubDate>Mon, 15 Jul 2019 16:55:32 +0800</pubDate>
