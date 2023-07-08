@@ -134,6 +134,15 @@
     </item>
     
     <item>
+      <title>Generate Self-Signed Certificate</title>
+      <link>https://www.zeng.dev/post/2023-gen-self-signed-certificate/</link>
+      <pubDate>Wed, 06 Jul 2022 14:16:05 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-gen-self-signed-certificate/</guid>
+      <description>Notes of generating self-signed certificate using OpenSSL, CFSSL and Golang</description>
+    </item>
+    
+    <item>
       <title>Kubernetes admission webhook server 开发教程</title>
       <link>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</link>
       <pubDate>Sun, 08 Aug 2021 21:11:28 +0800</pubDate>
