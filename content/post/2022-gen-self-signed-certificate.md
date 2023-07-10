@@ -7,7 +7,7 @@ keywords: ["ssl", "tls", "go"]
 description: "Generate Self-Signed Certificate"
 tags: ["ssl", "tls", "go"]
 author: "Zeng Xu"
-summary: "Notes of generating self-signed certificate using OpenSSL, CFSSL and Golang"
+summary: "Notes on generating a self-signed certificate using OpenSSL, CFSSL, and Golang"
 
 comment: true
 toc: true

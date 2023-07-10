@@ -144,7 +144,7 @@ custom apiserver 首先应该能够鉴别请求是否来自 kube-apiserver 代�
 - `--proxy-client-cert-file`，path to aggregator proxy cert，kube-apiserver proxy 请求 TLS 证书
 - `--proxy-client-key-file`，path to aggregator proxy key，kube-apiserver proxy 请求 TLS 私钥
 
-kube-apiserver 所需 proxy CA 和 proxy 证书会在集群启动前时由 kubeamd 等工具（也可以由管理员手工）生成好。kube-apiserver 生成时会往 kube-system namespace 写入 ConfigMap/extension-apiserver-authentication。
+kube-apiserver 所需 proxy CA 和 proxy 证书会在集群启动前时由 kubeadm 等工具（也可以由管理员手工）生成好。kube-apiserver 生成时会往 kube-system namespace 写入 ConfigMap/extension-apiserver-authentication。
 
 运行在 K8s 中的 custom apiserver 首先应该绑定 Kubernetes 内置的如下权限
 
