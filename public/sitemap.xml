@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://www.zeng.dev/tags/en/</loc>
+    <lastmod>2023-06-19T23:19:35+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://www.zeng.dev/tags/go/</loc>
     <lastmod>2023-06-27T18:15:00+08:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -157,7 +164,7 @@
   
   <url>
     <loc>https://www.zeng.dev/tags/mtls/</loc>
-    <lastmod>2023-04-23T17:53:00+08:00</lastmod>
+    <lastmod>2023-06-03T16:13:12+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -268,22 +275,43 @@
   </url>
   
   <url>
-    <loc>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</loc>
-    <lastmod>2022-07-07T14:16:05+08:00</lastmod>
+    <loc>https://www.zeng.dev/tags/auth/</loc>
+    <lastmod>2023-06-03T16:13:12+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</loc>
+    <lastmod>2023-06-03T16:13:12+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://www.zeng.dev/tags/ssl/</loc>
-    <lastmod>2022-07-07T14:16:05+08:00</lastmod>
+    <lastmod>2023-06-03T16:13:12+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/tags/x509/</loc>
+    <lastmod>2023-06-03T16:13:12+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</loc>
+    <lastmod>2023-05-01T14:16:05+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>https://www.zeng.dev/tags/tls/</loc>
-    <lastmod>2022-07-07T14:16:05+08:00</lastmod>
+    <lastmod>2023-05-01T14:16:05+08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>

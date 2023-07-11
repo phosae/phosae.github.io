@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>en on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/en/</link>
+    <description>Recent content in en on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 19 Jun 2023 23:19:35 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/en/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s API Admission Control and Policy</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-admission/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-admission/</guid>
+      <description>This post provides an overview of Admission Controllers in Kubernetes, including their implementation and usage. Third-party admission controllers can be integrated into kube-apiserver by implementing them as admission webhooks. Many policy engines have appeared in the community on top of admission webhooks. This post introduces two policy engines, OPA/Gatekeeper and Kyverno. Finally, it covers the official policy engine, ValidatingAdmissionPolicy.</description>
+    </item>
+    
+    <item>
+      <title>Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin</title>
+      <link>https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/</link>
+      <pubDate>Sat, 22 Apr 2023 10:01:25 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/</guid>
+      <description>Setting up a Kubernetes cluster with a newly deployed metrics server often results in the following error message: &lt;code&gt;Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs node=kind-worker&lt;/code&gt;. This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD.</description>
+    </item>
+    
+    <item>
+      <title>Http Range Request and MP4 Video Play in Browser</title>
+      <link>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</guid>
+      <description>HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. several sample HTTP servers written in Golang are used to trick browsers.</description>
+    </item>
+    
+    <item>
+      <title>Terminate Container in Responsive and Graceful Way</title>
+      <link>https://www.zeng.dev/post/2023-handle-container-terminating/</link>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-handle-container-terminating/</guid>
+      <description>Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want.</description>
+    </item>
+    
+    <item>
+      <title>K8s Internal Authentication/Authorization and mTLS</title>
+      <link>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</link>
+      <pubDate>Mon, 01 Aug 2022 16:13:12 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</guid>
+      <description>Notes on secure communication (authentication and authorization) between Kubernetes components</description>
+    </item>
+    
+    <item>
+      <title>Generate Self-Signed Certificate</title>
+      <link>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</link>
+      <pubDate>Wed, 06 Jul 2022 14:16:05 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</guid>
+      <description>Notes on generating a self-signed certificate using OpenSSL, CFSSL, and Golang</description>
+    </item>
+    
+  </channel>
+</rss>

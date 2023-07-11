@@ -5,7 +5,7 @@ lastmod: 2023-07-06T:17:35+08:00
 draft: false
 keywords: ["kubernetes", "policy", "webhook", "plugin", "go"]
 description: "K8s API Admission Control and Policy"
-tags: ["kubernetes", "policy", "webhook", "plugin", "go"]
+tags: ["kubernetes", "policy", "webhook", "plugin", "go", "en"]
 author: "Zeng Xu"
 summary: "This post provides an overview of Admission Controllers in Kubernetes, including their implementation and usage. Third-party admission controllers can be integrated into kube-apiserver by implementing them as admission webhooks. Many policy engines have appeared in the community on top of admission webhooks. This post introduces two policy engines, OPA/Gatekeeper and Kyverno. Finally, it covers the official policy engine, ValidatingAdmissionPolicy."
 

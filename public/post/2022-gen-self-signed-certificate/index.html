@@ -44,12 +44,12 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.zeng.dev/post/2022-gen-self-signed-certificate/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-07-06T14:16:05+08:00" />
-<meta property="article:modified_time" content="2022-07-07T14:16:05+08:00" />
+<meta property="article:modified_time" content="2023-05-01T14:16:05+08:00" />
 <meta itemprop="name" content="Generate Self-Signed Certificate">
 <meta itemprop="description" content="Generate Self-Signed Certificate"><meta itemprop="datePublished" content="2022-07-06T14:16:05+08:00" />
-<meta itemprop="dateModified" content="2022-07-07T14:16:05+08:00" />
+<meta itemprop="dateModified" content="2023-05-01T14:16:05+08:00" />
 <meta itemprop="wordCount" content="856">
-<meta itemprop="keywords" content="ssl,tls,go," /><meta name="twitter:card" content="summary"/>
+<meta itemprop="keywords" content="ssl,tls,go,en," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Generate Self-Signed Certificate"/>
 <meta name="twitter:description" content="Generate Self-Signed Certificate"/>
 
@@ -426,8 +426,8 @@ Option groups can be pre-defined in CA config, and reused to generate TLS certif
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1"># replace --ecdsa-curve P256 with --rsa-bits 2048 to generate RSA key</span>
 </span></span><span class="line"><span class="cl">$ go run generate_cert.go --host example.com,127.0.0.1,::1  --ecdsa-curve P256 --ca --start-date <span class="s2">&#34;Jan 1 00:00:00 1970&#34;</span> --duration<span class="o">=</span>1000000h
-</span></span><span class="line"><span class="cl">2023/07/07 17:57:16 wrote cert.pem
-</span></span><span class="line"><span class="cl">2023/07/07 17:57:16 wrote key.pem
+</span></span><span class="line"><span class="cl">2022/07/06 17:57:16 wrote cert.pem
+</span></span><span class="line"><span class="cl">2022/07/06 17:57:16 wrote key.pem
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">$ openssl x509 -in cert.pem -text -noout
 </span></span><span class="line"><span class="cl">Certificate:
@@ -491,7 +491,7 @@ Option groups can be pre-defined in CA config, and reused to generate TLS certif
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2022-07-07 14:16
+        2023-05-01 14:16
         
     </span>
   </p>
@@ -506,11 +506,12 @@ Option groups can be pre-defined in CA config, and reused to generate TLS certif
           <a href="/tags/ssl/">ssl</a>
           <a href="/tags/tls/">tls</a>
           <a href="/tags/go/">go</a>
+          <a href="/tags/en/">en</a>
           </div>
       <nav class="post-nav">
-        <a class="prev" href="/post/2022-the-docker-mtu-problem/">
+        <a class="prev" href="/post/2022-k8s-internal-authn-authz/">
             <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">虚拟网络环境中 Docker MTU 问题及解决方式</span>
+            <span class="prev-text nav-default">K8s Internal Authentication/Authorization and mTLS</span>
             <span class="prev-text nav-mobile">Prev</span>
           </a>
         <a class="next" href="/post/2021-denyenv-validating-admission-webhook/">

@@ -5,7 +5,7 @@ lastmod: 2023-02-27T08:00:59+08:00
 draft: false
 keywords: ["container", "init", "pid1", "docker", "kubernetes", "rust"]
 description: ""
-tags: ["container", "init", "pid1", "docker", "kubernetes", "rust"]
+tags: ["container", "init", "pid1", "docker", "kubernetes", "rust", "en"]
 author: "Zeng Xu"
 summary: "Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want."
 
