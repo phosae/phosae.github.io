@@ -134,12 +134,21 @@
     </item>
     
     <item>
+      <title>K8s Internal Authentication/Authorization and mTLS</title>
+      <link>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</link>
+      <pubDate>Mon, 01 Aug 2022 16:13:12 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</guid>
+      <description>Notes on secure communication (authentication and authorization) between Kubernetes components</description>
+    </item>
+    
+    <item>
       <title>Generate Self-Signed Certificate</title>
       <link>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</link>
       <pubDate>Wed, 06 Jul 2022 14:16:05 +0800</pubDate>
       
       <guid>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</guid>
-      <description>Notes of generating self-signed certificate using OpenSSL, CFSSL and Golang</description>
+      <description>Notes on generating a self-signed certificate using OpenSSL, CFSSL, and Golang</description>
     </item>
     
     <item>

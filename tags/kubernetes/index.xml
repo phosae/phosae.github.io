@@ -98,6 +98,15 @@
     </item>
     
     <item>
+      <title>K8s Internal Authentication/Authorization and mTLS</title>
+      <link>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</link>
+      <pubDate>Mon, 01 Aug 2022 16:13:12 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</guid>
+      <description>Notes on secure communication (authentication and authorization) between Kubernetes components</description>
+    </item>
+    
+    <item>
       <title>Kubernetes admission webhook server 开发教程</title>
       <link>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</link>
       <pubDate>Sun, 08 Aug 2021 21:11:28 +0800</pubDate>
