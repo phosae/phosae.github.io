@@ -108,7 +108,7 @@ Req /apis/hello.zeng.dev/v1/** ---> kube-apiserver 👉👉👉 hello.zeng.dev-a
 
 
 ## 🎯 Goals
-最终目标类似 [拓展 K8s API: CustomResourceDefinitions (CRD)]
+最终目标类似 [K8s CustomResourceDefinitions (CRD) 原理]
 
 | command                     | Action           | HTTP method   |
 | --------------------------- | ---------------- | ------------- |
@@ -680,7 +680,7 @@ func tryConvert2Table(obj interface{}, acceptedContentType string) interface{} {
 
 也不是每一类 custom resource 都需要全部特性。如 [metrics-server](https://github.com/kubernetes-sigs/metrics-server)，就不需要持久数据。
 
-这些额外特性，更好的方式是直接集成 K8s 库获得它们，比从头写便捷很多。本系列后续文章将展现这一点。
+获得这些额外特性的更好的方式，是直接集成 K8s 库获。这比从头写便捷很多。请查阅本系列文章之 [使用 library 实现 K8s apiserver]。
 
 [apiserver-from-scratch 源码]: https://github.com/phosae/x-kubernetes/blob/c59960982df64efee4b166e040d8031203173963/apiserver-from-scratch/main.go
 [apiextensions-apiserver 模块]: https://github.com/kubernetes/apiextensions-apiserver

@@ -83,7 +83,7 @@ kind: Pod
 metadata:
   creationTimestamp: "2023-07-05T08:35:42Z"   # generic registry Store
   name: web
-  namespace: default                          # populated by kubelet, required by apiserver
+  namespace: default                          # populated by kubectl, required by apiserver
   uid: e8645a53-4676-4fb7-9441-a91b549f293c   # generic registry Store
 spec:
   containers:

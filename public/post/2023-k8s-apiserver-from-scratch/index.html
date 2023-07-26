@@ -48,7 +48,7 @@
 <meta itemprop="name" content="实现一个极简 K8s apiserver">
 <meta itemprop="description" content="Simplest Kubernetes style apiserver"><meta itemprop="datePublished" content="2023-05-26T07:43:51+08:00" />
 <meta itemprop="dateModified" content="2023-05-31T18:45:00+08:00" />
-<meta itemprop="wordCount" content="3800">
+<meta itemprop="wordCount" content="3810">
 <meta itemprop="keywords" content="kubernetes,rest,go,http,openapi," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="实现一个极简 K8s apiserver"/>
 <meta name="twitter:description" content="Simplest Kubernetes style apiserver"/>
@@ -237,7 +237,7 @@ v2.autoscaling                         Local     True        20h
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="-goals">🎯 Goals</h2>
-<p>最终目标类似 [拓展 K8s API: CustomResourceDefinitions (CRD)]</p>
+<p>最终目标类似 <a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></p>
 <table>
 <thead>
 <tr>
@@ -1128,7 +1128,7 @@ Go                               1             69            127            523
 <p>🦀🦀🦀 也许可以用 Rust 重写一遍</p>
 </blockquote>
 <p>也不是每一类 custom resource 都需要全部特性。如 <a href="https://github.com/kubernetes-sigs/metrics-server">metrics-server</a>，就不需要持久数据。</p>
-<p>这些额外特性，更好的方式是直接集成 K8s 库获得它们，比从头写便捷很多。本系列后续文章将展现这一点。</p>
+<p>获得这些额外特性的更好的方式，是直接集成 K8s 库获。这比从头写便捷很多。请查阅本系列文章之 <a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a>。</p>
 
     </div>
 
