@@ -41,15 +41,35 @@ openssl req -x509 -nodes -days 365 \
 -addext "keyUsage=critical, keyCertSign, cRLSign"
 ```
 
-You can utilize the generated CA to issue certificates for server authentication and client authentication.
+You can utilize the generated CA to sign certificates.
+
 
 ```shell
-openssl req -x509 -nodes -days 365 \
+openssl req -new -nodes \
 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 \
--keyout client.key -out client.crt -CA ca.crt -CAkey ca.key -sha256 \
--subj "/O=system:masters/CN=development" \
+-keyout kube-apiserver.key -out kube-apiserver.csr \
+-subj "/O=system:masters/CN=kube-apiserver" \
 -addext "basicConstraints=critical,CA:FALSE" \
--addext "extendedKeyUsage =serverAuth, clientAuth"
+-addext "keyUsage=digitalSignature,keyEncipherment" \
+-addext "extendedKeyUsage=serverAuth" \
+-addext "subjectAltName=DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster.local,DNS:localhost,IP:127.0.0.1"
+
+openssl x509 -req -sha256 -days 3650 -copy_extensions=copy \
+-in kube-apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+-out kube-apiserver.crt
+```
+For versions of [OpenSSL] prior to v3.0.0, you should generate the CSR and certificate like below. Please refer to the discussion [Missing X509 extensions with an openssl-generated certificate](https://security.stackexchange.com/questions/150078/missing-x509-extensions-with-an-openssl-generated-certificate).
+
+```shell
+openssl req -new -nodes \
+-newkey ec -pkeyopt ec_paramgen_curve:prime256v1 \
+-subj "/O=system:masters/CN=kube-apiserver" \
+-keyout kube-apiserver.key -out kube-apiserver.csr
+
+openssl x509 -req -sha256 -days 3650 \
+-in kube-apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+-out kube-apiserver.crt -extensions v3_req \
+-extfile <(printf "[v3_req]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster.local,IP:127.0.0.1")
 ```
 
 Full options can be found at  [OpenSSL x509v3_config].

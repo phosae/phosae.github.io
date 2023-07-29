@@ -48,7 +48,7 @@
 <meta itemprop="name" content="Generate Self-Signed Certificate">
 <meta itemprop="description" content="Generate Self-Signed Certificate"><meta itemprop="datePublished" content="2022-07-06T14:16:05+08:00" />
 <meta itemprop="dateModified" content="2023-05-01T14:16:05+08:00" />
-<meta itemprop="wordCount" content="856">
+<meta itemprop="wordCount" content="948">
 <meta itemprop="keywords" content="ssl,tls,go,en," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Generate Self-Signed Certificate"/>
 <meta name="twitter:description" content="Generate Self-Signed Certificate"/>
@@ -174,7 +174,38 @@
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;keyUsage=critical, keyCertSign, cRLSign&#34;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>You can utilize the generated CA to issue certificates for server authentication and client authentication.</p>
+</div><p>You can utilize the generated CA to sign certificates.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">openssl req -new -nodes <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-newkey ec -pkeyopt ec_paramgen_curve:prime256v1 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-keyout kube-apiserver.key -out kube-apiserver.csr <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-subj <span class="s2">&#34;/O=system:masters/CN=kube-apiserver&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;basicConstraints=critical,CA:FALSE&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;keyUsage=digitalSignature,keyEncipherment&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;extendedKeyUsage=serverAuth&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;subjectAltName=DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster.local,DNS:localhost,IP:127.0.0.1&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">openssl x509 -req -sha256 -days <span class="m">3650</span> -copy_extensions<span class="o">=</span>copy <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-in kube-apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-out kube-apiserver.crt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>For versions of <a href="https://github.com/openssl/openssl">OpenSSL</a> prior to v3.0.0, you should generate the CSR and certificate like below. Please refer to the discussion <a href="https://security.stackexchange.com/questions/150078/missing-x509-extensions-with-an-openssl-generated-certificate">Missing X509 extensions with an openssl-generated certificate</a>.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -183,14 +214,20 @@
 </span><span class="lnt">4
 </span><span class="lnt">5
 </span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">openssl req -x509 -nodes -days <span class="m">365</span> <span class="se">\
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">openssl req -new -nodes <span class="se">\
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>-newkey ec -pkeyopt ec_paramgen_curve:prime256v1 <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>-keyout client.key -out client.crt -CA ca.crt -CAkey ca.key -sha256 <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>-subj <span class="s2">&#34;/O=system:masters/CN=development&#34;</span> <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;basicConstraints=critical,CA:FALSE&#34;</span> <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>-addext <span class="s2">&#34;extendedKeyUsage =serverAuth, clientAuth&#34;</span>
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-subj <span class="s2">&#34;/O=system:masters/CN=kube-apiserver&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-keyout kube-apiserver.key -out kube-apiserver.csr
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">openssl x509 -req -sha256 -days <span class="m">3650</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-in kube-apiserver.csr -CA ca.crt -CAkey ca.key -CAcreateserial <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-out kube-apiserver.crt -extensions v3_req <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>-extfile &lt;<span class="o">(</span><span class="nb">printf</span> <span class="s2">&#34;[v3_req]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster.local,IP:127.0.0.1&#34;</span><span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>Full options can be found at  <a href="https://www.openssl.org/docs/manmaster/man5/x509v3_config.html">OpenSSL x509v3_config</a>.</p>
