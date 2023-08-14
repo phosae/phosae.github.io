@@ -6,7 +6,16 @@
     <description>Recent content in kubernetes on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 19 Jun 2023 23:19:35 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Aug 2023 10:17:00 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/kubernetes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Calico ➕ KubeOVN —— 为 KubeVirt VMs 提供受限的 underlay 网络访问</title>
+      <link>https://www.zeng.dev/post/2023-kubevirt-mix-kubeovn-calico/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-kubevirt-mix-kubeovn-calico/</guid>
+      <description>Calico ➕ KubeOVN - providing restricted underlay network access for KubeVirt VMs</description>
+    </item>
+    
     <item>
       <title>K8s API Admission Control and Policy</title>
       <link>https://www.zeng.dev/post/2023-k8s-api-admission/</link>

@@ -6,7 +6,70 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 19 Jun 2023 23:19:35 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 13 Aug 2023 10:17:00 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>calico</title>
+      <link>https://www.zeng.dev/tags/calico/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/calico/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cloud-init</title>
+      <link>https://www.zeng.dev/tags/cloud-init/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/cloud-init/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cni</title>
+      <link>https://www.zeng.dev/tags/cni/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/cni/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubeovn</title>
+      <link>https://www.zeng.dev/tags/kubeovn/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/kubeovn/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubernetes</title>
+      <link>https://www.zeng.dev/tags/kubernetes/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubevirt</title>
+      <link>https://www.zeng.dev/tags/kubevirt/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/kubevirt/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>multus</title>
+      <link>https://www.zeng.dev/tags/multus/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/multus/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>en</title>
       <link>https://www.zeng.dev/tags/en/</link>
@@ -22,15 +85,6 @@
       <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/go/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>kubernetes</title>
-      <link>https://www.zeng.dev/tags/kubernetes/</link>
-      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/kubernetes/</guid>
       <description></description>
     </item>
     
