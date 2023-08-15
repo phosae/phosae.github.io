@@ -265,6 +265,16 @@ K8s 平台方可以考虑采用这种方式，向不受信任的租户提供内�
 
 <a href="/file/kubevirt-mix-kubeovn-calico.md">这里</a> 基于 KinD 提供了完整可复现的脚本，感兴趣的读者可自行查阅把玩。
 
+⚠️⚠️⚠️ 注意
+
+前文提及，为避免 IP 冲突，项目可以使用 Calico IPReservation 为 VMs 预留一批 IP 地址。
+为实现规模化，可以基于 K8s mutating admission webhook server 来实现全局 IP 分配服务。
+该服务会拦截 VMs 创建请求，自请求获取 VM 对象，并向资源池发起 IP 分配请求，最后将获分配 IP 写入 template 注解 `cni.projectcalico.org/ipAddrs` 中。
+
+如果采用CNI 插件方式，如 `x-calico-route`，进行路由定制，可以将其打包在容器镜像中，并通过 DaemonSet 分发到所有节点目录 `/opt/cni/bin` 中。
+
+如果采用 [cloud-init Network configuration] 定制路由，也可以通过 mutating admission webhook server 对新创建的 VMs 进行动态修改。
+
 [OSS内网域名与VIP网段对照表]: https://help.aliyun.com/zh/oss/user-guide/internal-endpoints-of-oss-buckets-and-vip-ranges
 [KubeVirt]: https://github.com/kubevirt/kubevirt
 [KubeOVN]: https://github.com/kubeovn/kube-ovn
