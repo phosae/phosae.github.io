@@ -78,6 +78,9 @@ apiVersion: kubeovn.io/v1
 kind: Vpc
 metadata:
   name: test
+spec:
+  namespaces:
+  - test
 ---
 apiVersion: kubeovn.io/v1
 kind: Subnet

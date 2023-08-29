@@ -219,7 +219,9 @@ network:
         via: 10.0.1.1
 ```
 
-由于这里等方案使用了 cloud-init，且修改了 dhcp 设置。如果只能使用 CNI，默认的 cloud-init v2 版配置会按照 macaddress 分配 IP。
+这里的方案使用了 cloud-init，且没有 dhcp 匹配设置。
+
+如果只能使用 CNI，默认的 cloud-init v2 版配置会按照 macaddress 分配 IP。
 
 ```yaml
 network:
@@ -263,7 +265,7 @@ spec:
 
 K8s 平台方可以考虑采用这种方式，向不受信任的租户提供内网服务访问。
 
-<a href="/file/kubevirt-mix-kubeovn-calico.md">这里</a> 基于 KinD 提供了完整可复现的脚本，感兴趣的读者可自行查阅把玩。
+你可以点击查阅 <a href="/file/kubevirt-mix-kubeovn-calico.md">过程脚本</a>，并使用 KinD 集群验证本文提出的方法。
 
 ⚠️⚠️⚠️ 注意
 
