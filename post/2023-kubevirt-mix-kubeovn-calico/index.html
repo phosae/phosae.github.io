@@ -48,7 +48,7 @@
 <meta itemprop="name" content="Calico ➕ KubeOVN —— 为 KubeVirt VMs 提供受限的 underlay 网络访问">
 <meta itemprop="description" content="Calico ➕ KubeOVN - providing restricted underlay network access for KubeVirt VMs"><meta itemprop="datePublished" content="2023-08-13T10:17:00+08:00" />
 <meta itemprop="dateModified" content="2023-08-15T00:05:00+08:00" />
-<meta itemprop="wordCount" content="1862">
+<meta itemprop="wordCount" content="1858">
 <meta itemprop="keywords" content="kubernetes,cni,kubevirt,multus,calico,kubeovn,cloud-init," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Calico ➕ KubeOVN —— 为 KubeVirt VMs 提供受限的 underlay 网络访问"/>
 <meta name="twitter:description" content="Calico ➕ KubeOVN - providing restricted underlay network access for KubeVirt VMs"/>
@@ -476,7 +476,8 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">via</span><span class="p">:</span><span class="w"> </span><span class="m">10.0.1.1</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>由于这里等方案使用了 cloud-init，且修改了 dhcp 设置。如果只能使用 CNI，默认的 cloud-init v2 版配置会按照 macaddress 分配 IP。</p>
+</div><p>这里的方案使用了 cloud-init，且没有 dhcp 匹配设置。</p>
+<p>如果只能使用 CNI，默认的 cloud-init v2 版配置会按照 macaddress 分配 IP。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -543,7 +544,7 @@
 </div><h2 id="总结">总结</h2>
 <p>通过 <a href="https://github.com/projectcalico/calico">Calico</a> 和 <a href="https://github.com/kubeovn/kube-ovn">KubeOVN</a> 双网卡，本文实现了一种向 KubeVirt 虚拟机租户提供了可控的内网访问方式。</p>
 <p>K8s 平台方可以考虑采用这种方式，向不受信任的租户提供内网服务访问。</p>
-<p><a href="/file/kubevirt-mix-kubeovn-calico.md">这里</a> 基于 KinD 提供了完整可复现的脚本，感兴趣的读者可自行查阅把玩。</p>
+<p>你可以点击查阅 <a href="/file/kubevirt-mix-kubeovn-calico.md">过程脚本</a>，并使用 KinD 集群验证本文提出的方法。</p>
 <p>⚠️⚠️⚠️ 注意</p>
 <p>前文提及，为避免 IP 冲突，项目可以使用 Calico IPReservation 为 VMs 预留一批 IP 地址。
 为实现规模化，可以基于 K8s mutating admission webhook server 来实现全局 IP 分配服务。
