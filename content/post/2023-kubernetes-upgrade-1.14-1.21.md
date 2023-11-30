@@ -289,6 +289,16 @@ done
 
 注意: kubelet 更新时的参数更新，如 `参数移除`， `feature-gates 移除`， `pause container 更新` 等，具体因实际集群而异。
 
+## 总结
+集群升级重点
+1. 提前备份 etcd（虽然本文没用到 :)
+2. 查阅 [Kubernetes CHANGELOG]，注意新版本核心组件的参数移除，尤其是 feature gates 移除会涉及所有 `kube-` 打头组件。
+3. 提前 `kubeadm upgrade <version> --dryrun` 检查新版本镜像，做好 CoreDNS 和 puase 容器镜像分发
+4. upgrade 完成后，检查 kube-proxy 和 CoreDNS 所有 Pod 状态，确保更新完成
+5. 每次 upgrade 完成，检查关键 Operator/Controller 是否正常（关注日志/监控/告警），检查核心 API CRUD 是否正常（防止 Webhook 崩坏）
+
+最后，虽然 [Upgrading kubeadm clusters] 建议在升级时 drain node，但实际操作中不执行该步骤没啥意外发生。也可能跟使用场景有关，我们的集群主要做计算。Volume 使用较为简单。
+
 ## 参考链接
 - TauCeti.blog's Kubernetes upgrade notes: [1.14-1.15](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.14-1.15/), [1.15-1.16](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.15-1.16/), [1.16-1.17](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.16-1.17/), [1.17-1.18](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.18-1.19](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.19-1.20](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.20-1.21](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.20-1.21/)
 - [Deprecated API Migration Guide]
