@@ -6,7 +6,16 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 13 Aug 2023 10:17:00 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 30 Nov 2023 16:58:24 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>kubernetes</title>
+      <link>https://www.zeng.dev/tags/kubernetes/</link>
+      <pubDate>Thu, 30 Nov 2023 16:58:24 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>calico</title>
       <link>https://www.zeng.dev/tags/calico/</link>
@@ -40,15 +49,6 @@
       <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/kubeovn/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>kubernetes</title>
-      <link>https://www.zeng.dev/tags/kubernetes/</link>
-      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/kubernetes/</guid>
       <description></description>
     </item>
     

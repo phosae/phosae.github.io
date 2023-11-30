@@ -6,7 +6,16 @@
     <description>Recent content on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 13 Aug 2023 10:17:00 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 30 Nov 2023 16:58:24 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录</title>
+      <link>https://www.zeng.dev/post/2023-kubernetes-upgrade-1.14-1.21/</link>
+      <pubDate>Thu, 30 Nov 2023 16:58:24 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-kubernetes-upgrade-1.14-1.21/</guid>
+      <description>v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录</description>
+    </item>
+    
     <item>
       <title>Calico ➕ KubeOVN —— 为 KubeVirt VMs 提供受限的 underlay 网络访问</title>
       <link>https://www.zeng.dev/post/2023-kubevirt-mix-kubeovn-calico/</link>
