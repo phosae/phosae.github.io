@@ -149,7 +149,7 @@
     <li><a href="#115---116-踩坑记录">1.15 -&gt; 1.16 踩坑记录</a></li>
     <li><a href="#118---119-踩坑记录">1.18 -&gt; 1.19 踩坑记录</a></li>
     <li><a href="#119---120-注意点">1.19 -&gt; 1.20 注意点</a></li>
-    <li><a href="#119---120-注意点-1">1.19 -&gt; 1.20 注意点</a></li>
+    <li><a href="#120---121-注意点">1.20 -&gt; 1.21 注意点</a></li>
     <li><a href="#系统级镜像坑点">系统级镜像坑点</a></li>
     <li><a href="#任意-worker-节点更新暂不包含-cni-container-runtime-更新">任意 worker 节点更新（暂不包含 CNI, Container Runtime 更新</a></li>
     <li><a href="#总结">总结</a></li>
@@ -513,7 +513,7 @@
 <li>v1.19 至 v1.20 最大变化就是废弃了 <code>apiserver serve on an insecure port</code>，因此在升级前应该修改 kubeadm ClusterConfiguration 移除 apiserver 参数 <code>--insecure-bind-address</code> 和参数 <code>--insecure-port</code>。同时应该检查左右客户端 kubeconfig，如果使用了 HTTP 连接 kube-apiserver，应该更新至 HTTPS 版。</li>
 <li>为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 <code>sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml</code></li>
 </ul>
-<h2 id="119---120-注意点-1">1.19 -&gt; 1.20 注意点</h2>
+<h2 id="120---121-注意点">1.20 -&gt; 1.21 注意点</h2>
 <ul>
 <li>kubelet 会使用 pause:3.4.1，需要保证 pause:3.4.1 在内网可拉取</li>
 <li>为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 <code>sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml</code></li>
