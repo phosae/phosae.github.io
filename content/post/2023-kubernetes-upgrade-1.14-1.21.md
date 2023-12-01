@@ -34,11 +34,15 @@ hideHeaderAndFooter: false
 - extensions/v1beta1 Ingress, networking.k8s.io/v1beta1 Ingress
 - networking.k8s.io/v1beta1 IngressClass
 
-这便决定了无法一步到位升到 v1.28.x，而只能采用先升级到 1.21.x 再逐步往上升级的方式。本文记录 v1.14.5 到 v1.21.14 升级记录。
+这便决定了无法一步到位升到 v1.28.x，而只能采用先升级到 v1.21.x 再逐步往上升级的方式。本文记录 v1.14.5 到 v1.21.14 的操作步骤和问题解决方式。
 
-考虑到我们的业务没有主从集群切流层，选择使用 kubeadm 做原地升级。kubeadm 仅支持逐 minor 版本升级集群，即只能 v1.14 -> v1.15 -> v1.16 -> v1.17 -> v1.18 -> v1.19 -> v1.20 -> v1.21。详细可参考 [Upgrading kubeadm clusters]。
+集群升级方式一般有两种，其一是另建目标集群并逐步迁移完所有服务，其二是逐节点原地升级。
+如果选择另建 v1.21.x 并执行迁移的方式，先要在外层网关层实现集群切流功能，再要提前在新集群部署好所有服务，最终逐步完成切流。
+考虑到我们没有主从集群切流层、机器资源相对有限、加之集群有状态服务没法简单挪移，因此选择了原地升级。
+
+kubeadm 在 v1.29 之前仅支持逐 minor 版本升级集群，即只能 v1.14 -> v1.15 -> v1.16 -> v1.17 -> v1.18 -> v1.19 -> v1.20 -> v1.21。详细可参考 [Upgrading kubeadm clusters]。（kubeadm v1.29 之后将支持跨 3 个 minor 版本升级，即可以 v1.26 -> v1.29 -> v1.32，详细可参考 [kubeadm#2924 - adjust the kubeadm/kubelet skew policy] 🚀
+
 又，从 v1.14 至 v1.21，kubelet 与 apiserver 之间的通信 API 没有发生移除，v1.14 kubelet 可与 v1.14.5 到 v1.21.14 之间的任何版本的 apiserver 通信。
-
 因此升级策略为
 1. 逐步升级 control plane 至 v1.21
 2. 一步到位升级 worker node v1.14 至 v1.21
@@ -290,14 +294,16 @@ done
 注意: kubelet 更新时的参数更新，如 `参数移除`， `feature-gates 移除`， `pause container 更新` 等，具体因实际集群而异。
 
 ## 总结
-集群升级重点
-1. 提前备份 etcd（虽然本文没用到 :)
-2. 查阅 [Kubernetes CHANGELOG]，注意新版本核心组件的参数移除，尤其是 feature gates 移除会涉及所有 `kube-` 打头组件。
-3. 提前 `kubeadm upgrade <version> --dryrun` 检查新版本镜像，做好 CoreDNS 和 puase 容器镜像分发
-4. upgrade 完成后，检查 kube-proxy 和 CoreDNS 所有 Pod 状态，确保更新完成
-5. 每次 upgrade 完成，检查关键 Operator/Controller 是否正常（关注日志/监控/告警），检查核心 API CRUD 是否正常（防止 Webhook 崩坏）
+集群升级概要
+1. 先测试集群后生产集群，先小集群后大集群 
+2. 提前备份 etcd，虽然本文没用上备份 👻
+3. 查阅 [Kubernetes CHANGELOG]，注意新版本核心组件的参数移除，尤其是 feature gates 移除会涉及所有 `kube-` 打头组件
+4. 提前 `kubeadm upgrade <version> --dryrun` 检查新版本镜像，做好 CoreDNS 和 puase 容器镜像分发
+5. upgrade 完成后，检查 CoreDNS 和 kube-proxy 所有 Pod 状态，确保更新完成；检查集群 DNS 功能是否正常；检查集群 Service 功能是否正常
+6. 每次 upgrade 完成，检查 Operator/Controller 和关键业务应用是否正常（关注日志/监控/告警），检查核心 API CRUD 是否正常（防止 Webhook 崩坏）
 
-最后，虽然 [Upgrading kubeadm clusters] 建议在升级时 drain node，但实际操作中不执行该步骤没啥意外发生。也可能跟使用场景有关，我们的集群主要做计算。Volume 使用较为简单。
+最后，虽然 [Upgrading kubeadm clusters] 建议在升级时 drain node，但实际操作中不执行该步骤没啥意外发生。
+也可能跟使用场景有关，我们的集群主要做计算。Volume 使用较为简单。
 
 ## 参考链接
 - TauCeti.blog's Kubernetes upgrade notes: [1.14-1.15](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.14-1.15/), [1.15-1.16](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.15-1.16/), [1.16-1.17](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.16-1.17/), [1.17-1.18](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.18-1.19](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.19-1.20](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.20-1.21](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.20-1.21/)
@@ -316,3 +322,4 @@ done
 [coredns#3219 - Readiness probe failed 8181: connect: connection refused ]: https://github.com/coredns/coredns/issues/3219
 [GKE: Ensuring compatibility of webhook certificates before upgrading to v1.23]: https://cloud.google.com/kubernetes-engine/docs/deprecations/webhookcompatibility
 [kubeadm#2207 - remove --port from kube-controller-manager and kube-scheduler]: https://github.com/kubernetes/kubeadm/issues/2207
+[kubeadm#2924 - adjust the kubeadm/kubelet skew policy]: https://github.com/kubernetes/kubeadm/issues/2924
