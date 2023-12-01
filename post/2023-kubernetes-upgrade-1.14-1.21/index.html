@@ -48,7 +48,7 @@
 <meta itemprop="name" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
 <meta itemprop="description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14"><meta itemprop="datePublished" content="2023-11-30T16:58:24+08:00" />
 <meta itemprop="dateModified" content="2023-11-30T16:58:24+08:00" />
-<meta itemprop="wordCount" content="3255">
+<meta itemprop="wordCount" content="3257">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录"/>
 <meta name="twitter:description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14"/>
@@ -173,7 +173,7 @@
 <p>集群升级方式一般有两种，其一是另建目标集群并逐步迁移完所有服务，其二是逐节点原地升级。
 如果选择另建 v1.21.x 并执行迁移的方式，先要在外层网关层实现集群切流功能，再要提前在新集群部署好所有服务，最终逐步完成切流。
 考虑到我们没有主从集群切流层、机器资源相对有限、加之集群有状态服务没法简单挪移，因此选择了原地升级。</p>
-<p>kubeadm 在 v1.29 之前仅支持逐 minor 版本升级集群，即只能 v1.14 -&gt; v1.15 -&gt; v1.16 -&gt; v1.17 -&gt; v1.18 -&gt; v1.19 -&gt; v1.20 -&gt; v1.21。详细可参考 <a href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">Upgrading kubeadm clusters</a>。（kubeadm v1.29 将支持跨 3 个 minor 版本升级，即可以 v1.26 -&gt; v1.29 -&gt; v1.32，详细可参考 <a href="https://github.com/kubernetes/kubeadm/issues/2924">kubeadm#2924 - adjust the kubeadm/kubelet skew policy</a> 🚀</p>
+<p>kubeadm 在 v1.29 之前仅支持逐 minor 版本升级集群，即只能 v1.14 -&gt; v1.15 -&gt; v1.16 -&gt; v1.17 -&gt; v1.18 -&gt; v1.19 -&gt; v1.20 -&gt; v1.21。详细可参考 <a href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">Upgrading kubeadm clusters</a>。（kubeadm v1.29 之后将支持跨 3 个 minor 版本升级，即可以 v1.26 -&gt; v1.29 -&gt; v1.32，详细可参考 <a href="https://github.com/kubernetes/kubeadm/issues/2924">kubeadm#2924 - adjust the kubeadm/kubelet skew policy</a> 🚀</p>
 <p>又，从 v1.14 至 v1.21，kubelet 与 apiserver 之间的通信 API 没有发生移除，v1.14 kubelet 可与 v1.14.5 到 v1.21.14 之间的任何版本的 apiserver 通信。
 因此升级策略为</p>
 <ol>
