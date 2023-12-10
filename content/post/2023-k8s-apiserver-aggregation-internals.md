@@ -61,7 +61,7 @@ sequenceDiagrams:
 [实现一个极简 K8s apiserver] 展示了使用 APIService 将 custom apiserver 聚合到 kube-apiserver。聚合（aggregation）由模块  kube-aggregator 实现，其原理如下
 
 0. kube-aggregator watch 所有 APIService 资源，所有三方 APIService 都会按照 `spec.service` 字段解析成 Service `{name}.{namespace}:<port>`。Service 为背后 apiserver 提供负载均衡
-1. 启动 proxyHandler，反向代理三方 apiserver 所有流量。CRUD  API 如 `/apis/hello.zeng.dev/v1/**` 和 `/apis/metrics.k8s.io/v1beta1/**`，全部交给对应 apiserver 处理
+1. 启动 proxyHandler，反向代理三方 apiserver 所有流量。CRUD  API 如 `/apis/hello.zeng.dev/v1/**` 和 `/apis/metrics.k8s.io/v1beta1/**`，全部发送给对应 apiserver 处理
 2. 通过 proxyHandlers 访问所有 apiservers 路径 /openapi/v2 和 /openapi/v3，聚合所有 OpenAPI Specification 信息在 /openapi/v2 和 /openapi/v3
 3. 通过 proxyHandlers 访问所有 apiservers 服务发现路径 /apis (1.27+) 或者 /apis ➕ /apis/{spec.group}/{spec.version}，聚合所有服务发现信息，在 /apis, /apis/{spec.group} 和 /apis/{spec.group}/{spec.version} 统一提供服务发现
 
@@ -73,12 +73,16 @@ sequenceDiagrams:
 
 ## 👑 The Builtin Aggregation and HandlerChain
 
-[K8s CustomResourceDefinitions (CRD) 原理] 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，最后再返回 404。
+[K8s CustomResourceDefinitions (CRD) 原理] 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，若都未果最后返回 404。
 
-实际上 kube-apiserver 模块又以委托模式组合在 kube-aggregator 模块内。
-官方内置 API Groups 和三方 API Groups 使用了同一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但在代理模式上有所区别
+实际上 kube-apiserver 模块又以代理模式被组合在 kube-aggregator 模块内。
 
-1. 每个内置 API GroupVersion 对应 APIService 都会打上 Local 标识，诸如 `/api/**`, `/apis/apps/**`, `/apis/batch/**`, `/apis/{crd.group}` 等路径，直接通过模块委托交给同进程 kube-apiserver 模块处理，而非走网络代理
+除提供 API Service 相关 RESTful API 的 group apiregistration.k8s.io 由 kube-aggregator 模块直接实现外，
+其他官方 API Group，都存在对应的内置 APIService，都有对应的 proxyHandler。
+
+官方 API Groups 和三方 API Groups 使用了同一套框架，但在代理模式上有所区别
+
+1. 每个内置 API GroupVersion，诸如 `/api/**`, `/apis/apps/**`, `/apis/batch/**`, `/apis/{crd.group}` 等路径，其对应 proxyHandler local 标志位会被置 true。proxyHandler 会将对应路径请求直接委托给同进程 kube-apiserver 模块处理，而非走网络代理
 2. Discovery API 和 OpenAPI Specification 由 HTTP 请求聚合改为了直接读内存聚合
 
 模块嵌套加上 [通用 filters/middlewares](https://github.com/kubernetes/kubernetes/blob/039ae1edf5a71f48ced7c0258e13d769109933a0/staging/src/k8s.io/apiserver/pkg/server/config.go#L890-L960)，构成了客户端请求进入具体 apiserver 实现之前的流程
@@ -91,11 +95,11 @@ sequenceDiagrams:
 |   ↓           |        │
 | tracing       |        |  +--- metrics-apiserver ---> /apis/metmetrics.k8s.io/**
 |   ↓           |        |  │
-| log           |        proxy
-|   ↓           |        ↑  ↑
+| log           |       remote
+|   ↓           |        ↑  ↑              group /apis/apiregistration.k8s.io/**
 | timeout       +---> kube-aggregator ---> /api/**, /apis/**, /openapi/v2, /openapi/v3/**
 |   ↓           |         ↓            
-|*authentication|      delegate
+|*authentication|        local
 |   ↓           |         │                       core/legacy group  /api/**
 | audit         |         └── kube-apiserver ---> official groups   [/apis/apps/**, /apis/batch/**, ...]
 |   ↓           |                 ↓

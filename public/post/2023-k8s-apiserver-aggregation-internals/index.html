@@ -48,7 +48,7 @@
 <meta itemprop="name" content="搞懂 K8s apiserver aggregation">
 <meta itemprop="description" content="understanding apiserver aggregation in Kubernetes"><meta itemprop="datePublished" content="2023-05-31T18:46:31+08:00" />
 <meta itemprop="dateModified" content="2023-05-31T18:46:31+08:00" />
-<meta itemprop="wordCount" content="3266">
+<meta itemprop="wordCount" content="3350">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="搞懂 K8s apiserver aggregation"/>
 <meta name="twitter:description" content="understanding apiserver aggregation in Kubernetes"/>
@@ -168,7 +168,7 @@
 <p><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a> 展示了使用 APIService 将 custom apiserver 聚合到 kube-apiserver。聚合（aggregation）由模块  kube-aggregator 实现，其原理如下</p>
 <ol start="0">
 <li>kube-aggregator watch 所有 APIService 资源，所有三方 APIService 都会按照 <code>spec.service</code> 字段解析成 Service <code>{name}.{namespace}:&lt;port&gt;</code>。Service 为背后 apiserver 提供负载均衡</li>
-<li>启动 proxyHandler，反向代理三方 apiserver 所有流量。CRUD  API 如 <code>/apis/hello.zeng.dev/v1/**</code> 和 <code>/apis/metrics.k8s.io/v1beta1/**</code>，全部交给对应 apiserver 处理</li>
+<li>启动 proxyHandler，反向代理三方 apiserver 所有流量。CRUD  API 如 <code>/apis/hello.zeng.dev/v1/**</code> 和 <code>/apis/metrics.k8s.io/v1beta1/**</code>，全部发送给对应 apiserver 处理</li>
 <li>通过 proxyHandlers 访问所有 apiservers 路径 /openapi/v2 和 /openapi/v3，聚合所有 OpenAPI Specification 信息在 /openapi/v2 和 /openapi/v3</li>
 <li>通过 proxyHandlers 访问所有 apiservers 服务发现路径 /apis (1.27+) 或者 /apis ➕ /apis/{spec.group}/{spec.version}，聚合所有服务发现信息，在 /apis, /apis/{spec.group} 和 /apis/{spec.group}/{spec.version} 统一提供服务发现</li>
 </ol>
@@ -179,11 +179,13 @@
 <li>如果三方 apiserver 只提供 OpenAPI Specification v2，kube-aggregator 会自动转换出一份 v3 版本</li>
 </ol>
 <h2 id="-the-builtin-aggregation-and-handlerchain">👑 The Builtin Aggregation and HandlerChain</h2>
-<p><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a> 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，最后再返回 404。</p>
-<p>实际上 kube-apiserver 模块又以委托模式组合在 kube-aggregator 模块内。
-官方内置 API Groups 和三方 API Groups 使用了同一套框架，每个内置 API GroupVersion 都会创建默认 APIService，但在代理模式上有所区别</p>
+<p><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a> 谈到了 kube-apiserver 引入 CustomResourceDefinitions 时的做法：采用委托模式组合核心 kube-apiserver 模块和 apiextensions-apiserver 模块，收到客户端服务请求时，先到核心模块寻找支持，再到拓展模块寻找支持，若都未果最后返回 404。</p>
+<p>实际上 kube-apiserver 模块又以代理模式被组合在 kube-aggregator 模块内。</p>
+<p>除提供 API Service 相关 RESTful API 的 group apiregistration.k8s.io 由 kube-aggregator 模块直接实现外，
+其他官方 API Group，都存在对应的内置 APIService，都有对应的 proxyHandler。</p>
+<p>官方 API Groups 和三方 API Groups 使用了同一套框架，但在代理模式上有所区别</p>
 <ol>
-<li>每个内置 API GroupVersion 对应 APIService 都会打上 Local 标识，诸如 <code>/api/**</code>, <code>/apis/apps/**</code>, <code>/apis/batch/**</code>, <code>/apis/{crd.group}</code> 等路径，直接通过模块委托交给同进程 kube-apiserver 模块处理，而非走网络代理</li>
+<li>每个内置 API GroupVersion，诸如 <code>/api/**</code>, <code>/apis/apps/**</code>, <code>/apis/batch/**</code>, <code>/apis/{crd.group}</code> 等路径，其对应 proxyHandler local 标志位会被置 true。proxyHandler 会将对应路径请求直接委托给同进程 kube-apiserver 模块处理，而非走网络代理</li>
 <li>Discovery API 和 OpenAPI Specification 由 HTTP 请求聚合改为了直接读内存聚合</li>
 </ol>
 <p>模块嵌套加上 <a href="https://github.com/kubernetes/kubernetes/blob/039ae1edf5a71f48ced7c0258e13d769109933a0/staging/src/k8s.io/apiserver/pkg/server/config.go#L890-L960">通用 filters/middlewares</a>，构成了客户端请求进入具体 apiserver 实现之前的流程</p>
@@ -218,11 +220,11 @@
 </span></span><span class="line"><span class="cl">|   ↓           |        │
 </span></span><span class="line"><span class="cl">| tracing       |        |  +--- metrics-apiserver ---&gt; /apis/metmetrics.k8s.io/**
 </span></span><span class="line"><span class="cl">|   ↓           |        |  │
-</span></span><span class="line"><span class="cl">| log           |        proxy
-</span></span><span class="line"><span class="cl">|   ↓           |        ↑  ↑
+</span></span><span class="line"><span class="cl">| log           |       remote
+</span></span><span class="line"><span class="cl">|   ↓           |        ↑  ↑              group /apis/apiregistration.k8s.io/**
 </span></span><span class="line"><span class="cl">| timeout       +---&gt; kube-aggregator ---&gt; /api/**, /apis/**, /openapi/v2, /openapi/v3/**
 </span></span><span class="line"><span class="cl">|   ↓           |         ↓            
-</span></span><span class="line"><span class="cl">|*authentication|      delegate
+</span></span><span class="line"><span class="cl">|*authentication|        local
 </span></span><span class="line"><span class="cl">|   ↓           |         │                       core/legacy group  /api/**
 </span></span><span class="line"><span class="cl">| audit         |         └── kube-apiserver ---&gt; official groups   [/apis/apps/**, /apis/batch/**, ...]
 </span></span><span class="line"><span class="cl">|   ↓           |                 ↓
