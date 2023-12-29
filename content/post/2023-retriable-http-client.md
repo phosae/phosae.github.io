@@ -111,6 +111,8 @@ Clients can also retry any error except for certain unrecoverable errors, as dem
 
 As the examples show, retrying based on status codes is quite similar, but retrying based on library errors is highly language-specific.
 
+The full code for all the samples in this post is [available on GitHub](https://github.com/phosae/samples/tree/main/2023/http-client-retry).
+
 Writing your own retry code from nothing is not recommended; it is better to use or learn from mature libraries.
 
 - Golang: [hashicorp/go-retryablehttp]

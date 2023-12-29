@@ -48,7 +48,7 @@
 <meta itemprop="name" content="Notes on Retriable HTTP Client (with Golang/Rust example">
 <meta itemprop="description" content="Notes on Retriable HTTP Client"><meta itemprop="datePublished" content="2023-12-22T17:46:10+08:00" />
 <meta itemprop="dateModified" content="2023-12-29T17:36:10+08:00" />
-<meta itemprop="wordCount" content="504">
+<meta itemprop="wordCount" content="518">
 <meta itemprop="keywords" content="en,go,rust,http," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Retriable HTTP Client (with Golang/Rust example"/>
 <meta name="twitter:description" content="Notes on Retriable HTTP Client"/>
@@ -283,6 +283,7 @@
 </div>
 </div><p>Clients can also retry any error except for certain unrecoverable errors, as demonstrated by <a href="https://github.com/hashicorp/go-retryablehttp">hashicorp/go-retryablehttp</a>.</p>
 <p>As the examples show, retrying based on status codes is quite similar, but retrying based on library errors is highly language-specific.</p>
+<p>The full code for all the samples in this post is <a href="https://github.com/phosae/samples/tree/main/2023/http-client-retry">available on GitHub</a>.</p>
 <p>Writing your own retry code from nothing is not recommended; it is better to use or learn from mature libraries.</p>
 <ul>
 <li>Golang: <a href="https://github.com/hashicorp/go-retryablehttp">hashicorp/go-retryablehttp</a></li>
