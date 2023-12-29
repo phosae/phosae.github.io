@@ -6,7 +6,43 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 30 Nov 2023 16:58:24 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 22 Dec 2023 17:46:10 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>en</title>
+      <link>https://www.zeng.dev/tags/en/</link>
+      <pubDate>Fri, 22 Dec 2023 17:46:10 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/en/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Go</title>
+      <link>https://www.zeng.dev/tags/go/</link>
+      <pubDate>Fri, 22 Dec 2023 17:46:10 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>http</title>
+      <link>https://www.zeng.dev/tags/http/</link>
+      <pubDate>Fri, 22 Dec 2023 17:46:10 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/http/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rust</title>
+      <link>https://www.zeng.dev/tags/rust/</link>
+      <pubDate>Fri, 22 Dec 2023 17:46:10 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/tags/rust/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>kubernetes</title>
       <link>https://www.zeng.dev/tags/kubernetes/</link>
@@ -71,24 +107,6 @@
     </item>
     
     <item>
-      <title>en</title>
-      <link>https://www.zeng.dev/tags/en/</link>
-      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/en/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Go</title>
-      <link>https://www.zeng.dev/tags/go/</link>
-      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/go/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>plugin</title>
       <link>https://www.zeng.dev/tags/plugin/</link>
       <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
@@ -112,15 +130,6 @@
       <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/webhook/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>http</title>
-      <link>https://www.zeng.dev/tags/http/</link>
-      <pubDate>Wed, 07 Jun 2023 16:11:19 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/http/</guid>
       <description></description>
     </item>
     
@@ -247,15 +256,6 @@
       <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
       
       <guid>https://www.zeng.dev/tags/pid1/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>rust</title>
-      <link>https://www.zeng.dev/tags/rust/</link>
-      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
-      
-      <guid>https://www.zeng.dev/tags/rust/</guid>
       <description></description>
     </item>
     
