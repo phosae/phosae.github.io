@@ -48,7 +48,7 @@
 <meta itemprop="name" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 <meta itemprop="description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训"><meta itemprop="datePublished" content="2024-03-26T15:31:54+08:00" />
 <meta itemprop="dateModified" content="2024-04-10T17:07:07+08:00" />
-<meta itemprop="wordCount" content="2203">
+<meta itemprop="wordCount" content="2279">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训"/>
 <meta name="twitter:description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训"/>
@@ -285,7 +285,7 @@ sha256:e086f32dcf9f00bae7a5d1c4fe7c9760b3af37fe222c28803fd9060d32e4fb27 not foun
 <p>升级某个集群时，预期架构为所有 worker 节点通过 keepalived virtual IP 连接至某台 apiserver。这样可以假设 apiserver-1 处于升级期间，流量可以转发至 apiserver-2 或 apiserver-3。</p>
 <p>实际情况是，该集群 keepalived 背后 apiserver-2 节点和 apiserver-3 节点在某次操作被注释掉了，并且该配置之前没有入库。
 故操作该集群升级时，发生了所有 worker 节点与 apiserver 断连的事故。</p>
-<pre><code> worker-1      woker-2      woker-3                          worker-1      woker-2      woker-3
+<pre><code> worker-1     worker-2      worker-3                          worker-1     worker-2      worker-3
     |             |            |                                |             |            | 
     +-------------+------------+                                +-------------+------------+
                   |                                                           |
@@ -296,6 +296,21 @@ sha256:e086f32dcf9f00bae7a5d1c4fe7c9760b3af37fe222c28803fd9060d32e4fb27 not foun
 apiserver-1  apiserver-2  apiserver-3                       apiserver-1  apiserver-2  apiserver-3
 </code></pre>
 <p>教训：敬畏生产，明晰 apiserver 架构，操作前做好检查</p>
+<p>注：在较新裸金属集群中，已经弃用 keepalived virtual IP 方案，改用了客户端负载均衡方案。即 haproxy 作为 static Pod 跑在 worker 节点，为 kubelet 至 kube-apiserver 提供负载均衡</p>
+<pre><code>               worker-1 
+                  |
+                haproxy     
+                  |          
+    +-------------+-----------+
+    |             |           |
+apiserver-1  apiserver-2  apiserver-3 
+    |             |           |
+    +-------------+-----------+ 
+                  |
+                haproxy     
+                  |
+               worker-2          
+</code></pre>
 <h2 id="结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</h2>
 <p>本次升级只涉及 Kubernetes 容器组件，仍然不包括</p>
 <ul>

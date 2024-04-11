@@ -150,7 +150,7 @@ spec:
 实际情况是，该集群 keepalived 背后 apiserver-2 节点和 apiserver-3 节点在某次操作被注释掉了，并且该配置之前没有入库。
 故操作该集群升级时，发生了所有 worker 节点与 apiserver 断连的事故。
 
-     worker-1      woker-2      woker-3                          worker-1      woker-2      woker-3
+     worker-1     worker-2      worker-3                          worker-1     worker-2      worker-3
         |             |            |                                |             |            | 
         +-------------+------------+                                +-------------+------------+
                       |                                                           |
@@ -161,6 +161,22 @@ spec:
     apiserver-1  apiserver-2  apiserver-3                       apiserver-1  apiserver-2  apiserver-3
 
 教训：敬畏生产，明晰 apiserver 架构，操作前做好检查
+
+注：在较新裸金属集群中，已经弃用 keepalived virtual IP 方案，改用了客户端负载均衡方案。即 haproxy 作为 static Pod 跑在 worker 节点，为 kubelet 至 kube-apiserver 提供负载均衡
+
+                   worker-1 
+                      |
+                    haproxy     
+                      |          
+        +-------------+-----------+
+        |             |           |
+    apiserver-1  apiserver-2  apiserver-3 
+        |             |           |
+        +-------------+-----------+ 
+                      |
+                    haproxy     
+                      |
+                   worker-2          
 
 ## 结语：设计可持续演进的软件体系
 
