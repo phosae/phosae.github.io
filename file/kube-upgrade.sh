@@ -217,12 +217,12 @@ oom_score = 0
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
           endpoint = ["https://registry-1.docker.io"]
-        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.qiniu.io:32500"]
-          endpoint = ["http://docker.qiniu.io:32500"]
+        [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker-registry.zeng.dev:32500"]
+          endpoint = ["http://docker-registry.zeng.dev:32500"]
       [plugins."io.containerd.grpc.v1.cri".registry.configs]
-        [plugins."io.containerd.grpc.v1.cri".registry.configs."docker.qiniu.io:32500".tls]
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."docker-registry.zeng.dev:32500".tls]
           insecure_skip_verify = true
-        [plugins."io.containerd.grpc.v1.cri".registry.configs."dora.qiniu:5000".tls]
+        [plugins."io.containerd.grpc.v1.cri".registry.configs."docker-registry.example.com:5000".tls]
           insecure_skip_verify = true
 EOF
 }
