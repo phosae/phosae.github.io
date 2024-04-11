@@ -48,7 +48,7 @@
 <meta itemprop="name" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
 <meta itemprop="description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14"><meta itemprop="datePublished" content="2023-11-30T16:58:24+08:00" />
 <meta itemprop="dateModified" content="2023-11-30T16:58:24+08:00" />
-<meta itemprop="wordCount" content="3257">
+<meta itemprop="wordCount" content="3216">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录"/>
 <meta name="twitter:description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14"/>
@@ -151,7 +151,7 @@
     <li><a href="#119---120-注意点">1.19 -&gt; 1.20 注意点</a></li>
     <li><a href="#120---121-注意点">1.20 -&gt; 1.21 注意点</a></li>
     <li><a href="#系统级镜像坑点">系统级镜像坑点</a></li>
-    <li><a href="#任意-worker-节点更新暂不包含-cni-container-runtime-更新">任意 worker 节点更新（暂不包含 CNI, Container Runtime 更新</a></li>
+    <li><a href="#任意-worker-节点更新">任意 worker 节点更新</a></li>
     <li><a href="#总结">总结</a></li>
     <li><a href="#参考链接">参考链接</a></li>
   </ul>
@@ -525,7 +525,7 @@
 <li>pause</li>
 </ul>
 <p>小节 cluster 级升级开头的镜像分发是走完整个流程的成果。</p>
-<h2 id="任意-worker-节点更新暂不包含-cni-container-runtime-更新">任意 worker 节点更新（暂不包含 CNI, Container Runtime 更新</h2>
+<h2 id="任意-worker-节点更新">任意 worker 节点更新</h2>
 <p>走完 control plane 节点更新，也就踩完了普通 worker 节点的坑。脚化处理即可。找一台可以登陆所有 worker 的机器，准备脚本 <code>upgrade-worker.sh</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -566,7 +566,7 @@
 </span></span><span class="line"><span class="cl">sed -i <span class="s1">&#39;/# Should this cluster be allowed to run privileged docker containers/d; /KUBE_ALLOW_PRIV=&#34;--allow-privileged=true&#34;/d&#39;</span> /etc/kubernetes/kubelet.env
 </span></span><span class="line"><span class="cl">sed -i <span class="s1">&#39;/\$KUBE_ALLOW_PRIV \\/d&#39;</span> /etc/systemd/system/kubelet.service
 </span></span><span class="line"><span class="cl">sed -i <span class="s1">&#39;/--feature-gates=VolumeSubpathEnvExpansion=true \\/d&#39;</span>  /etc/kubernetes/kubelet.env
-</span></span><span class="line"><span class="cl">sed -i <span class="s1">&#39;s|--pod-infra-container-image=k8s-register-lac.qiniu.io/k8s-deploy/google-containers/pause-amd64:3.1|--pod-infra-container-image=k8s-register-lac.qiniu.io/k8s-deploy/google-containers/pause:3.4.1|&#39;</span> /etc/kubernetes/kubelet.env
+</span></span><span class="line"><span class="cl">sed -i <span class="s1">&#39;s|google-containers/pause-amd64:3.1|google-containers/pause:3.4.1|&#39;</span> /etc/kubernetes/kubelet.env
 </span></span><span class="line"><span class="cl"><span class="c1"># end of updating args, it depends on your kubelet&#39;s status, don&#39;t use it</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="nv">$UPGRADEDIR</span>/kubeadm-<span class="nv">$VERSION</span> upgrade node
@@ -581,10 +581,14 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="k">for</span> NODE in work-1 work-2 work-3<span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">    kubectl drain <span class="nv">$NODE</span> --ignore-daemonsets --delete-local-data
 </span></span><span class="line"><span class="cl">    ssh <span class="nv">$NODE</span> <span class="s2">&#34;bash -s&#34;</span> -- &lt; /etc/kubernetes/upgrade/upgrade-worker.sh
+</span></span><span class="line"><span class="cl">    kubectl uncordon <span class="nv">$NODE</span>
 </span></span><span class="line"><span class="cl"><span class="k">done</span>
 </span></span></code></pre></td></tr></table>
 </div>
@@ -599,8 +603,7 @@
 <li>upgrade 完成后，检查 CoreDNS 和 kube-proxy 所有 Pod 状态，确保更新完成；检查集群 DNS 功能是否正常；检查集群 Service 功能是否正常</li>
 <li>每次 upgrade 完成，检查 Operator/Controller 和关键业务应用是否正常（关注日志/监控/告警），检查核心 API CRUD 是否正常（防止 Webhook 崩坏）</li>
 </ol>
-<p>最后，虽然 <a href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/">Upgrading kubeadm clusters</a> 建议在升级时 drain node，但实际操作中不执行该步骤没啥意外发生。
-也可能跟使用场景有关，我们的集群主要做计算。Volume 使用较为简单。</p>
+<p>Container Runtime 更新部分、最终操作方式和脚本请查阅 <a href="../2024-kubernetes-upgrade-lessons">Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训</a>。</p>
 <h2 id="参考链接">参考链接</h2>
 <ul>
 <li>TauCeti.blog&rsquo;s Kubernetes upgrade notes: <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.14-1.15/">1.14-1.15</a>, <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.15-1.16/">1.15-1.16</a>, <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.16-1.17/">1.16-1.17</a>, <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/">1.17-1.18</a>, <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/">1.18-1.19</a>, <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/">1.19-1.20</a>, <a href="https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.20-1.21/">1.20-1.21</a></li>
@@ -696,7 +699,7 @@
   <span class="copyright-year">
     &copy; 
     2019 - 
-    2023<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
   </span>
 </div>
 

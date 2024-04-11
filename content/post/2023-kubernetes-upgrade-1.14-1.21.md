@@ -255,7 +255,7 @@ data:
 
 小节 cluster 级升级开头的镜像分发是走完整个流程的成果。
 
-## 任意 worker 节点更新（暂不包含 CNI, Container Runtime 更新
+## 任意 worker 节点更新
 
 走完 control plane 节点更新，也就踩完了普通 worker 节点的坑。脚化处理即可。找一台可以登陆所有 worker 的机器，准备脚本 `upgrade-worker.sh`
 
@@ -274,7 +274,7 @@ chmod +x $UPGRADEDIR/kubelet-$VERSION
 sed -i '/# Should this cluster be allowed to run privileged docker containers/d; /KUBE_ALLOW_PRIV="--allow-privileged=true"/d' /etc/kubernetes/kubelet.env
 sed -i '/\$KUBE_ALLOW_PRIV \\/d' /etc/systemd/system/kubelet.service
 sed -i '/--feature-gates=VolumeSubpathEnvExpansion=true \\/d'  /etc/kubernetes/kubelet.env
-sed -i 's|--pod-infra-container-image=k8s-register-lac.qiniu.io/k8s-deploy/google-containers/pause-amd64:3.1|--pod-infra-container-image=k8s-register-lac.qiniu.io/k8s-deploy/google-containers/pause:3.4.1|' /etc/kubernetes/kubelet.env
+sed -i 's|google-containers/pause-amd64:3.1|google-containers/pause:3.4.1|' /etc/kubernetes/kubelet.env
 # end of updating args, it depends on your kubelet's status, don't use it
 
 $UPGRADEDIR/kubeadm-$VERSION upgrade node
@@ -287,7 +287,9 @@ systemctl restart kubelet
 
 ```bash
 for NODE in work-1 work-2 work-3; do
+    kubectl drain $NODE --ignore-daemonsets --delete-local-data
     ssh $NODE "bash -s" -- < /etc/kubernetes/upgrade/upgrade-worker.sh
+    kubectl uncordon $NODE
 done
 ```
 
@@ -302,8 +304,7 @@ done
 5. upgrade 完成后，检查 CoreDNS 和 kube-proxy 所有 Pod 状态，确保更新完成；检查集群 DNS 功能是否正常；检查集群 Service 功能是否正常
 6. 每次 upgrade 完成，检查 Operator/Controller 和关键业务应用是否正常（关注日志/监控/告警），检查核心 API CRUD 是否正常（防止 Webhook 崩坏）
 
-最后，虽然 [Upgrading kubeadm clusters] 建议在升级时 drain node，但实际操作中不执行该步骤没啥意外发生。
-也可能跟使用场景有关，我们的集群主要做计算。Volume 使用较为简单。
+ Container Runtime 更新部分、最终操作方式和脚本请查阅 [Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训]。
 
 ## 参考链接
 - TauCeti.blog's Kubernetes upgrade notes: [1.14-1.15](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.14-1.15/), [1.15-1.16](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.15-1.16/), [1.16-1.17](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.16-1.17/), [1.17-1.18](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.18-1.19](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.19-1.20](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.17-1.18/), [1.20-1.21](https://www.tauceti.blog/posts/kubernetes-upgrade-nodes-1.20-1.21/)
@@ -323,3 +324,4 @@ done
 [GKE: Ensuring compatibility of webhook certificates before upgrading to v1.23]: https://cloud.google.com/kubernetes-engine/docs/deprecations/webhookcompatibility
 [kubeadm#2207 - remove --port from kube-controller-manager and kube-scheduler]: https://github.com/kubernetes/kubeadm/issues/2207
 [kubeadm#2924 - adjust the kubeadm/kubelet skew policy]: https://github.com/kubernetes/kubeadm/issues/2924
+[Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训]: ../2024-kubernetes-upgrade-lessons
