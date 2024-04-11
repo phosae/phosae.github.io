@@ -143,6 +143,25 @@ spec:
 
 最后，可能还需为极端情况做预案。如某个 Ingress 节点长时间无法升级成功时，可采用添加新节点为 Ingress 节点的方式恢复。
 
+## 裸金属环境 apiserver 真是高可用吗
+
+升级某个集群时，预期架构为所有 worker 节点通过 keepalived virtual IP 连接至某台 apiserver。这样可以假设 apiserver-1 处于升级期间，流量可以转发至 apiserver-2 或 apiserver-3。
+
+实际情况是，该集群 keepalived 背后 apiserver-2 节点和 apiserver-3 节点在某次操作被注释掉了，并且该配置之前没有入库。
+故操作该集群升级时，发生了所有 worker 节点与 apiserver 断连的事故。
+
+     worker-1      woker-2      woker-3                          worker-1      woker-2      woker-3
+        |             |            |                                |             |            | 
+        +-------------+------------+                                +-------------+------------+
+                      |                                                           |
+          keepalived virtual IP             ---- actual --->          keepalived virtual IP 
+                      |                                                           |
+        +-------------+------------+                                +-------------+------------+
+        |             |            |                                |             x            x
+    apiserver-1  apiserver-2  apiserver-3                       apiserver-1  apiserver-2  apiserver-3
+
+教训：敬畏生产，明晰 apiserver 架构，操作前做好检查
+
 ## 结语：设计可持续演进的软件体系
 
 本次升级只涉及 Kubernetes 容器组件，仍然不包括

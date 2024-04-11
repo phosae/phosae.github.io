@@ -48,7 +48,7 @@
 <meta itemprop="name" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 <meta itemprop="description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训"><meta itemprop="datePublished" content="2024-03-26T15:31:54+08:00" />
 <meta itemprop="dateModified" content="2024-04-10T17:07:07+08:00" />
-<meta itemprop="wordCount" content="1988">
+<meta itemprop="wordCount" content="2203">
 <meta itemprop="keywords" content="kubernetes," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训"/>
 <meta name="twitter:description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训"/>
@@ -146,6 +146,7 @@
     <li><a href="#使用脚本简化操作">使用脚本简化操作</a></li>
     <li><a href="#经验---新-runtime-无法自-registry-拉取镜像">经验 - 新 Runtime 无法自 Registry 拉取镜像</a></li>
     <li><a href="#教训---所有-ingress-节点同时升级导致全集群业务不可用">教训 - 所有 Ingress 节点同时升级导致全集群业务不可用</a></li>
+    <li><a href="#裸金属环境-apiserver-真是高可用吗">裸金属环境 apiserver 真是高可用吗</a></li>
     <li><a href="#结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</a></li>
   </ul>
 </nav>
@@ -280,6 +281,21 @@ sha256:e086f32dcf9f00bae7a5d1c4fe7c9760b3af37fe222c28803fd9060d32e4fb27 not foun
 <li>Ingress，防止所有业务流量出现 500</li>
 </ul>
 <p>最后，可能还需为极端情况做预案。如某个 Ingress 节点长时间无法升级成功时，可采用添加新节点为 Ingress 节点的方式恢复。</p>
+<h2 id="裸金属环境-apiserver-真是高可用吗">裸金属环境 apiserver 真是高可用吗</h2>
+<p>升级某个集群时，预期架构为所有 worker 节点通过 keepalived virtual IP 连接至某台 apiserver。这样可以假设 apiserver-1 处于升级期间，流量可以转发至 apiserver-2 或 apiserver-3。</p>
+<p>实际情况是，该集群 keepalived 背后 apiserver-2 节点和 apiserver-3 节点在某次操作被注释掉了，并且该配置之前没有入库。
+故操作该集群升级时，发生了所有 worker 节点与 apiserver 断连的事故。</p>
+<pre><code> worker-1      woker-2      woker-3                          worker-1      woker-2      woker-3
+    |             |            |                                |             |            | 
+    +-------------+------------+                                +-------------+------------+
+                  |                                                           |
+      keepalived virtual IP             ---- actual ---&gt;          keepalived virtual IP 
+                  |                                                           |
+    +-------------+------------+                                +-------------+------------+
+    |             |            |                                |             x            x
+apiserver-1  apiserver-2  apiserver-3                       apiserver-1  apiserver-2  apiserver-3
+</code></pre>
+<p>教训：敬畏生产，明晰 apiserver 架构，操作前做好检查</p>
 <h2 id="结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</h2>
 <p>本次升级只涉及 Kubernetes 容器组件，仍然不包括</p>
 <ul>
