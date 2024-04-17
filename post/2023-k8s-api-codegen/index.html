@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>最不厌其烦的 K8s 代码生成教程 - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="An exquisitely thorough K8s code generation tutorial" /><meta name="keywords" content="kubernetes, code-generation" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2023-k8s-api-codegen/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="最不厌其烦的 K8s 代码生成教程" />
+<meta property="og:description" content="An exquisitely thorough K8s code generation tutorial" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2023-k8s-api-codegen/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-06-05T18:08:17+08:00" />
+<meta property="article:modified_time" content="2023-06-11T15:36:17+08:00" />
+<meta itemprop="name" content="最不厌其烦的 K8s 代码生成教程">
+<meta itemprop="description" content="An exquisitely thorough K8s code generation tutorial"><meta itemprop="datePublished" content="2023-06-05T18:08:17+08:00" />
+<meta itemprop="dateModified" content="2023-06-11T15:36:17+08:00" />
+<meta itemprop="wordCount" content="4342">
+<meta itemprop="keywords" content="kubernetes,code-generation," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="最不厌其烦的 K8s 代码生成教程"/>
+<meta name="twitter:description" content="An exquisitely thorough K8s code generation tutorial"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">最不厌其烦的 K8s 代码生成教程</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-05 18:08 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#-kubernetes-code-generator">☸️ Kubernetes code-generator</a></li>
+    <li><a href="#-prepare-api-structs">✍️ Prepare API Structs</a></li>
+    <li><a href="#-helper-generators">💪 Helper Generators</a>
+      <ul>
+        <li><a href="#register-gen">register-gen</a></li>
+        <li><a href="#deepcopy-gen">deepcopy-gen</a></li>
+        <li><a href="#defaulter-gen">defaulter-gen</a></li>
+        <li><a href="#conversion-gen">conversion-gen</a></li>
+        <li><a href="#go-to-protobuf">go-to-protobuf</a></li>
+      </ul>
+    </li>
+    <li><a href="#-openapi-generator">🔥 OpenAPI Generator</a></li>
+    <li><a href="#-client-generators">🔮 Client Generators</a>
+      <ul>
+        <li><a href="#client-example">client example</a></li>
+        <li><a href="#watch-example">watch example</a></li>
+      </ul>
+    </li>
+    <li><a href="#-all-in-one-script">🥷 All in One Script</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <!-- 系列链接 -->
+<p>本文为 <strong>K8s API 和控制器</strong> 系列文章之一</p>
+<ul>
+<li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) 原理</a></li>
+<li><a href="../2023-k8s-api-multi-version-conversion-best-practice">K8s 多版本 API 转换最佳实践</a></li>
+<li><a href="../2023-k8s-apiserver-from-scratch">实现一个极简 K8s apiserver</a></li>
+<li><a href="../2023-k8s-apiserver-aggregation-internals">搞懂 K8s apiserver aggregation</a></li>
+<li><a href="../2023-k8s-api-codegen">最不厌其烦的 K8s 代码生成教程</a> (本文)</li>
+<li><a href="../2023-k8s-apiserver-using-library">使用 library 实现 K8s apiserver</a></li>
+<li><a href="../2023-k8s-apiserver-avoid-using-runtime">慎重选用 Runtime 类框架开发 K8s apiserver</a></li>
+<li><a href="../2023-k8s-api-admission">K8s API Admission Control and Policy</a></li>
+</ul>
+<h2 id="-kubernetes-code-generator">☸️ Kubernetes code-generator</h2>
+<p>K8s 中大量使用了代码生成，尤其是 API、控制器和客户端。Generators 统一放置在子项目 <a href="https://github.com/kubernetes/code-generator">kubernetes/code-generator</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">~/go/src/k8s.io/kubernetes $ tree staging/src/k8s.io/code-generator/cmd -L <span class="m">1</span>
+</span></span><span class="line"><span class="cl">staging/src/k8s.io/code-generator/cmd
+</span></span><span class="line"><span class="cl">├── applyconfiguration-gen
+</span></span><span class="line"><span class="cl">├── client-gen
+</span></span><span class="line"><span class="cl">├── conversion-gen
+</span></span><span class="line"><span class="cl">├── deepcopy-gen
+</span></span><span class="line"><span class="cl">├── defaulter-gen
+</span></span><span class="line"><span class="cl">├── go-to-protobuf
+</span></span><span class="line"><span class="cl">├── informer-gen
+</span></span><span class="line"><span class="cl">├── lister-gen
+</span></span><span class="line"><span class="cl">├── openapi-gen
+</span></span><span class="line"><span class="cl">├── register-gen
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>K8s 之上的三方项目，也可以（且通常）会利用这些 generators，生成控制器相关代码和客户端代码。</p>
+<p>如果项目基于 CustomResourceDefinitions (CRD) 做开发，经常用到的是 <code>deepcopy-gen</code> 和 <code>register-gen</code>。</p>
+<p>如果要开发 custom apiserver，则还会经常用到 <code>defaulter-gen</code>  <code>conversion-gen</code> <code>openapi-gen</code> <code>go-to-protobuf</code></p>
+<p>无论通过 CRD 还是 custom apiserver，都可能要为 API 生成 Go 客户端，也就会用到 <code>applyconfiguration-gen</code> <code>client-gen</code> <code>lister-gen</code> <code>informer-gen</code>。</p>
+<p>多语言客户端，可以利用 <code>openapi-gen</code> 生成 OpenAPI Specification JSON 文件，再利用 OpenAPI Specification 生成任意语言客户端代码。</p>
+<h2 id="-prepare-api-structs">✍️ Prepare API Structs</h2>
+<p>K8s 相关项目对外 API 都会包含 3 文件：<code>types.go</code> <code>doc.go</code> 和 <code>register.go</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">api                           # external APIs     
+</span></span><span class="line"><span class="cl">└── hello.zeng.dev
+</span></span><span class="line"><span class="cl">    ├── v1
+</span></span><span class="line"><span class="cl">    │   ├── defaults.go       # 提供用户默认函数 func SetDefaults_TYPE
+</span></span><span class="line"><span class="cl">    │   ├── doc.go            # packge 级别生成声明
+</span></span><span class="line"><span class="cl">    │   ├── register.go       # 注册 API Structs, generated funcs 到 K8s Schema，提供通用的序列化/反序列化能力
+</span></span><span class="line"><span class="cl">    │   ├── types.go          # 提供 API Structs
+</span></span><span class="line"><span class="cl">    └── v2
+</span></span><span class="line"><span class="cl">        ├── doc.go
+</span></span><span class="line"><span class="cl">        ├── register.go
+</span></span><span class="line"><span class="cl">        └── types.go
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>doc.go</code> 在代码生成中最为重要。它声明了按照 package 维度，为所有 structs 提供生成声明</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// +k8s:openapi-gen=true ➡️ 生成 OpenAPI 相关
+</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:deepcopy-gen=package ➡️ 生成 deepcopy funcs
+</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:protobuf-gen=package ➡️ 生成 protobuf 定义和并从 protobuf 定义生成 protobuf funcs
+</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:defaulter-gen=TypeMeta ➡️ 生成 default funcs，如果 package 下存在 defaults.go 且存在函数签名 `func SetDefaults_TYPE(obj *TYPE)`
+</span></span></span><span class="line"><span class="cl"><span class="c1">// +groupName=hello.zeng.dev // API Group，可供 register-gen 读取并使用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">v1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>types.go</code> 包含了 <a href="https://github.com/kubernetes/code-generator">kubernetes/code-generator</a> 注释 tag</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// +genclient ➡️ 生成客户端相关 client informer lister 以及 applyconfiguration
+</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object ➡️ 声明生成 
+</span></span></span><span class="line"><span class="cl"><span class="c1">//   func (in *Foo) DeepCopyObject() runtime.Object (实现 interface k8s.io/apimachinery/pkg/runtime.Object
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Foo</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span>   <span class="s">`json:&#34;,inline&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span> <span class="s">`json:&#34;metadata,omitempty&#34; protobuf:&#34;bytes,1,opt,name=metadata&#34;`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">Spec</span> <span class="nx">FooSpec</span> <span class="s">`json:&#34;spec&#34; protobuf:&#34;bytes,2,opt,name=spec&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object ➡️ 声明生成 func (in *FooList) DeepCopyObject() runtime.Object
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">FooList</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span> <span class="s">`json:&#34;,inline&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">ListMeta</span> <span class="s">`json:&#34;metadata,omitempty&#34; protobuf:&#34;bytes,1,opt,name=metadata&#34;`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">Items</span> <span class="p">[]</span><span class="nx">Foo</span> <span class="s">`json:&#34;items&#34; protobuf:&#34;bytes,2,rep,name=items&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>register.go</code> 提供注册到 <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a> 的函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">v2</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">const</span> <span class="nx">GroupName</span> <span class="p">=</span> <span class="s">&#34;hello.zeng.dev&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// SchemeGroupVersion is group version used to register these objects
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">var</span> <span class="nx">SchemeGroupVersion</span> <span class="p">=</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">GroupVersion</span><span class="p">{</span><span class="nx">Group</span><span class="p">:</span> <span class="nx">GroupName</span><span class="p">,</span> <span class="nx">Version</span><span class="p">:</span> <span class="s">&#34;v2&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">SchemeBuilder</span>      <span class="p">=</span> <span class="nx">runtime</span><span class="p">.</span><span class="nf">NewSchemeBuilder</span><span class="p">(</span><span class="nx">addKnownTypes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// AddToScheme adds this group to a scheme.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">AddToScheme</span> <span class="p">=</span> <span class="nx">localSchemeBuilder</span><span class="p">.</span><span class="nx">AddToScheme</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Adds the list of known types to the given scheme.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">addKnownTypes</span><span class="p">(</span><span class="nx">scheme</span> <span class="o">*</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Scheme</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">scheme</span><span class="p">.</span><span class="nf">AddKnownTypes</span><span class="p">(</span><span class="nx">SchemeGroupVersion</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&amp;</span><span class="nx">Foo</span><span class="p">{},</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&amp;</span><span class="nx">FooList</span><span class="p">{},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// add common meta types (i.e WatchEvent, ListOptions, ...) to the SchemeGroupVersion
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">metav1</span><span class="p">.</span><span class="nf">AddToGroupVersion</span><span class="p">(</span><span class="nx">scheme</span><span class="p">,</span> <span class="nx">SchemeGroupVersion</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>观察一下官方项目，可以注意到大部分 register.go 都是重复，因此也可以自动生成。<a href="https://github.com/kubernetes/code-generator">kubernetes/code-generator</a> 提供的 register-gen 可以读取 <code>doc.go // +groupName</code> 并生成 register 文件。<a href="https://github.com/rancher/wrangler/tree/master/pkg/controller-gen">rancher/wrangler controller-gen</a> 是这样干的。<a href="https://github.com/kubernetes-sigs/kubebuilder">kubernetes-sigs/kubebuilder</a> 会生成一份 groupversion_info.go。</p>
+<h2 id="-helper-generators">💪 Helper Generators</h2>
+<h3 id="register-gen">register-gen</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># pwd </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># github.com/phosae/x-kubernetes/api</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">+=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">register-gen <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -O zz_generated.register <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --go-header-file /tmp/fake-boilerplate.txt <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --output-base /go/src <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="s2">&#34;</span><span class="si">${</span><span class="nv">inputs</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># generated outputs:</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1/zz_generated.register.go</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2/zz_generated.register.go</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="deepcopy-gen">deepcopy-gen</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># pwd </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># github.com/phosae/x-kubernetes/api</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">+=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">deepcopy-gen <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -O zz_generated.deepcopy <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --go-header-file /tmp/fake-boilerplate.txt <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --output-base /go/src <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="s2">&#34;</span><span class="si">${</span><span class="nv">inputs</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># generated outputs:</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1/zz_generated.deepcopy.go</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2/zz_generated.deepcopy.go</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>常见的两种注释式声明</p>
+<ul>
+<li>package level: // +k8s:deepcopy-gen=package</li>
+<li>struct level:  // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object</li>
+</ul>
+<p>凡要集成 API 到 K8s 编解码库，对应的 Go struct 都需要实现 <a href="https://github.com/kubernetes/kubernetes/blob/4c40d749006a8895f6718f2b624a3dbe975988ab/staging/src/k8s.io/apimachinery/pkg/runtime/interfaces.go#L319-L326">apimachinery/interface runtime.Object</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Object interface must be supported by all API types registered with Scheme. Since objects in a scheme are
+</span></span></span><span class="line"><span class="cl"><span class="c1">// expected to be serialized to the wire, the interface an Object must provide to the Scheme allows
+</span></span></span><span class="line"><span class="cl"><span class="c1">// serializers to set the kind, version, and group the object is represented as. An Object may choose
+</span></span></span><span class="line"><span class="cl"><span class="c1">// to return a no-op ObjectKindAccessor in cases where it is not expected to be serialized.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Object</span> <span class="kd">interface</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">GetObjectKind</span><span class="p">()</span> <span class="nx">schema</span><span class="p">.</span><span class="nx">ObjectKind</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">DeepCopyObject</span><span class="p">()</span> <span class="nx">Object</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>API struct 一般会直接内嵌 TypeMeta（这样就继承了 <code>func GetObjectKind() schema.ObjectKind</code>），所以通常还缺少 <code>func DeepCopyObject() Object</code>。</p>
+<p>注释 <code>// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object</code> 就是告诉 deepcopy-gen，这个 struct 需要实现 <a href="https://github.com/kubernetes/kubernetes/blob/4c40d749006a8895f6718f2b624a3dbe975988ab/staging/src/k8s.io/apimachinery/pkg/runtime/interfaces.go#L319-L326">apimachinery/interface runtime.Object</a>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Foo</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span>   <span class="s">`json:&#34;,inline&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span> <span class="s">`json:&#34;metadata,omitempty&#34;`</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Spec</span> <span class="nx">FooSpec</span> <span class="s">`json:&#34;spec&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>生成文件一般和 types.go 同级，名字默认是 <code>zz_generated.deepcopy.go</code></p>
+<p>同时，注意到 <code>doc.go</code> 中有 package 级别声明</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// +k8s:deepcopy-gen=package
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kn">package</span> <span class="nx">v1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个声明告诉 deepcopy-gen 生成基础的深度拷贝函数，生成时按照结构体字段递归为所有复合 struct 生成 DeepCopyInto 和 DeepCopy</p>
+<p>前面的 <code>func DeepCopyObject() Object</code> 就会调用到 <code>func (in *Foo) DeepCopy() *Foo</code></p>
+<p>在 controller、apiserver 编写中，也会经常用到 deepcopy funcs</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">Foo</span><span class="p">)</span> <span class="nf">DeepCopyInto</span><span class="p">(</span><span class="nx">out</span> <span class="o">*</span><span class="nx">Foo</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">Foo</span><span class="p">)</span> <span class="nf">DeepCopy</span><span class="p">()</span> <span class="o">*</span><span class="nx">Foo</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">FooSpec</span><span class="p">)</span> <span class="nf">DeepCopyInto</span><span class="p">(</span><span class="nx">out</span> <span class="o">*</span><span class="nx">FooSpec</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">FooSpec</span><span class="p">)</span> <span class="nf">DeepCopy</span><span class="p">()</span> <span class="o">*</span><span class="nx">FooSpec</span> 
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="defaulter-gen">defaulter-gen</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># pwd </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># github.com/phosae/x-kubernetes/api</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">+=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">defaulter-gen <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -v <span class="s2">&#34;</span><span class="si">${</span><span class="nv">v</span><span class="si">}</span><span class="s2">&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -O zz_generated.defaults <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --go-header-file /tmp/fake-boilerplate.txt <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --output-base /go/src<span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="s2">&#34;</span><span class="si">${</span><span class="nv">inputs</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># generated outputs:</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># - github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1/zz_generated.defaults.go</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># v2 没有提供 defaults 实现，所以没有生成相应文件</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>defaulter-gen 较为有意思，只要在 package 下存在函数 <code>func SetDefaults_TYPE(obj *TYPE)</code>，且提供了 packge 级声明</p>
+<pre><code>// +k8s:defaulter-gen=TypeMeta
+</code></pre>
+<p>注：<code>// +k8s:defaulter-gen=TypeMeta</code> 表示只要 API structs 存在 <code>TypeMeta</code> 字段（也可以是 ObjectMeta、ListMeta），就帮它们生成 Defaults 函数</p>
+<p>举例说明，我在 <a href="https://github.com/phosae/x-kubernetes/blob/v0.0.1/api/hello.zeng.dev/v1/defaults.go">hello.zeng.dev/v1 defaults.go</a> 中提供了符合规范命名的实现</p>
+<pre><code>func SetDefaults_Foo(obj *Foo) {/*... defaulting codes */}
+</code></pre>
+<p>会生成文件 <a href="https://github.com/phosae/x-kubernetes/blob/v0.0.1/api/hello.zeng.dev/v1/zz_generated.defaults.go">hello.zeng.dev/v1 zz_generated.defaults.go</a>，包含这些内容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// 生成的注册函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">RegisterDefaults</span><span class="p">(</span><span class="nx">scheme</span> <span class="o">*</span><span class="nx">runtime</span><span class="p">.</span><span class="nx">Scheme</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">scheme</span><span class="p">.</span><span class="nf">AddTypeDefaultingFunc</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">Foo</span><span class="p">{},</span> <span class="kd">func</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span> <span class="nf">SetObjectDefaults_Foo</span><span class="p">(</span><span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">Foo</span><span class="p">))</span> <span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">scheme</span><span class="p">.</span><span class="nf">AddTypeDefaultingFunc</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">FooList</span><span class="p">{},</span> <span class="kd">func</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span> <span class="nf">SetObjectDefaults_FooList</span><span class="p">(</span><span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">FooList</span><span class="p">))</span> <span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">SetObjectDefaults_Foo</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">Foo</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">SetDefaults_Foo</span><span class="p">(</span><span class="nx">in</span><span class="p">)</span> <span class="c1">// 调用 defaults.go 实现
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">SetObjectDefaults_FooList</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">FooList</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">in</span><span class="p">.</span><span class="nx">Items</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">a</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">in</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">SetObjectDefaults_Foo</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>习惯性地，我们应该在 <a href="https://github.com/phosae/x-kubernetes/blob/v0.0.1/api/hello.zeng.dev/v1/defaults.go">hello.zeng.dev/v1 defaults.go</a> 包装 <code>func RegisterDefaults(scheme *runtime.Scheme) error</code> 暴露给其他函数调用，避免直接依赖生成函数</p>
+<pre><code>func AddDefaultingFuncs(scheme *runtime.Scheme) error {
+    return RegisterDefaults(scheme)
+}
+</code></pre>
+<p>此外，也可以给外部 module 提供的 public API 生成 default func，只需在 <code>doc.go</code> 提供声明 <code>+k8s:defaulter-gen-input</code> 引入外部 package</p>
+<pre><code>// +k8s:defaulter-gen=TypeMeta
+// +k8s:defaulter-gen-input=github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1
+package v1
+</code></pre>
+<p>具体可以参考 <a href="https://github.com/phosae/x-kubernetes/tree/v0.0.1/api-aggregation-lib/pkg/api/hello.zeng.dev/v1">api-aggregation-lib pkg/api/hello.zeng.dev/v1</a></p>
+<p>使用时将外部 module 类型和生成的 default funcs 一起注册到 Schema 即可</p>
+<h3 id="conversion-gen">conversion-gen</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># pwd </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># github.com/phosae/x-kubernetes/api</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">+=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">conversion-gen <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -O zz_generated.conversion <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --go-header-file /tmp/fake-boilerplate.txt <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --output-base /go/src <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="s2">&#34;</span><span class="si">${</span><span class="nv">inputs</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>三种注释声明</p>
+<ul>
+<li>struct level:  // +k8s:conversion-gen:explicit-from=url.Values</li>
+<li>package level: // +k8s:conversion-gen=k8s.io/kubernetes/pkg/apis/apps</li>
+<li>package level: // +k8s:conversion-gen-external-types=k8s.io/api/apps/v1</li>
+</ul>
+<p>conversion-gen 作用是解决多版本 API 类型到统一内部类型转换，它会自动比对外部 struct 和内部 struct 字段，尝试自动生成转换函数。</p>
+<p>以 1.16 之前的官方资源 Deployment 为例，对外存在两个版本 API v1beta1 (k8s.io/api/apps/v1beta1/types.go) 和 v1 (k8s.io/api/apps/v1/types.go)，但是在内存和 etcd 它们都表现为统一的内部 Deployment (k8s.io/kubernetes/pkg/apis/apps/types.go)</p>
+<pre><code>k8s.io/api/apps/v1beta1/types.go Deployment  &lt;---+
+                                                 +---&gt; internal version k8s.io/kubernetes/pkg/apis/apps/types.go Deployment
+k8s.io/api/apps/v1/types.go      Deployment  &lt;---+
+</code></pre>
+<p>转换函数全部放置在 <code>zz_generated.conversion.go</code>。文件头提供一个注册函数 <code>func RegisterConversions</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// file: zz_generated.conversion.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Convert_v1_DeploymentSpec_To_apps_DeploymentSpec is an autogenerated conversion function.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Convert_v1_DeploymentSpec_To_apps_DeploymentSpec</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">out</span> <span class="o">*</span><span class="nx">apps</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">s</span> <span class="nx">conversion</span><span class="p">.</span><span class="nx">Scope</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">autoConvert_apps_DeploymentSpec_To_v1_DeploymentSpec</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">apps</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">out</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">s</span> <span class="nx">conversion</span><span class="p">.</span><span class="nx">Scope</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">autoConvert_apps_DeploymentSpec_To_v1_DeploymentSpec</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">apps</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">out</span> <span class="o">*</span><span class="nx">v1</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">s</span> <span class="nx">conversion</span><span class="p">.</span><span class="nx">Scope</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>需要手动转换的部分，在同目录下 conversion.go 提供 <code>func Convert_&lt;pkg1&gt;_&lt;type&gt;_To_&lt;pkg2&gt;_&lt;type&gt;</code> 并调用 <code>autoConvert_&lt;pkg1&gt;_&lt;type&gt;_To_&lt;pkg2&gt;_&lt;type&gt;</code> 即可</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// file: conversion.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">Convert_apps_DeploymentSpec_To_v1_DeploymentSpec</span><span class="p">(</span><span class="nx">in</span> <span class="o">*</span><span class="nx">apps</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">out</span> <span class="o">*</span><span class="nx">appsv1</span><span class="p">.</span><span class="nx">DeploymentSpec</span><span class="p">,</span> <span class="nx">s</span> <span class="nx">conversion</span><span class="p">.</span><span class="nx">Scope</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">autoConvert_apps_DeploymentSpec_To_v1_DeploymentSpec</span><span class="p">(</span><span class="nx">in</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span> <span class="nx">s</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="nx">err</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// conversion code here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>点击这里查看 <a href="https://github.com/kubernetes/kubernetes/blob/0330fd91f4f49505c34ca32558b2ddad2635eb68/pkg/apis/apps/v1/conversion.go">Deployment v1 conversion</a>，<a href="https://github.com/phosae/x-kubernetes/blob/7fdec41420e59b02112ae79652f9ccc409c9c228/api-aggregation-lib/pkg/api/hello.zeng.dev/v1/conversion.go">hello.zeng.dev/v1 conversion</a> 提供了易于理解的例子。</p>
+<p>如果内部类型和某个外部类型表示完全一致，则不需要写任何手工代码，由 conversion-gen 生成所有转换代码即可，<a href="https://github.com/phosae/x-kubernetes/blob/7fdec41420e59b02112ae79652f9ccc409c9c228/api-aggregation-lib/pkg/api/hello.zeng.dev/v2">hello.zeng.dev/v2 conversion</a> 就是一例。</p>
+<p><code>// +k8s:conversion-gen:explicit-from=&lt;package.type, i.e url.Values&gt;</code> 提供 structs 级别声明，支持指明 structs 一对一转换，Kubernetes 的一个典型场景是 <a href="https://github.com/kubernetes/kubernetes/blob/7cd51541cdc1fab211e22011e76052b997f5ce16/staging/src/k8s.io/apimachinery/pkg/apis/meta/v1/types.go#L318">转换 URL 参数到各种 CRUD options struct</a></p>
+<h3 id="go-to-protobuf">go-to-protobuf</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># pwd </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># github.com/phosae/x-kubernetes/api</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">go-to-protobuf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --proto-import<span class="o">=</span>/go/src <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --proto-import<span class="o">=</span>/go/src/k8s.io/kubernetes/third_party/protobuf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --packages github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1,github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --output-base /go/src/ <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --go-header-file /tmp/fake-boilerplate.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 <code>doc.go</code> 提供 protobuf 生成声明</p>
+<pre><code>// +k8s:protobuf-gen=package
+</code></pre>
+<p>执行 <code>go-to-protobuf</code> 即可生成两个文件: generated.proto 和 generated.pb.go</p>
+<p>generated.proto 是根据 go package 和 go struct 生成的 protobuf (proto 2) 定义</p>
+<p>示例 API structs 内容，注意 field tags protobuf 为自动生成</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">v1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Foo</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span>   <span class="s">`json:&#34;,inline&#34;`</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span> <span class="s">`json:&#34;metadata,omitempty&#34; protobuf:&#34;bytes,1,opt,name=metadata&#34;`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">Spec</span> <span class="nx">FooSpec</span> <span class="s">`json:&#34;spec&#34; protobuf:&#34;bytes,2,opt,name=spec&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">FooSpec</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Msg says hello world!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">Msg</span> <span class="kt">string</span> <span class="s">`json:&#34;msg&#34; protobuf:&#34;bytes,1,opt,name=msg&#34;`</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// Msg1 provides some verbose information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="c1">// +optional
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">Msg1</span> <span class="kt">string</span> <span class="s">`json:&#34;msg1&#34; protobuf:&#34;bytes,2,opt,name=msg1&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">FooList</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">metav1</span><span class="p">.</span><span class="nx">TypeMeta</span> <span class="s">`json:&#34;,inline&#34;`</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">metav1</span><span class="p">.</span><span class="nx">ListMeta</span> <span class="s">`json:&#34;metadata,omitempty&#34; protobuf:&#34;bytes,1,opt,name=metadata&#34;`</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="nx">Items</span> <span class="p">[]</span><span class="nx">Foo</span> <span class="s">`json:&#34;items&#34; protobuf:&#34;bytes,2,rep,name=items&#34;`</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>示例 generated.proto 内容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-proto" data-lang="proto"><span class="line"><span class="cl"><span class="n">syntax</span> <span class="o">=</span> <span class="s">&#34;proto2&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kn">package</span> <span class="nn">github</span><span class="o">.</span><span class="n">com.phosae.x_kubernetes.api.hello.zeng.dev.v1</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">import</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">import</span> <span class="s">&#34;k8s.io/apimachinery/pkg/runtime/generated.proto&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">import</span> <span class="s">&#34;k8s.io/apimachinery/pkg/runtime/schema/generated.proto&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c1">// Package-wide variables from generator &#34;generated&#34;.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">option</span> <span class="n">go_package</span> <span class="o">=</span> <span class="s">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1&#34;</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kd">message</span> <span class="nc">Foo</span> <span class="p">{</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>  <span class="k">optional</span> <span class="n">k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta</span> <span class="n">metadata</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>  <span class="k">optional</span> <span class="n">FooSpec</span> <span class="n">spec</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="p">}</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kd">message</span> <span class="nc">FooList</span> <span class="p">{</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>  <span class="k">optional</span> <span class="n">k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta</span> <span class="n">metadata</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>  <span class="k">repeated</span> <span class="n">Foo</span> <span class="n">items</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="p">}</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="kd">message</span> <span class="nc">FooSpec</span> <span class="p">{</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>  <span class="c1">// Msg says hello world!
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">optional</span> <span class="kt">string</span> <span class="n">msg</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>  <span class="c1">// Msg1 provides some verbose information
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// +optional
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">optional</span> <span class="kt">string</span> <span class="n">msg1</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="p">}</span><span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>generated.pb.go 是根据 generated.proto 生成的 Go 函数集，不再赘述</p>
+<p>有了这两份文件，自定义 apiserver 等实现即可使用 protobuf 与官方 kube-apiserver 传递数据，也可以在 etcd 以 protobuf 格式存储对象。</p>
+<h2 id="-openapi-generator">🔥 OpenAPI Generator</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># project:        github.com/phosae/x-kubernetes</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># API go module:  github.com/phosae/x-kubernetes/api</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v1&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">inputs</span><span class="o">+=(</span><span class="s2">&#34;--input-dirs&#34;</span> <span class="s2">&#34;github.com/phosae/x-kubernetes/api/hello.zeng.dev/v2&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">openapi-gen<span class="s2">&#34; \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    -O zz_generated.openapi \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    --go-header-file </span><span class="si">${</span><span class="nv">PROJECT_ROOT</span><span class="si">}</span><span class="s2">/hack/boilerplate.go.txt&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --output-package github.com/phosae/x-kubernetes/api/generated/openapi<span class="s2">&#34; \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    --report-filename &#34;</span><span class="si">${</span><span class="nv">PROJECT_ROOT</span><span class="si">}</span>/api/api-rules/violation_exceptions.list<span class="s2">&#34; \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    --input-dirs &#34;</span>k8s.io/apimachinery/pkg/apis/meta/v1<span class="s2">&#34; \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    --input-dirs &#34;</span>k8s.io/apimachinery/pkg/runtime<span class="s2">&#34; \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    --input-dirs &#34;</span>k8s.io/apimachinery/pkg/version<span class="s2">&#34; \
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;</span><span class="si">${</span><span class="nv">inputs</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>result</p>
+<pre><code>./github.com/phosae/x-kubernetes/api/generated/openapi/zz_generated.openapi.go
+</code></pre>
+<p>zz_generated.openapi.go 可以被 <code>k8s.io/apiserver</code> 库使用，作为 /openapi/v2 和 /openapi/v3 来源</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">cmd</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">openapinamer</span> <span class="s">&#34;k8s.io/apiserver/pkg/endpoints/openapi&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">genericapiserver</span> <span class="s">&#34;k8s.io/apiserver/pkg/server&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">utilfeature</span> <span class="s">&#34;k8s.io/apiserver/pkg/util/feature&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">ApiserverConfig</span><span class="p">()</span> <span class="o">*</span><span class="nx">genericapiserver</span><span class="p">.</span><span class="nx">RecommendedConfig</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">serverConfig</span> <span class="o">:=</span> <span class="nx">genericapiserver</span><span class="p">.</span><span class="nf">NewRecommendedConfig</span><span class="p">(</span><span class="nx">myapiserver</span><span class="p">.</span><span class="nx">Codecs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// enable OpenAPI schemas
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">namer</span> <span class="o">:=</span> <span class="nx">openapinamer</span><span class="p">.</span><span class="nf">NewDefinitionNamer</span><span class="p">(</span><span class="nx">myapiserver</span><span class="p">.</span><span class="nx">Scheme</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">serverConfig</span><span class="p">.</span><span class="nx">OpenAPIConfig</span> <span class="p">=</span> <span class="nx">genericapiserver</span><span class="p">.</span><span class="nf">DefaultOpenAPIConfig</span><span class="p">(</span><span class="nx">generatedopenapi</span><span class="p">.</span><span class="nx">GetOpenAPIDefinitions</span><span class="p">,</span> <span class="nx">namer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">serverConfig</span><span class="p">.</span><span class="nx">OpenAPIConfig</span><span class="p">.</span><span class="nx">Info</span><span class="p">.</span><span class="nx">Title</span> <span class="p">=</span> <span class="s">&#34;hello.zeng.dev-server&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">serverConfig</span><span class="p">.</span><span class="nx">OpenAPIConfig</span><span class="p">.</span><span class="nx">Info</span><span class="p">.</span><span class="nx">Version</span> <span class="p">=</span> <span class="s">&#34;0.1&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">utilfeature</span><span class="p">.</span><span class="nx">DefaultFeatureGate</span><span class="p">.</span><span class="nf">Enabled</span><span class="p">(</span><span class="nx">features</span><span class="p">.</span><span class="nx">OpenAPIV3</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">serverConfig</span><span class="p">.</span><span class="nx">OpenAPIV3Config</span> <span class="p">=</span> <span class="nx">genericapiserver</span><span class="p">.</span><span class="nf">DefaultOpenAPIV3Config</span><span class="p">(</span><span class="nx">generatedopenapi</span><span class="p">.</span><span class="nx">GetOpenAPIDefinitions</span><span class="p">,</span> <span class="nx">namer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">serverConfig</span><span class="p">.</span><span class="nx">OpenAPIV3Config</span><span class="p">.</span><span class="nx">Info</span><span class="p">.</span><span class="nx">Title</span> <span class="p">=</span> <span class="s">&#34;hello.zeng.dev-server&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">serverConfig</span><span class="p">.</span><span class="nx">OpenAPIV3Config</span><span class="p">.</span><span class="nx">Info</span><span class="p">.</span><span class="nx">Version</span> <span class="p">=</span> <span class="s">&#34;0.1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="-client-generators">🔮 Client Generators</h2>
+<p><a href="https://github.com/kubernetes/client-go">kubernetes/client-go</a> 即是根据 API structs 自动生成，摘录 <a href="https://github.com/kubernetes/kubernetes/blob/7cd51541cdc1fab211e22011e76052b997f5ce16/hack/update-codegen.sh">hack/update-codegen.sh</a> 如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="nx">applyconfiguration</span><span class="o">-</span><span class="nx">gen</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">openapi</span><span class="o">-</span><span class="nx">schema</span> <span class="p">&lt;(</span><span class="s">&#34;${modelsschema}&#34;</span><span class="p">)</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="k">go</span><span class="o">-</span><span class="nx">header</span><span class="o">-</span><span class="nx">file</span> <span class="s">&#34;hack/boilerplate/boilerplate.generatego.tx&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="nx">base</span> <span class="s">&#34;${KUBE_ROOT}/vendor&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="kn">package</span> <span class="nx">k8s</span><span class="p">.</span><span class="nx">io</span><span class="o">/</span><span class="nx">client</span><span class="o">-</span><span class="k">go</span><span class="o">/</span><span class="nx">applyconfigurations</span> \
+</span></span><span class="line"><span class="cl">    <span class="err">$</span><span class="p">(</span><span class="nx">printf</span> <span class="o">--</span> <span class="s">&#34; --input-dirs %s&#34;</span> <span class="s">&#34;${ext_apis[@]}&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="nx">client</span><span class="o">-</span><span class="nx">gen</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="k">go</span><span class="o">-</span><span class="nx">header</span><span class="o">-</span><span class="nx">file</span> <span class="s">&#34;hack/boilerplate/boilerplate.generatego.tx&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="nx">base</span> <span class="s">&#34;${KUBE_ROOT}/vendor&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="kn">package</span><span class="p">=</span><span class="s">&#34;k8s.io/client-go&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">clientset</span><span class="o">-</span><span class="nx">name</span><span class="p">=</span><span class="s">&#34;kubernetes&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">input</span><span class="o">-</span><span class="nx">base</span><span class="p">=</span><span class="s">&#34;k8s.io/api&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">apply</span><span class="o">-</span><span class="nx">configuration</span><span class="o">-</span><span class="kn">package</span> <span class="nx">k8s</span><span class="p">.</span><span class="nx">io</span><span class="o">/</span><span class="nx">client</span><span class="o">-</span><span class="k">go</span><span class="o">/</span><span class="nx">applyconfigurations</span> \
+</span></span><span class="line"><span class="cl">    <span class="err">$</span><span class="p">(</span><span class="nx">printf</span> <span class="o">--</span> <span class="s">&#34; --input %s&#34;</span> <span class="s">&#34;${gv_dirs[@]}&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="nx">lister</span><span class="o">-</span><span class="nx">gen</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="k">go</span><span class="o">-</span><span class="nx">header</span><span class="o">-</span><span class="nx">file</span> <span class="s">&#34;hack/boilerplate/boilerplate.generatego.tx&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="nx">base</span> <span class="s">&#34;${KUBE_ROOT}/vendor&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="kn">package</span> <span class="s">&#34;k8s.io/client-go/listers&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="err">$</span><span class="p">(</span><span class="nx">printf</span> <span class="o">--</span> <span class="s">&#34; --input-dirs %s&#34;</span> <span class="s">&#34;${ext_apis[@]}&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">---</span>
+</span></span><span class="line"><span class="cl"><span class="nx">informer</span><span class="o">-</span><span class="nx">gen</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="k">go</span><span class="o">-</span><span class="nx">header</span><span class="o">-</span><span class="nx">file</span> <span class="s">&#34;hack/boilerplate/boilerplate.generatego.tx&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="nx">base</span> <span class="s">&#34;${KUBE_ROOT}/vendor&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">output</span><span class="o">-</span><span class="kn">package</span> <span class="s">&#34;k8s.io/client-go/informers&#34;</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">single</span><span class="o">-</span><span class="nx">directory</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">versioned</span><span class="o">-</span><span class="nx">clientset</span><span class="o">-</span><span class="kn">package</span> <span class="nx">k8s</span><span class="p">.</span><span class="nx">io</span><span class="o">/</span><span class="nx">client</span><span class="o">-</span><span class="k">go</span><span class="o">/</span><span class="nx">kubernetes</span> \
+</span></span><span class="line"><span class="cl">    <span class="o">--</span><span class="nx">listers</span><span class="o">-</span><span class="kn">package</span> <span class="nx">k8s</span><span class="p">.</span><span class="nx">io</span><span class="o">/</span><span class="nx">client</span><span class="o">-</span><span class="k">go</span><span class="o">/</span><span class="nx">listers</span> \
+</span></span><span class="line"><span class="cl">    <span class="err">$</span><span class="p">(</span><span class="nx">printf</span> <span class="o">--</span> <span class="s">&#34; --input-dirs %s&#34;</span> <span class="s">&#34;${ext_apis[@]}&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>注: applyconfiguration-gen 参数 &ndash;openapi-schema 为可选。送了会生成额外的 ExtractTYPE 函数。如</p>
+<pre><code>func ExtractPod(pod *apicorev1.Pod, fieldManager string) (*PodApplyConfiguration, error)  ----------------+
+                                                                                                          |
+func ExtractPodStatus(pod *apicorev1.Pod, fieldManager string) (*PodApplyConfiguration, error) -----------+
+                                                                                                          ⬇️ 
+func extractPod(pod *apicorev1.Pod, fieldManager string, subresource string) (*PodApplyConfiguration, error)
+</code></pre>
+<p>生成结果即是 <a href="https://github.com/kubernetes/client-go">kubernetes/client-go</a> 中的熟悉结构</p>
+<pre><code>tree -L 1 client-go
+client-go
+├── applyconfigurations  # by applyconfiguration-gen
+├── informers            # by informer-gen
+├── kubernetes           # by client-gen
+├── listers              # by lister-gen
+</code></pre>
+<p>client-gen 注释参数较多，可以查阅 <a href="https://github.com/kubernetes/community/blob/master/contributors/devel/sig-api-machinery/generating-clientset.md">K8s community generating-clientset.md</a></p>
+<h3 id="client-example">client example</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">apiv1</span> <span class="s">&#34;k8s.io/api/core/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">metav1</span> <span class="s">&#34;k8s.io/apimachinery/pkg/apis/meta/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">applyv1</span> <span class="s">&#34;k8s.io/client-go/applyconfigurations/core/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/util/homedir&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">homedir</span><span class="p">.</span><span class="nf">HomeDir</span><span class="p">()</span><span class="o">+</span><span class="s">&#34;/.kube/config&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">podClient</span> <span class="o">:=</span> <span class="nx">clientset</span><span class="p">.</span><span class="nf">CoreV1</span><span class="p">().</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">apiv1</span><span class="p">.</span><span class="nx">NamespaceDefault</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">pod</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">apiv1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">ObjectMeta</span><span class="p">:</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ObjectMeta</span><span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;testpd&#34;</span><span class="p">,</span> <span class="nx">Labels</span><span class="p">:</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;app&#34;</span><span class="p">:</span> <span class="s">&#34;test&#34;</span><span class="p">}},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">Spec</span><span class="p">:</span> <span class="nx">apiv1</span><span class="p">.</span><span class="nx">PodSpec</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Containers</span><span class="p">:</span> <span class="p">[]</span><span class="nx">apiv1</span><span class="p">.</span><span class="nx">Container</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="p">{</span><span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;busybox&#34;</span><span class="p">,</span> <span class="nx">Image</span><span class="p">:</span> <span class="s">&#34;busybox:1.36&#34;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">			<span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">result</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">podClient</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">pod</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">CreateOptions</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Created pod %q.\n&#34;</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nf">GetObjectMeta</span><span class="p">().</span><span class="nf">GetName</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nx">podClient</span><span class="p">.</span><span class="nf">Delete</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="nx">pod</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">DeleteOptions</span><span class="p">{})</span> <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// similar to: kubectl patch pod/testpd -p &#39;{&#34;metadata&#34;: {&#34;labels&#34;: {&#34;hello&#34;: &#34;world&#34;}}}&#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">podApplyCfg</span> <span class="o">:=</span> <span class="nx">applyv1</span><span class="p">.</span><span class="nf">Pod</span><span class="p">(</span><span class="s">&#34;testpd&#34;</span><span class="p">,</span> <span class="nx">apiv1</span><span class="p">.</span><span class="nx">NamespaceDefault</span><span class="p">).</span><span class="nf">WithLabels</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">{</span><span class="s">&#34;hello&#34;</span><span class="p">:</span> <span class="s">&#34;world&#34;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">applyRet</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">podClient</span><span class="p">.</span><span class="nf">Apply</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="nx">podApplyCfg</span><span class="p">,</span> <span class="nx">metav1</span><span class="p">.</span><span class="nx">ApplyOptions</span><span class="p">{</span><span class="nx">FieldManager</span><span class="p">:</span> <span class="s">&#34;example&#34;</span><span class="p">,</span> <span class="nx">Force</span><span class="p">:</span> <span class="kc">false</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Pod/%s labels:\n&#34;</span><span class="p">,</span> <span class="nx">applyRet</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">ak</span><span class="p">,</span> <span class="nx">av</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">applyRet</span><span class="p">.</span><span class="nx">Labels</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;\t%s: %v\n&#34;</span><span class="p">,</span> <span class="nx">ak</span><span class="p">,</span> <span class="nx">av</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="c1">///~ ouput:
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">Created pod &#34;testpd&#34;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">Pod/testpd labels:
+</span></span></span><span class="line"><span class="cl"><span class="cm">        app: test
+</span></span></span><span class="line"><span class="cl"><span class="cm">        hello: world
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="watch-example">watch example</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;context&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">apiv1</span> <span class="s">&#34;k8s.io/api/core/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">coreinformers</span> <span class="s">&#34;k8s.io/client-go/informers/core/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/kubernetes&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">corelisters</span> <span class="s">&#34;k8s.io/client-go/listers/core/v1&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/cache&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/tools/clientcmd&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;k8s.io/client-go/util/homedir&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithTimeout</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">(),</span> <span class="mi">5</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">config</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">clientcmd</span><span class="p">.</span><span class="nf">BuildConfigFromFlags</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">homedir</span><span class="p">.</span><span class="nf">HomeDir</span><span class="p">()</span><span class="o">+</span><span class="s">&#34;/.kube/config&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">clientset</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">kubernetes</span><span class="p">.</span><span class="nf">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// normally K8s Objects are KV based
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// client cache+indexers address this limit to some extent
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// for example we can group pods by nodeName
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kd">var</span> <span class="nx">podInformer</span> <span class="p">=</span> <span class="nx">coreinformers</span><span class="p">.</span><span class="nf">NewFilteredPodInformer</span><span class="p">(</span><span class="nx">clientset</span><span class="p">,</span> <span class="nx">apiv1</span><span class="p">.</span><span class="nx">NamespaceDefault</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">cache</span><span class="p">.</span><span class="nx">Indexers</span><span class="p">{</span><span class="s">&#34;spec.NodeName&#34;</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span><span class="nx">obj</span><span class="p">.(</span><span class="o">*</span><span class="nx">apiv1</span><span class="p">.</span><span class="nx">Pod</span><span class="p">).</span><span class="nx">Spec</span><span class="p">.</span><span class="nx">NodeName</span><span class="p">},</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}},</span> <span class="kc">nil</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// pods, _ := podInformer.GetIndexer().ByIndex(&#34;spec.NodeName&#34;, &#34;node-1&#34;)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="nx">podInformer</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">!</span><span class="nx">podInformer</span><span class="p">.</span><span class="nf">HasSynced</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">podLister</span> <span class="p">=</span> <span class="nx">corelisters</span><span class="p">.</span><span class="nf">NewPodLister</span><span class="p">(</span><span class="nx">podInformer</span><span class="p">.</span><span class="nf">GetIndexer</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">result</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">podLister</span><span class="p">.</span><span class="nf">Pods</span><span class="p">(</span><span class="nx">apiv1</span><span class="p">.</span><span class="nx">NamespaceDefault</span><span class="p">).</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;testpd&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Get pod/%q from cache .\n&#34;</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nf">GetObjectMeta</span><span class="p">().</span><span class="nf">GetName</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// using event handlers do business when Pod Object changes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">podInformer</span><span class="p">.</span><span class="nf">AddEventHandler</span><span class="p">(</span><span class="nx">cache</span><span class="p">.</span><span class="nx">ResourceEventHandlerFuncs</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">AddFunc</span><span class="p">:</span>    <span class="kd">func</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span> <span class="cm">/**/</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">UpdateFunc</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">oldObj</span><span class="p">,</span> <span class="nx">newObj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span> <span class="cm">/**/</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">DeleteFunc</span><span class="p">:</span> <span class="kd">func</span><span class="p">(</span><span class="nx">obj</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span> <span class="cm">/**/</span> <span class="p">},</span>
+</span></span><span class="line"><span class="cl">	<span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="-all-in-one-script">🥷 All in One Script</h2>
+<p>上述 Generators 中许多参数存在重复，针对这个问题 <a href="https://github.com/kubernetes/code-generator">kubernetes/code-generator</a> 早先提供了 generate-groups.sh 和 /generate-internal-groups.sh 脚本批量生成。1.28 alpha 之后则提供了表述更清晰更好维护的脚本 kube_codegen.sh。</p>
+<p>另外，上述 Generator 均假设项目放置在 GOPATH 下，如 github.com/phosae/x-kubernetes/api 路径应为 ${GOPATH}/github.com/phosae/x-kubernetes/api。
+之后在对应项目路径下执行生成命令，Generator 才能正常工作，造成了一定不便。</p>
+<p>所以最好的方式是在容器环境生成代码，事先准备好容器镜像，运行时将项目挂载到容器 GOPATH 下，一键生成即可。
+<a href="https://github.com/phosae/x-kubernetes/tree/master/api">x-kubernetes/api</a> 和 <a href="https://github.com/phosae/x-kubernetes/tree/65956d7aac13a804e35635de53ed9f8989351c26/api-aggregation-lib">x-kubernetes/api-aggregation-lib</a> 即利用了这种方式生成代码。</p>
+<p>Public API module: github.com/phosae/x-kubernetes/api 运行 <a href="https://github.com/phosae/x-kubernetes/blob/65956d7aac13a804e35635de53ed9f8989351c26/api/hack/update-codegen-docker.sh">./hack/update-codegen-docker.sh</a> 结果如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">tree -L 2 hello.zeng.dev generated/
+</span></span><span class="line"><span class="cl">hello.zeng.dev
+</span></span><span class="line"><span class="cl">├── install.go
+</span></span><span class="line"><span class="cl">├── register.go
+</span></span><span class="line"><span class="cl">├── v1
+</span></span><span class="line"><span class="cl">│   ├── defaults.go
+</span></span><span class="line"><span class="cl">│   ├── doc.go
+</span></span><span class="line"><span class="cl">│   ├── generated.pb.go
+</span></span><span class="line"><span class="cl">│   ├── generated.proto
+</span></span><span class="line"><span class="cl">│   ├── register.go
+</span></span><span class="line"><span class="cl">│   ├── types.go
+</span></span><span class="line"><span class="cl">│   ├── zz_generated.deepcopy.go
+</span></span><span class="line"><span class="cl">│   └── zz_generated.defaults.go
+</span></span><span class="line"><span class="cl">└── v2
+</span></span><span class="line"><span class="cl">    ├── doc.go
+</span></span><span class="line"><span class="cl">    ├── generated.pb.go
+</span></span><span class="line"><span class="cl">    ├── generated.proto
+</span></span><span class="line"><span class="cl">    ├── register.go
+</span></span><span class="line"><span class="cl">    ├── types.go
+</span></span><span class="line"><span class="cl">    └── zz_generated.deepcopy.go
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">generated/
+</span></span><span class="line"><span class="cl">├── applyconfiguration
+</span></span><span class="line"><span class="cl">│   ├── hello.zeng.dev
+</span></span><span class="line"><span class="cl">│   ├── internal
+</span></span><span class="line"><span class="cl">│   └── utils.go
+</span></span><span class="line"><span class="cl">├── clientset
+</span></span><span class="line"><span class="cl">│   └── versioned
+</span></span><span class="line"><span class="cl">├── examples
+</span></span><span class="line"><span class="cl">│   ├── client
+</span></span><span class="line"><span class="cl">│   ├── README.md
+</span></span><span class="line"><span class="cl">│   └── watch
+</span></span><span class="line"><span class="cl">├── informers
+</span></span><span class="line"><span class="cl">│   └── externalversions
+</span></span><span class="line"><span class="cl">├── listers
+</span></span><span class="line"><span class="cl">│   └── hello.zeng.dev
+</span></span><span class="line"><span class="cl">└── openapi
+</span></span><span class="line"><span class="cl">    └── zz_generated.openapi.go
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>apiserver module: github.com/phosae/x-kubernetes/api-aggregation-lib 运行 <a href="https://github.com/phosae/x-kubernetes/blob/65956d7aac13a804e35635de53ed9f8989351c26/api-aggregation-lib/hack/update-codegen-docker.sh">./hack/update-codegen-docker.sh</a> 结果如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">pkg                            # internal APIs   
+</span></span><span class="line"><span class="cl">├── api
+</span></span><span class="line"><span class="cl">│   └── hello.zeng.dev
+</span></span><span class="line"><span class="cl">│       ├── install                
+</span></span><span class="line"><span class="cl">│       │   └── install.go
+</span></span><span class="line"><span class="cl">│       ├── v1
+</span></span><span class="line"><span class="cl">│       │   ├── conversion.go  # conversion funcs v1 ---&gt; internal type
+</span></span><span class="line"><span class="cl">│       │   ├── defaults.go    # default funcs v1
+</span></span><span class="line"><span class="cl">│       │   ├── doc.go         # packge 级别生成声明
+</span></span><span class="line"><span class="cl">│       │   ├── register.go    # 注册 API Structs
+</span></span><span class="line"><span class="cl">│       │   ├── zz_generated.conversion.go
+</span></span><span class="line"><span class="cl">│       │   └── zz_generated.defaults.go
+</span></span><span class="line"><span class="cl">│       ├── v2
+</span></span><span class="line"><span class="cl">│       │   ├── defaults.go    # default funcs v2
+</span></span><span class="line"><span class="cl">│       │   ├── doc.go         # packge 级别生成声明
+</span></span><span class="line"><span class="cl">│       │   ├── register.go    # 注册 API Structs     
+</span></span><span class="line"><span class="cl">│       │   ├── zz_generated.conversion.go
+</span></span><span class="line"><span class="cl">│       │   └── zz_generated.defaults.go
+</span></span><span class="line"><span class="cl">│       ├── doc.go
+</span></span><span class="line"><span class="cl">│       ├── register.go
+</span></span><span class="line"><span class="cl">│       ├── types.go           # internal type all api versions, include v1 and v2
+</span></span><span class="line"><span class="cl">│       └── zz_generated.deepcopy.go
+</span></span><span class="line"><span class="cl">├── apiserver
+</span></span><span class="line"><span class="cl">..
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Public API 生成前后 PR 对比</p>
+<ul>
+<li><a href="https://github.com/phosae/x-kubernetes/commit/8cc7165a09ea4f01f3f4c132e20e5c060910f379">PR api: add hello.zeng.dev/v2</a></li>
+<li><a href="https://github.com/phosae/x-kubernetes/commit/6ef463dc1d251f2f267de9598e98453cbad3fe57">PR api: gen v2 codes</a></li>
+</ul>
+<p>Internal API 生成前后 PR 对比</p>
+<ul>
+<li><a href="https://github.com/phosae/x-kubernetes/commit/7f30c3df7fe46ca87597e7f0c4d71edb464c4532">PR apiserver-by-lib: add hello.zeng.dev/v2 internal</a></li>
+<li><a href="https://github.com/phosae/x-kubernetes/commit/e9ab0750243bb7132074bc1e4afc14a8e9988c78">PR apiserver-by-lib: gen hello.zeng.dev/v2 internal codes</a></li>
+</ul>
+<p>👋👋👋 容器一键生成镜像代码库在 <a href="https://github.com/phosae/kube-code-generator">phosae/kube-code-generator</a>，欢迎 PR</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-11 15:36
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/code-generation/">code-generation</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2023-k8s-apiserver-using-library/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">使用 library 实现 K8s apiserver</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2023-k8s-apiserver-aggregation-internals/">
+            <span class="next-text nav-default">搞懂 K8s apiserver aggregation</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2023-06-05 18:08:17 \u002b0800 \u002b0800',
+        title: '最不厌其烦的 K8s 代码生成教程',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

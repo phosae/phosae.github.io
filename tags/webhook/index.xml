@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>webhook on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/webhook/</link>
+    <description>Recent content in webhook on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 19 Jun 2023 23:19:35 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/webhook/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>K8s API Admission Control and Policy</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-admission/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-admission/</guid>
+      <description>This post provides an overview of Admission Controllers in Kubernetes, including their implementation and usage. Third-party admission controllers can be integrated into kube-apiserver by implementing them as admission webhooks. Many policy engines have appeared in the community on top of admission webhooks. This post introduces two policy engines, OPA/Gatekeeper and Kyverno. Finally, it covers the official policy engine, ValidatingAdmissionPolicy.</description>
+    </item>
+    
+    <item>
+      <title>K8s 多版本 API 转换最佳实践</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</guid>
+      <description>规范的 K8s APIVersion 往往会经历由 alpha 到 beta 最后到 stable 的过程，API 转换就成了应有之义。本文提供多版本 API 转换的最佳实践。本文详细讲述了基于 CRD 提供多版本 API 时的困境和解决办法，并提供了一个基于最佳实践的 Conversion Webhook Server 实现</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes admission webhook server 开发教程</title>
+      <link>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</link>
+      <pubDate>Sun, 08 Aug 2021 21:11:28 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</guid>
+      <description>How to implement a Kubernetes validating admission webhook</description>
+    </item>
+    
+  </channel>
+</rss>

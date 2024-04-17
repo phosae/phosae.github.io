@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/</link>
+    <description>Recent content on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 26 Mar 2024 15:31:54 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训</title>
+      <link>https://www.zeng.dev/post/2024-kubernetes-upgrade-lessons/</link>
+      <pubDate>Tue, 26 Mar 2024 15:31:54 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2024-kubernetes-upgrade-lessons/</guid>
+      <description>Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训</description>
+    </item>
+    
+    <item>
+      <title>Notes on Retriable HTTP Client (with Golang/Rust example</title>
+      <link>https://www.zeng.dev/post/2023-retriable-http-client/</link>
+      <pubDate>Fri, 22 Dec 2023 17:46:10 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-retriable-http-client/</guid>
+      <description>Notes on Retriable Http Client (with Golang/Rust example</description>
+    </item>
+    
+    <item>
+      <title>v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录</title>
+      <link>https://www.zeng.dev/post/2023-kubernetes-upgrade-1.14-1.21/</link>
+      <pubDate>Thu, 30 Nov 2023 16:58:24 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-kubernetes-upgrade-1.14-1.21/</guid>
+      <description>v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录</description>
+    </item>
+    
+    <item>
+      <title>Calico ➕ KubeOVN —— 为 KubeVirt VMs 提供受限的 underlay 网络访问</title>
+      <link>https://www.zeng.dev/post/2023-kubevirt-mix-kubeovn-calico/</link>
+      <pubDate>Sun, 13 Aug 2023 10:17:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-kubevirt-mix-kubeovn-calico/</guid>
+      <description>Calico ➕ KubeOVN - providing restricted underlay network access for KubeVirt VMs</description>
+    </item>
+    
+    <item>
+      <title>K8s API Admission Control and Policy</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-admission/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:35 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-admission/</guid>
+      <description>This post provides an overview of Admission Controllers in Kubernetes, including their implementation and usage. Third-party admission controllers can be integrated into kube-apiserver by implementing them as admission webhooks. Many policy engines have appeared in the community on top of admission webhooks. This post introduces two policy engines, OPA/Gatekeeper and Kyverno. Finally, it covers the official policy engine, ValidatingAdmissionPolicy.</description>
+    </item>
+    
+    <item>
+      <title>K8s 多版本 API 转换最佳实践</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</link>
+      <pubDate>Mon, 19 Jun 2023 23:19:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-multi-version-conversion-best-practice/</guid>
+      <description>规范的 K8s APIVersion 往往会经历由 alpha 到 beta 最后到 stable 的过程，API 转换就成了应有之义。本文提供多版本 API 转换的最佳实践。本文详细讲述了基于 CRD 提供多版本 API 时的困境和解决办法，并提供了一个基于最佳实践的 Conversion Webhook Server 实现</description>
+    </item>
+    
+    <item>
+      <title>慎重选用 Runtime 类框架开发 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-avoid-using-runtime/</link>
+      <pubDate>Sun, 18 Jun 2023 16:09:27 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-avoid-using-runtime/</guid>
+      <description>apiserver-runtime 本身也是基于 k8s.io/apiserver 提供增强。当项目需要灵活定制策略时，就不可避免需要直接使用底层库。结果是，开发者除了要熟悉 k8s.io 库，还需要再学一套框架。那为什么不从一开始直接使用 k8s.io/apiserver？</description>
+    </item>
+    
+    <item>
+      <title>使用 library 实现 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</link>
+      <pubDate>Wed, 07 Jun 2023 16:11:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</guid>
+      <description>理解 K8s apiserver 的最好方式就是自己动手实现同款</description>
+    </item>
+    
+    <item>
+      <title>最不厌其烦的 K8s 代码生成教程</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-codegen/</link>
+      <pubDate>Mon, 05 Jun 2023 18:08:17 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-codegen/</guid>
+      <description>彻底而全面的梳理，甚至提供了复制即用的脚本和镜像&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>搞懂 K8s apiserver aggregation</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-aggregation-internals/</link>
+      <pubDate>Wed, 31 May 2023 18:46:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-aggregation-internals/</guid>
+      <description>全图文展示 apiserver aggregation 原理，彻底搞懂 APIService 和 custom apiserver 认证授权 (authn, authz)</description>
+    </item>
+    
+    <item>
+      <title>实现一个极简 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/</guid>
+      <description>本文实现了一个符合 Kubernetes REST 风格的极简 apiserver，代码量只有 500 行左右。无论是单独运行还是集成到 K8s 集群，它都支持 kubectl 增删改查操作。动手把玩这个 apiserver，可以很好理解 K8s apiserver aggregation 原理，以及 kubectl 与 apiserver 的交互机制</description>
+    </item>
+    
+    <item>
+      <title>K8s CustomResourceDefinitions (CRD) 原理</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-by-crd/</link>
+      <pubDate>Fri, 19 May 2023 10:09:09 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-by-crd/</guid>
+      <description>K8s CustomResourceDefinition (CRD) 为使用者提供了开箱即用的 REST API 拓展能力。使用方只需创建一份 CRD 声明，kube-apiserver 就会自动提供一套成熟的 HTTP REST API，并直接将 Custom Resources 存储到背后存储（通常是 etcd）中。本文由浅入深，先展示了 CRD 的基本使用方式、kubectl 与对应 Custom API 模块的交互原理，再深入探究 CRD 在 kube-apiserver 内部的实现原理，最后对其特性的利弊做了总结</description>
+    </item>
+    
+    <item>
+      <title>Enable Kubelet Serving Certificates in Kubernetes Setup by Kubeadmin</title>
+      <link>https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/</link>
+      <pubDate>Sat, 22 Apr 2023 10:01:25 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-kubeadm-enable-kubelet-serving-certs/</guid>
+      <description>Setting up a Kubernetes cluster with a newly deployed metrics server often results in the following error message: &lt;code&gt;Failed to scrape node, err=Get https://172.18.0.3:10250/metrics/resource: x509: cannot validate certificate for 172.18.0.3 because it doesn&#39;t contain any IP SANs node=kind-worker&lt;/code&gt;. This can be frustrating. In this post, I will demonstrate how to solve this problem in KinD.</description>
+    </item>
+    
+    <item>
+      <title>REST: Part 2 - HTTP 缓存</title>
+      <link>https://www.zeng.dev/post/2023-rest-part2-cache/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part2-cache/</guid>
+      <description>HTTP REST 缓存简述</description>
+    </item>
+    
+    <item>
+      <title>REST: Part 1 - HTTP API 设计思路</title>
+      <link>https://www.zeng.dev/post/2023-rest-part1-api/</link>
+      <pubDate>Wed, 05 Apr 2023 15:28:41 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part1-api/</guid>
+      <description>HTTP REST API 通用设计思路</description>
+    </item>
+    
+    <item>
+      <title>Http Range Request and MP4 Video Play in Browser</title>
+      <link>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</link>
+      <pubDate>Wed, 08 Mar 2023 10:51:20 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-http-range-and-play-mp4-in-browser/</guid>
+      <description>HTTP range request is a widely used feature when it comes to file resource. Besides covering basic concept of range request, this blog show how HTTP range request works in browsers. Behaviors of Chrome, FireFox and Safari are coverd. several sample HTTP servers written in Golang are used to trick browsers.</description>
+    </item>
+    
+    <item>
+      <title>Terminate Container in Responsive and Graceful Way</title>
+      <link>https://www.zeng.dev/post/2023-handle-container-terminating/</link>
+      <pubDate>Mon, 27 Feb 2023 08:00:59 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-handle-container-terminating/</guid>
+      <description>Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want.</description>
+    </item>
+    
+    <item>
+      <title>虚拟网络环境中 Docker MTU 问题及解决方式</title>
+      <link>https://www.zeng.dev/post/2022-the-docker-mtu-problem/</link>
+      <pubDate>Fri, 18 Nov 2022 18:11:28 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-the-docker-mtu-problem/</guid>
+      <description>在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题</description>
+    </item>
+    
+    <item>
+      <title>K8s Internal Authentication/Authorization and mTLS</title>
+      <link>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</link>
+      <pubDate>Mon, 01 Aug 2022 16:13:12 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-k8s-internal-authn-authz/</guid>
+      <description>Notes on secure communication (authentication and authorization) between Kubernetes components</description>
+    </item>
+    
+    <item>
+      <title>Generate Self-Signed Certificate</title>
+      <link>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</link>
+      <pubDate>Wed, 06 Jul 2022 14:16:05 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2022-gen-self-signed-certificate/</guid>
+      <description>Notes on generating a self-signed certificate using OpenSSL, CFSSL, and Golang</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes admission webhook server 开发教程</title>
+      <link>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</link>
+      <pubDate>Sun, 08 Aug 2021 21:11:28 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/</guid>
+      <description>How to implement a Kubernetes validating admission webhook</description>
+    </item>
+    
+    <item>
+      <title>各种容器运行时都解决了什么问题</title>
+      <link>https://www.zeng.dev/post/2020-container-runtimes/</link>
+      <pubDate>Wed, 01 Jul 2020 17:31:56 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2020-container-runtimes/</guid>
+      <description>容器运行时原理小综述</description>
+    </item>
+    
+    <item>
+      <title>理解 OCI</title>
+      <link>https://www.zeng.dev/post/20200510-container-oci/</link>
+      <pubDate>Sun, 10 May 2020 22:43:15 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/20200510-container-oci/</guid>
+      <description>Dive into Open Container Initiative</description>
+    </item>
+    
+    <item>
+      <title>如何迁移 Spring Cloud Eureka 注册体系至 k8s</title>
+      <link>https://www.zeng.dev/post/20200428-eureka-multil-cluster-replica/</link>
+      <pubDate>Tue, 28 Apr 2020 20:32:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/20200428-eureka-multil-cluster-replica/</guid>
+      <description>优雅处理 Eureka 跨集群同步</description>
+    </item>
+    
+    <item>
+      <title>从定时任务分析 Eureka 架构设计</title>
+      <link>https://www.zeng.dev/post/20200425-eureka-schedule-tasks/</link>
+      <pubDate>Sat, 25 Apr 2020 20:40:29 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/20200425-eureka-schedule-tasks/</guid>
+      <description>扒一扒 Eureka 中的定时任务</description>
+    </item>
+    
+    <item>
+      <title>搭建树莓派 k8s 集群</title>
+      <link>https://www.zeng.dev/post/20200405-raspberry-pi-cluster/</link>
+      <pubDate>Sun, 05 Apr 2020 10:00:00 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/20200405-raspberry-pi-cluster/</guid>
+      <description>自己动手，丰衣足食，利用开发板搭建本地 k8s 集群</description>
+    </item>
+    
+    <item>
+      <title>containerd 手动导入镜像</title>
+      <link>https://www.zeng.dev/post/2020-containerd-image-import/</link>
+      <pubDate>Sun, 05 Jan 2020 21:40:48 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2020-containerd-image-import/</guid>
+      <description>注意 containerd namespace 概念</description>
+    </item>
+    
+    <item>
+      <title>里尔克 《秋日》</title>
+      <link>https://www.zeng.dev/post/%E7%A7%8B%E6%97%A5/</link>
+      <pubDate>Wed, 02 Oct 2019 17:15:27 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/%E7%A7%8B%E6%97%A5/</guid>
+      <description>夏天盛极一时</description>
+    </item>
+    
+    <item>
+      <title>Java &amp; Go 并发编程对比</title>
+      <link>https://www.zeng.dev/post/2019-java2go-concurrency/</link>
+      <pubDate>Mon, 15 Jul 2019 16:55:32 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2019-java2go-concurrency/</guid>
+      <description>Java &amp;amp; Go 并发编程对比</description>
+    </item>
+    
+    <item>
+      <title>Java 类型擦除与泛型信息恢复</title>
+      <link>https://www.zeng.dev/post/2019-java-generic/</link>
+      <pubDate>Sun, 23 Jun 2019 08:15:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2019-java-generic/</guid>
+      <description>类型擦除（Type Erasure）其实潜藏着 2 层概念：对于 JVM 而言，泛型参数被擦除了；对于 Java 语言来说，泛型信息得到了很大程度保留</description>
+    </item>
+    
+    <item>
+      <title>Spring Boot 配置探幽</title>
+      <link>https://www.zeng.dev/post/2019-spring-config-intro/</link>
+      <pubDate>Mon, 03 Jun 2019 23:56:06 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2019-spring-config-intro/</guid>
+      <description>介绍 SpringBoot YAML 和 properties 的对应关系，以及 @ConfigurationProperties 与 @Value 差异</description>
+    </item>
+    
+    <item>
+      <title>正则组匹配</title>
+      <link>https://www.zeng.dev/post/2019-regex-group/</link>
+      <pubDate>Thu, 09 May 2019 00:34:10 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2019-regex-group/</guid>
+      <description>Regex group puzzles</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://www.zeng.dev/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.zeng.dev/about/</guid>
+      <description>软件工程师，目前从事 K8s、Cloud Native 相关开发，喜欢看书、写文、发呆。 订阅号</description>
+    </item>
+    
+  </channel>
+</rss>

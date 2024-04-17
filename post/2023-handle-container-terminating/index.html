@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Terminate Container in Responsive and Graceful Way - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want." /><meta name="keywords" content="container, init, pid1, docker, kubernetes, rust" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2023-handle-container-terminating/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Terminate Container in Responsive and Graceful Way" />
+<meta property="og:description" content="Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2023-handle-container-terminating/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-02-27T08:00:59+08:00" />
+<meta property="article:modified_time" content="2023-02-27T08:00:59+08:00" />
+<meta itemprop="name" content="Terminate Container in Responsive and Graceful Way">
+<meta itemprop="description" content="Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want."><meta itemprop="datePublished" content="2023-02-27T08:00:59+08:00" />
+<meta itemprop="dateModified" content="2023-02-27T08:00:59+08:00" />
+<meta itemprop="wordCount" content="1665">
+<meta itemprop="keywords" content="container,init,pid1,docker,kubernetes,rust,en," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Terminate Container in Responsive and Graceful Way"/>
+<meta name="twitter:description" content="Running application in container as PID 1 is quite common today, shutdown application responsively and gracefully is hard. This article show how PID 1 behave in container and provides serveral ways to make container shutdown as we want."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Terminate Container in Responsive and Graceful Way</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-02-27 08:00 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#container-context-and-pid-1">Container Context and PID 1</a></li>
+    <li><a href="#pid-1-behavior">PID 1 Behavior</a></li>
+    <li><a href="#solution-for-entrypoint-is-application-binary">Solution for entrypoint is application binary</a></li>
+    <li><a href="#solution-for-entrypoint-script">Solution for entrypoint script</a></li>
+    <li><a href="#child-reaping">child reaping</a></li>
+    <li><a href="#graceful-shutdown-guides">graceful shutdown guides</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h2 id="container-context-and-pid-1">Container Context and PID 1</h2>
+<p>In container context, when it comes to teardown</p>
+<ul>
+<li><code>docker stop</code> send a <code>SIGTERM</code> to the main process inside the container, and after a grace period (default 10s), <code>SIGKILL</code></li>
+<li>Kubernetes send a <code>SIGTERM</code> signal to the main process of containers in the Pod, and after a grace period (default 30s), <code>SIGKILL</code></li>
+<li>Under interactive mode, pressing Ctrl+C causes the system to send a <code>SIGINT</code> signal to the main process</li>
+</ul>
+<p>For Terminating in graceful and responsive way, processes inside container should handle <code>SIGTERM</code> and <code>SIGINT</code>. Many annoying issues/complains about container exit can be found in network[<a href="https://github.com/moby/moby/issues/2838">1</a>][<a href="https://github.com/rustdesk/rustdesk-server/issues/36">2</a>]. Let&rsquo;s dig out why.</p>
+<p>Applications shipped in minimal container image, such as <a href="https://github.com/GoogleContainerTools/distroless">Distroless Container Images</a>, or <code>FROM scratch</code> static binary, usually have with entrypoint like <code>/app</code>, run directly as PID 1 in container&rsquo;s pid namespace.</p>
+<p>But <code>PID 1</code> is treated specially by Linux[<a href="https://docs.docker.com/engine/reference/run/#foreground">3</a>][<a href="https://github.com/tailhook/vagga/blob/275b540cec12a1c721c121be58cf5a6d63fa8863/docs/pid1mode.rst?plain=1#L8-L20">4</a>][<a href="https://github.com/torvalds/linux/blob/49697335e0b441b0553598c1b48ee9ebb053d2f1/include/linux/sched/signal.h#L262">5</a>]:</p>
+<ul>
+<li>The process will not terminate on SIGINT or SIGTERM unless it is coded to do so.</li>
+<li>Indeed, it is unkillable, meaning that it doesn&rsquo;t get killed by signals which would terminate regular processes.</li>
+<li>When the process with pid 1 die for any reason, all other processes are killed with <code>KILL</code> signal</li>
+<li>When any process having children dies for any reason, its children are reparented to process with PID 1</li>
+<li>PID 1 has a unique responsibility, which is to reap zombie processes</li>
+</ul>
+<p>The following Rust code build a basic application that print its PID and lives for 60 seconds. The full code is <a href="https://github.com/phosae/samples/blob/main/2023/pid1-in-container/sleep/src/sleep.rs">here</a>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-rust" data-lang="rust"><span class="line"><span class="cl"><span class="c1">// sleep.rs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">use</span><span class="w"> </span><span class="n">std</span>::<span class="p">{</span><span class="n">thread</span><span class="p">,</span><span class="w"> </span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">process</span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">process</span>::<span class="n">id</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;pid {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">pid</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span>::<span class="n">Duration</span>::<span class="n">from_secs</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">1</span><span class="o">..=</span><span class="mi">60</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">thread</span>::<span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&#34;. {}&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Let&rsquo;s build and run it in container, then send <code>SIGTERM</code> or <code>SIGINT</code> to sleep process. Our process with PID 41 is child of /bin/sh, it will exit immediately with code <code>143 (SIGTERM)</code> or <code>130 (SIGINT)</code>.</p>
+<p>This much like the case we run program in terminal, test it, and press CTRL-C to stop it.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --rm --name sleep -w /src  -it -v <span class="nv">$PWD</span>:/src rust:alpine   <span class="c1"># $ docker exec sleep ps</span>
+</span></span><span class="line"><span class="cl">/src <span class="c1"># rustc sleep.rs                                                # PID   USER     TIME  COMMAND</span>
+</span></span><span class="line"><span class="cl">/src <span class="c1"># ./sleep                                                       #     1 root      0:00 /bin/sh</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">41</span>                                                               <span class="c1">#    41 root      0:00 ./sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>                                                                  <span class="c1">#</span>
+</span></span><span class="line"><span class="cl">. <span class="m">2</span>                                                                  <span class="c1"># $ docker exec sleep kill -s -SIGTERM 41</span>
+</span></span><span class="line"><span class="cl">. <span class="m">3</span>                                                                  <span class="c1">#       </span>
+</span></span><span class="line"><span class="cl">. <span class="m">4</span>                                                                  <span class="c1">#          </span>
+</span></span><span class="line"><span class="cl">. <span class="m">5</span>                                                                  <span class="c1">#</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Terminated
+</span></span><span class="line"><span class="cl">/src <span class="c1"># echo $?</span>
+</span></span><span class="line"><span class="cl"><span class="m">143</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/src <span class="c1"># ./sleep</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">96</span>
+</span></span><span class="line"><span class="cl">^C
+</span></span><span class="line"><span class="cl">/src <span class="c1"># echo $?</span>
+</span></span><span class="line"><span class="cl"><span class="m">130</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="pid-1-behavior">PID 1 Behavior</h2>
+<p>When run as PID 1, it is unstoppable in its PID namespace. None of <code>SIGINT</code>, <code>SIGTERM</code> or <code>SIGKILL</code> will work.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --rm --entrypoint /src/sleep -it -v <span class="nv">$PWD</span>:/src rust:alpine   <span class="c1"># $ docker exec sleep ps</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">1</span>                                                                  <span class="c1"># PID   USER     TIME  COMMAND</span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>                                                                    <span class="c1">#     1 root      0:00 ./sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">2</span>                                                                    <span class="c1">#    </span>
+</span></span><span class="line"><span class="cl">^C^C. <span class="m">3</span>                                                                <span class="c1"># $ docker exec sleep kill -s SIGINT 1</span>
+</span></span><span class="line"><span class="cl">^C^C^C^C^C. <span class="m">4</span>                                                          <span class="c1"># $ docker exec sleep kill -s SIGTERM 1</span>
+</span></span><span class="line"><span class="cl">...                                                                    <span class="c1"># $ docker exec sleep kill -s SIGKILL 1</span>
+</span></span><span class="line"><span class="cl">. <span class="m">60</span>                                                                   <span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As container processes are just normal processes in host PID namespace, sending <code>SIGKILL</code> in host work as expected. Docker or Kubelet send signals to PID 1 in every container by this way.</p>
+<p>The process won&rsquo;t repond to <code>SIGTERM</code> or <code>SIGINT</code> because it is not coded to do it.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># docker run --rm --name sleep --entrypoint /src/sleep -it -v $PWD:/src alpine       </span>
+</span></span><span class="line"><span class="cl">pid <span class="m">1</span>                                                                 <span class="c1"># $ docker exec sleep ps</span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>                                                                   <span class="c1"># PID   USER     TIME  COMMAND</span>
+</span></span><span class="line"><span class="cl">. <span class="m">2</span>                                                                   <span class="c1">#     1 root      0:00 ./sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">3</span>                                                                   <span class="c1"># </span>
+</span></span><span class="line"><span class="cl">. <span class="m">4</span>                                                                   <span class="c1"># $ ps -ef | grep sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">5</span>                                                                   <span class="c1"># root      9521  9374  0 15:49 pts/0    00:00:00 /src/sleep </span>
+</span></span><span class="line"><span class="cl">. <span class="m">6</span>                                                                   <span class="c1"># $ kill -s SIGINT  9521 // not work</span>
+</span></span><span class="line"><span class="cl">. <span class="m">7</span>                                                                   <span class="c1"># $ kill -s SIGTERM 9521 // not work</span>
+</span></span><span class="line"><span class="cl">. <span class="m">8</span>                                                                   <span class="c1"># $ kill -s SIGKILL 9521 // worked</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#                                                                     #</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="solution-for-entrypoint-is-application-binary">Solution for entrypoint is application binary</h2>
+<p>Solutions to this problem depends on what the behavior is expected. If reponsive to <code>SIGINT(CTRL-C)</code> or <code>SIGTERM</code> is the only demand, for languages have default behavior, such as Golang, it abort directly when receive <code>SIGTERM</code> or <code>SIGINT</code>. Nothing need to be done.</p>
+<p>For language don&rsquo;t have default behavior, like Rust, using <a href="https://github.com/krallin/tini">tini</a> or <a href="https://github.com/Yelp/dumb-init">dumb-init</a> to wrap container entrypoint are the fast way.</p>
+<p><a href="https://github.com/krallin/tini">tini</a> or <a href="https://github.com/Yelp/dumb-init">dumb-init</a> will act as PID 1 in container and immediately spawns command as a child process, taking care to properly handle and forward signals as they are received</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># docker run --rm --name sleep --entrypoint /dumb-init -v $PWD:/src zengxu/alpine:init /src/sleep</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">8</span>                                                         <span class="c1"># </span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>                                                           <span class="c1"># $ docker exec sleep ps</span>
+</span></span><span class="line"><span class="cl">. <span class="m">2</span>                                                           <span class="c1"># PID   USER     TIME  COMMAND</span>
+</span></span><span class="line"><span class="cl">. <span class="m">3</span>                                                           <span class="c1">#     1 root      0:00 /dumb-init /src/sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">4</span>                                                           <span class="c1">#     8 root      0:00 /src/sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">5</span>                                                           <span class="c1">#</span>
+</span></span><span class="line"><span class="cl">. <span class="m">6</span>                                                           <span class="c1"># docker exec sleep kill 1</span>
+</span></span><span class="line"><span class="cl">. <span class="m">7</span>                                                           <span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Note <code>zengxu/alpine:init</code> is build by this Dockerfile:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">FROM alpine
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ENV TINI_VERSION v0.19.0
+</span></span><span class="line"><span class="cl">ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static /tini
+</span></span><span class="line"><span class="cl">RUN chmod +x /tini
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">RUN wget -O /dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64
+</span></span><span class="line"><span class="cl">RUN chmod +x /dumb-init
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Above solution can work in any runtime context, including Containerd, Docker, Podman, or Kubernetes.</p>
+<p>In runtime context is Docker, <a href="https://github.com/krallin/tini">tini</a> is included in it. Adding arg <code>--init</code> in run command will override target&rsquo;s entrypoint as <code>/sbin/docker-init -- /src/sleep</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># docker run --rm --name sleep --init -v $PWD:/src zengxu/alpine:init /src/sleep</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">8</span>                                                         <span class="c1"># </span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>                                                           <span class="c1"># $ docker exec sleep ps</span>
+</span></span><span class="line"><span class="cl">. <span class="m">2</span>                                                           <span class="c1"># PID   USER     TIME  COMMAND</span>
+</span></span><span class="line"><span class="cl">. <span class="m">3</span>                                                           <span class="c1">#     1 root      0:00 /sbin/docker-init -- /src/sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">4</span>                                                           <span class="c1">#     8 root      0:00 /src/sleep</span>
+</span></span><span class="line"><span class="cl">. <span class="m">5</span>                                                           <span class="c1">#</span>
+</span></span><span class="line"><span class="cl">. <span class="m">6</span>                                                           <span class="c1"># docker exec sleep kill 1</span>
+</span></span><span class="line"><span class="cl">. <span class="m">7</span>                                                           <span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="solution-for-entrypoint-script">Solution for entrypoint script</h2>
+<p>What about application that must be start from a shell script? Bash or shell don&rsquo;t forward signals like SIGTERM to processes it is currently waiting on[<a href="https://unix.stackexchange.com/questions/146756/forward-sigterm-to-child-in-bash">6</a>].</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># cat start.sh                                  </span>
+</span></span><span class="line"><span class="cl"><span class="c1">#!/bin/sh                                                                         </span>
+</span></span><span class="line"><span class="cl">/src/sleep
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># docker run --rm --name sleep -v $PWD:/src --entrypoint /src/start.sh alpine</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">7</span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>
+</span></span><span class="line"><span class="cl">^C^C. <span class="m">2</span>
+</span></span><span class="line"><span class="cl">^C^C^C. <span class="m">3</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">. <span class="m">60</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This is why the annoying scene happens[<a href="https://github.com/moby/moby/issues/2838">1</a>], the container can&rsquo;t kill by <code>Ctrl-C</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">              + ------------------ Contianer PID namespace ------------------
+</span></span><span class="line"><span class="cl">              |                                                           
+</span></span><span class="line"><span class="cl">SIG_INT/SIG_TERM ---&gt; PID 1, /bin/sh /src/start.sh  (won&#39;t forward signals to child 
+</span></span><span class="line"><span class="cl">              |
+</span></span><span class="line"><span class="cl">              |      |                     
+</span></span><span class="line"><span class="cl">              |      |
+</span></span><span class="line"><span class="cl">              |      +----&gt; PID 8, /src/sleep
+</span></span><span class="line"><span class="cl">              |                                                           
+</span></span><span class="line"><span class="cl">              +--------------------------------------------------------------
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As pointed out by answers in [<a href="https://unix.stackexchange.com/questions/146756/forward-sigterm-to-child-in-bash">6</a>], exec process and let it replace shell process solve this problem. Writing signal handler in script do the best, but can be a litte complex.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># cat exec.sh </span>
+</span></span><span class="line"><span class="cl"><span class="c1">#!/bin/sh                                                                         </span>
+</span></span><span class="line"><span class="cl"><span class="nb">exec</span> /tini -- /src/sleep
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># docker run --rm --name sleep -v $PWD:/src --entrypoint /src/exec.sh zengxu/alpine:init</span>
+</span></span><span class="line"><span class="cl">pid <span class="m">7</span>
+</span></span><span class="line"><span class="cl">. <span class="m">1</span>
+</span></span><span class="line"><span class="cl">. <span class="m">2</span>
+</span></span><span class="line"><span class="cl">^C
+</span></span><span class="line"><span class="cl"><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>What happen here is</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">              + ------------------ Contianer PID namespace ------------------
+</span></span><span class="line"><span class="cl">              |                                                           
+</span></span><span class="line"><span class="cl">SIG_INT/SIG_TERM ---&gt; PID 1, /tini -- /src/sleep   (/tini replace /bin/sh as PID 1, will forward signals to child
+</span></span><span class="line"><span class="cl">              |
+</span></span><span class="line"><span class="cl">              |      |                     
+</span></span><span class="line"><span class="cl">              |      |
+</span></span><span class="line"><span class="cl">              |      +----&gt; PID 8, /src/sleep
+</span></span><span class="line"><span class="cl">              |                                                           
+</span></span><span class="line"><span class="cl">              +--------------------------------------------------------------
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="child-reaping">child reaping</h2>
+<p>In some cases, application use unix fork to do specific tasks. Then the duty of reaping children comes to the entrypoint process. Since not all application will carefully reaping child processes by installing <code>SIGCHILD</code> signal hander, calling the wait syscall in parent process, these child processes may become longer lived zombie processes. Large sized, long lived zombie processes are harmful to Unix system, it will exhaust pid resource and process table[<a href="https://www.baeldung.com/cs/process-lifecycle-zombie-state">7</a>].</p>
+<p>Below Golang samaples try to create zombies every 1 second</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">pid</span><span class="p">,</span> <span class="s">&#34;.&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">isChild</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">LookupEnv</span><span class="p">(</span><span class="s">&#34;CHILD_ID&#34;</span><span class="p">);</span> <span class="p">!</span><span class="nx">isChild</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">pwd</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getwd</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">log</span><span class="p">.</span><span class="nf">Fatalf</span><span class="p">(</span><span class="s">&#34;getwd err: %s&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">args</span> <span class="o">:=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Args</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;#child_%d_of_%d&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Getpid</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">childENV</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;CHILD_ID=%d&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">syscall</span><span class="p">.</span><span class="nf">ForkExec</span><span class="p">(</span><span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">args</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">syscall</span><span class="p">.</span><span class="nx">ProcAttr</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">Dir</span><span class="p">:</span> <span class="nx">pwd</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">Env</span><span class="p">:</span> <span class="nb">append</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nf">Environ</span><span class="p">(),</span> <span class="nx">childENV</span><span class="o">...</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">Sys</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">syscall</span><span class="p">.</span><span class="nx">SysProcAttr</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">Setsid</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="p">},</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">Files</span><span class="p">:</span> <span class="p">[]</span><span class="kt">uintptr</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">},</span> <span class="c1">// print message to the same pty
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">})</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">os</span><span class="p">.</span><span class="nf">Exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">// child exit directly, become zombie
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>If application don&rsquo;t reap children, in the end there&rsquo;re 60 zombies. The full code is <a href="https://github.com/phosae/samples/blob/main/2023/pid1-in-container/sleep-zombie/sleep.go">here</a>. You can play it with</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">-- at window/panel <span class="m">1</span>
+</span></span><span class="line"><span class="cl">docker run --rm --name sleep -w /src  -it -v <span class="nv">$PWD</span>:/src ubuntu:jammy  
+</span></span><span class="line"><span class="cl">---at window/panel <span class="m">2</span>
+</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> sleep ps aux
+</span></span><span class="line"><span class="cl">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+</span></span><span class="line"><span class="cl">root         <span class="m">1</span>  0.2  0.0 <span class="m">710720</span>  <span class="m">1992</span> pts/0    Ssl+ 11:48   0:00 ./sleep-zombie
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">root       <span class="m">349</span>  0.0  0.0      <span class="m">0</span>     <span class="m">0</span> ?        Zs   11:49   0:00 <span class="o">[</span>sleep-zombie<span class="o">]</span> &lt;defunct&gt;
+</span></span><span class="line"><span class="cl">root       <span class="m">355</span>  0.0  0.0   <span class="m">6408</span>  <span class="m">1652</span> ?        Rs   11:49   0:00 ps aux
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Rust version demo is <a href="https://github.com/phosae/samples/blob/main/2023/pid1-in-container/sleep/src/main.rs">here</a>.</p>
+<p>For such cases, container init-system such as <a href="https://github.com/krallin/tini">tini</a> and <a href="https://github.com/Yelp/dumb-init">dumb-init</a> are good choice. More at <a href="https://github.com/krallin/tini/issues/8">what-is-advantage-of-Tini?</a></p>
+<p>As previous pointed, in Docker you can simplely use <code>docker run --init</code> to solve this problem. In K8s, the pause process can help reaping child processes with <code>spec.shareProcessNamespace: true</code>, More details at <a href="https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/">share-process-namespace</a>, <a href="https://www.ianlewis.org/en/almighty-pause-container">the-almighty-pause-container</a>.</p>
+<p>Comparing to leverage runtime, building it into the container are better choice. Things will be handled by default without reliance on properly configuring things at runtime.</p>
+<h2 id="graceful-shutdown-guides">graceful shutdown guides</h2>
+<p>For application should shutdown gracefully, it should be coded to catch <code>SIGTERM</code> or <code>SIGINT</code>, do cleanup such as closing connections, and finally exit with 0. For Rust this guide (<a href="https://dev.to/talzvon/handling-unix-kill-signals-in-rust-55g6">handling-unix-kill-signals-in-rust</a>) can be followed. For Golang this (<a href="https://stackoverflow.com/questions/39320025/how-to-stop-http-listenandserve">how-to-stop-http-listenandserve</a>) can be followed. Other languages are your own, but solution are quite common.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-02-27 08:00
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/container/">container</a>
+          <a href="/tags/init/">init</a>
+          <a href="/tags/pid1/">pid1</a>
+          <a href="/tags/docker/">docker</a>
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/rust/">rust</a>
+          <a href="/tags/en/">en</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2023-http-range-and-play-mp4-in-browser/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Http Range Request and MP4 Video Play in Browser</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2022-the-docker-mtu-problem/">
+            <span class="next-text nav-default">虚拟网络环境中 Docker MTU 问题及解决方式</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2023-02-27 08:00:59 \u002b0800 \u002b0800',
+        title: 'Terminate Container in Responsive and Graceful Way',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

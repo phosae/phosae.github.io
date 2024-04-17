@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Kubernetes admission webhook server 开发教程 - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="How to implement a Kubernetes validating admission webhook" /><meta name="keywords" content="kubernetes, container, webhook" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Kubernetes admission webhook server 开发教程" />
+<meta property="og:description" content="How to implement a Kubernetes validating admission webhook" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-08-08T21:11:28+08:00" />
+<meta property="article:modified_time" content="2023-04-28T11:25:00+08:00" />
+<meta itemprop="name" content="Kubernetes admission webhook server 开发教程">
+<meta itemprop="description" content="How to implement a Kubernetes validating admission webhook"><meta itemprop="datePublished" content="2021-08-08T21:11:28+08:00" />
+<meta itemprop="dateModified" content="2023-04-28T11:25:00+08:00" />
+<meta itemprop="wordCount" content="2726">
+<meta itemprop="keywords" content="kubernetes,container,webhook," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Kubernetes admission webhook server 开发教程"/>
+<meta name="twitter:description" content="How to implement a Kubernetes validating admission webhook"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Kubernetes admission webhook server 开发教程</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2021-08-08 21:11 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#背景">背景</a></li>
+    <li><a href="#思路及实现">思路及实现</a></li>
+    <li><a href="#部署">部署</a>
+      <ul>
+        <li><a href="#向-apiserver-注册-admission-webhook">向 apiserver 注册 admission webhook</a></li>
+        <li><a href="#kubernetes-certificatesigningrequest-签发-tls-证书">Kubernetes CertificateSigningRequest 签发 TLS 证书</a></li>
+        <li><a href="#cert-manager-签发-tls-证书">cert-manager 签发 TLS 证书</a></li>
+        <li><a href="#集群内部署">集群内部署</a></li>
+        <li><a href="#集群外部署">集群外部署</a></li>
+      </ul>
+    </li>
+    <li><a href="#测试结果">测试结果</a></li>
+    <li><a href="#拓展阅读">拓展阅读</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h2 id="背景">背景</h2>
+<p>Kubernetes 提供了非常多的拓展方式，比方说 Custom Resources 和 Operator 模式、CNI 和 Networking Plugin、CRI 和 container runtime。</p>
+<p>在 apiserver 内部，常见的拓展方式是 <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">admission controller</a>，请求通过鉴权后，会被 controllers 拦截处理。而请求只有成功通过所有 controller 处理后，才能被持久到存储层。以创建操作为例，假设请求尝试在尚不存在的 namespace 中创建 Pod 资源，那么  NamespaceLifecycle admission controller 检查后便会拒绝并返回报错</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ kubectl -n ns-not-exist run nginx --image<span class="o">=</span>nginx
+</span></span><span class="line"><span class="cl">Error from server <span class="o">(</span>NotFound<span class="o">)</span>: namespaces <span class="s2">&#34;ns-not-exist&#34;</span> not found
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>类似地，LimitRange 的 Pod 资源使用控制功能也是以 admission controllers 方式实现。</p>
+<p>除校验控制之外，admission controllers 的另外一大用途是修改请求资源，如 apiserver 会根据 Pod 指定的 ServiceAccountName，自动往 Pod 插入 Token Secret Volume 和 VolumeMount。</p>
+<p>在 apiserver 内部，有两个特殊的 controllers：MutatingAdmissionWebhook 和 ValidatingAdmissionWebhook，通过它们提供的协议，用户能够将自定义 webhook 集成到 admission controller 控制流中。顾名思义，mutating admission webhook 可以拦截并修改请求资源，validating admission webhook 只能拦截并校验请求资源，但不能修改它们。分成两类的一个好处是，后者可以被 apiserver 并发执行，只要任一失败，即可快速结束请求。</p>
+<p>实现自定义 admission webhook，可以灵活地修改或校验 Kubernetes 资源（尤其是 Custom Resources），满足各种定制化需求。</p>
+<p>下文将以 validating admission webhook 为例，展示如何开发、部署和调试 admission webhook server，所有代码均出自我的项目 <a href="https://github.com/phosae/denyenv-validating-admission-webhook/tree/v0">denyenv-validating-admission-webhook</a>。</p>
+<h2 id="思路及实现">思路及实现</h2>
+<p>灵感来自 Kelsey Hightower 项目 <a href="https://github.com/kelseyhightower/denyenv-validating-admission-webhook">denyenv-validating-admission-webhook</a>，即在 webhook 中实现一套简单逻辑，校验 Pod 创建请求，如果 Pod 中的任意 Container 声明了环境变量，就拒绝它。Kelsey 使用 gcloud nodeJS function 实现、使用 gcloud GKE 测试，这里使用 Go 实现，可以在任何 Kubernetes 集群部署使用。</p>
+<p>如果是本地开发测试，建议安装 <a href="https://kind.sigs.k8s.io/">Kind</a>，只需一行命令即可创建 Kubernetes 测试环境</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ kind create cluster --config -&lt;&lt;EOF
+</span></span><span class="line"><span class="cl">kind: Cluster
+</span></span><span class="line"><span class="cl">apiVersion: kind.x-k8s.io/v1alpha4
+</span></span><span class="line"><span class="cl">nodes:
+</span></span><span class="line"><span class="cl">  - role: control-plane
+</span></span><span class="line"><span class="cl">    image: kindest/node:v1.21.14
+</span></span><span class="line"><span class="cl">  - role: worker
+</span></span><span class="line"><span class="cl">    image: kindest/node:v1.21.14
+</span></span><span class="line"><span class="cl">networking:
+</span></span><span class="line"><span class="cl">  podSubnet: &#34;10.244.0.0/16&#34;
+</span></span><span class="line"><span class="cl">  serviceSubnet: &#34;10.96.0.0/12&#34;
+</span></span><span class="line"><span class="cl">EOF
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">Creating cluster &#34;kind&#34; ...
+</span></span><span class="line"><span class="cl"> ✓ Ensuring node image (kindest/node:v1.21.14) 🖼
+</span></span><span class="line"><span class="cl"> ✓ Preparing nodes 📦 📦
+</span></span><span class="line"><span class="cl"> ✓ Writing configuration 📜
+</span></span><span class="line"><span class="cl"> ✓ Starting control-plane 🕹️
+</span></span><span class="line"><span class="cl"> ✓ Installing CNI 🔌
+</span></span><span class="line"><span class="cl"> ✓ Installing StorageClass 💾
+</span></span><span class="line"><span class="cl">Set kubectl context to &#34;kind-kind&#34;
+</span></span><span class="line"><span class="cl">You can now use your cluster with:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl cluster-info --context kind-kind
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Have a nice day! 👋
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>首先，构建一个 HTTP/HTTPS 服务，监听 8000 端口，通过 path <code>/validate</code> 接收认证请求。</p>
+<p>按照设想，我们的服务会在 Kubernetes 集群发生 Pod 创建时，收到 apiserver 发起的 HTTP POST 请求，其 Body 包含如下 JSON 数据，即序列化后的 <a href="https://github.com/kubernetes/api/blob/499b6f90564cff48dc1fba56d974de2e5ec98bb4/admission/v1beta1/types.go#L34-L42">AdmissionReview</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;apiVersion&#34;</span><span class="p">:</span> <span class="s2">&#34;admission.k8s.io/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;AdmissionReview&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="err">...</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;request&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="err">#</span> <span class="err">Random</span> <span class="err">uid</span> <span class="err">uniquely</span> <span class="err">identifying</span> <span class="err">this</span> <span class="err">admission</span> <span class="err">call</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;uid&#34;</span><span class="p">:</span> <span class="s2">&#34;705ab4f5-6393-11e8-b7cc-42010a800002&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="err">#</span> <span class="err">object</span> <span class="err">is</span> <span class="err">the</span> <span class="err">new</span> <span class="err">object</span> <span class="err">being</span> <span class="err">admitted.</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;object&#34;</span><span class="p">:</span> <span class="p">{</span><span class="nt">&#34;apiVersion&#34;</span><span class="p">:</span><span class="s2">&#34;v1&#34;</span><span class="p">,</span><span class="nt">&#34;kind&#34;</span><span class="p">:</span><span class="s2">&#34;Pod&#34;</span><span class="p">,</span> <span class="err">...</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="err">...</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接着，我们要做的就是反序列化 AdmissionReview，获得 request.object 中的 Pod，遍历 container 数组、循环遍历 Env 数组，校验之，最后将校验结果返回给 apiserver。</p>
+<p>如果 Pod 中没有用到环境变量，返回如下 JSON，表示校验通过</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;apiVersion&#34;</span><span class="p">:</span> <span class="s2">&#34;admission.k8s.io/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;AdmissionReview&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;response&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;uid&#34;</span><span class="p">:</span> <span class="s2">&#34;&lt;value from request.uid&gt;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;allowed&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果 Pod 中用到了环境变量，返回如下 JSON，表示校验未通过</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;apiVersion&#34;</span><span class="p">:</span> <span class="s2">&#34;admission.k8s.io/v1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;kind&#34;</span><span class="p">:</span> <span class="s2">&#34;AdmissionReview&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;response&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;uid&#34;</span><span class="p">:</span> <span class="s2">&#34;&lt;value from request.uid&gt;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;allowed&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;code&#34;</span><span class="p">:</span> <span class="mi">402</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="s2">&#34;Failure&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;#ctr is using env vars&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;#ctr is using env vars&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其决定作用的字段是 .response.uid 和 .response.allowed，前者唯一确定请求，后者表示通过或者不通过，status 字段主要供错误提示。</p>
+<p>具体实现在这里 <a href="https://github.com/phosae/denyenv-validating-admission-webhook/blob/dd28134f2884b1799e81135e37da43bca6bf337a/main.go#L33-L79">代码传送门</a>。</p>
+<h2 id="部署">部署</h2>
+<h3 id="向-apiserver-注册-admission-webhook">向 apiserver 注册 admission webhook</h3>
+<p>或曰，apiserver 如何知晓服务存在，如何调用接口，答案是 ValidatingWebhookConfiguration。通过往 Kubernetes 集群写入该协议，最终 apiserver 会在其 ValidatingAdmissionWebhook controller 模块注册好我们的 webhook，注意以下几点：</p>
+<ol>
+<li>apiserver 只支持 HTTPS webhook，因此必须准备 TLS  证书，一般使用 Kubernetes CertificateSigningRequest 或者 cert-manager 获取，下文会详细介绍</li>
+<li>clientConfig.caBundle 用于指定签发 TLS 证书的 CA 证书，如果使用 Kubernetes CertificateSigningRequest 签发证书，自 kube-public namespace clusterinfo 获取集群 CA，base64 格式化再写入 <code>clientConfig.caBundle</code> 即可; 如果使用 cert-manager 签发证书，cert-manager ca-injector 组件会自动帮忙注入证书。</li>
+<li>为防止自己拦截自己的情形，使用 objectSelector 将 server Pod 排除。</li>
+<li>集群内部署时，使用 service ref 指定服务</li>
+<li>集群外部署时，使用 URL 指定 HTTPS 接口</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">admissionregistration.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ValidatingWebhookConfiguration</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">denyenv</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c">## for cert-manager CA injection</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cert-manager.io/inject-ca-from</span><span class="p">:</span><span class="w"> </span><span class="l">default/denyenv-tls-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">webhooks</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">admissionReviewVersions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">clientConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">caBundle</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;&lt;Kubernetes CA&gt; or &lt;cert-manager CA&gt;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;https://192.168.1.10:8000/validate&#39;</span><span class="w"> </span><span class="c"># 集群外部署，使用此方式时，注释 service ref</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w">                                  </span><span class="c">#---------------------#             </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">denyenv                          </span><span class="w"> </span><span class="c">#---------------------#             </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">default                      #       集群内部署     </span><span class="w"> </span><span class="c">#            </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">443</span><span class="w">                               </span><span class="c"># 使用此方式时，注释 url #            </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/validate                        </span><span class="w"> </span><span class="c">#---------------------#            </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">failurePolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Fail</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Exact</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">denyenv.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">apiGroups</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="s2">&#34;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">apiVersions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">operations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="l">CREATE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="l">pods</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">objectSelector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">matchExpressions</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">app</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">NotIn</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">denyenv</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">sideEffects</span><span class="p">:</span><span class="w"> </span><span class="l">None</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">3</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="kubernetes-certificatesigningrequest-签发-tls-证书">Kubernetes CertificateSigningRequest 签发 TLS 证书</h3>
+<p>Kubernetes 本身就有自己的 CA 证书体系，且支持 TLS 证书签发。我们要做的就是使用 openssl 生成服务私钥、服务证书请求并巧用 Kubernetes CA 签名服务证书</p>
+<ol>
+<li>使用 openssl 生成服务的私钥（server-key）</li>
+<li>结合 server-key，使用 openssl 生成证书请求 server.csr</li>
+<li>使用 Kubernetes CertificateSigningRequest 和 kubectl approve 签名服务证书</li>
+<li>将服务私钥和证书，存储到 Kubernetes Secret 中</li>
+<li>如果采用集群外部署，注意在 csr.conf 中指定好域名或 IP 地址</li>
+</ol>
+<p><a href="https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0/webhook-create-signed-cert.sh">过程脚本传送门</a></p>
+<p>注: 使用 Kubernetes CA 为 Webhook Server 签发证书的方式仅适用于 1.22 之前。1.22 及以后只能使用指定 CA 签发证书，可移步<a href="https://github.com/phosae/denyenv-validating-admission-webhook/blob/master/hack/create-csr-cert.sh">这里</a></p>
+<h3 id="cert-manager-签发-tls-证书">cert-manager 签发 TLS 证书</h3>
+<p>Kubernetes 证书有效期为 1 年，复杂的生产环境可以考虑使用 <a href="https://github.com/jetstack/cert-manager">cert-manager</a> ，因为它具有证书自动更新、自动注入等一系列生命周期管理功能。</p>
+<ol>
+<li>安装 cert-manager 相关依赖，如 CRD/Controller、RABC、Webhook (<code>kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.yaml</code>)</li>
+<li>创建 cert-manager Issuer CR（这里用 selfSigned Issuer）</li>
+<li>创建 cert-manager Certificate CR，引用 Issuer 签发证书</li>
+<li>如果是集群外部署，可以在 .spec.ipAddresses 指定机器 IP，可以在 .spec.dnsNames 指定域名</li>
+</ol>
+<p><a href="https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0/k-cert-manager.yaml">步骤 2、3 Yaml 声明传送门</a></p>
+<p>最终，签发的证书会持久到 Certificate CR 中声明的 Secret（这里是 denyenv-tls-secret）。接着，在 admission webhook 配置中，我们会利用 cert-manager ca-injector（ mutate webhook 实现）注入证书。</p>
+<h3 id="集群内部署">集群内部署</h3>
+<p>denyenv webhook server 以 Deployment 形式部署到 Kubernetes 集群，将 Secret Volume 挂载到容器目录，通过 ENV 将证书、私钥所在目录传递给应用。</p>
+<p>以 Service 方式向 apiserver 暴露服务接口，以 443 端口映射 denyenv 8000。</p>
+<p>注:</p>
+<p>你可以 clone 我的 <a href="https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0">代码</a></p>
+<p><code>git clone --branch v0 https://github.com/phosae/denyenv-validating-admission-webhook.git</code></p>
+<p>使用 <code>make deploy</code> 一键自动化所有部署过程</p>
+<p>可以采用 <code>make linux</code> 构建镜像，使用 <code>kind load</code> 加载镜像，最后使用 <code>make clear &amp;&amp; make deploy</code> 一键部署。</p>
+<p>如果使用 cert-manager，用 <code>make deploy-cm</code>、<code>make clear-cm</code> 替代 <code>make deploy</code>、<code>make clear</code>。</p>
+<h3 id="集群外部署">集群外部署</h3>
+<p>denyenv webhook server 部署在某台机器上，对 Kubernetes 而言，它表现为一个可以调用的 HTTPS 链接。</p>
+<p>你可以从 Secret 中取出证书，放到习惯的目录，在启动时，将证书、私钥所在目录通过 ENV 传递给应用。</p>
+<p>注:</p>
+<p>你可以 clone 我的 <a href="https://github.com/phosae/denyenv-validating-admission-webhook/blob/v0">代码</a></p>
+<p><code>git clone --branch v0 https://github.com/phosae/denyenv-validating-admission-webhook.git</code></p>
+<p>如果使用 Kubernetes CertificateSigningRequest 签发证书，可使用 <code>make setup-kube-for-outcluster</code> 设置 Kubernetes 环境，使用 <code>make clear-kube-for-outcluster</code> 清理。</p>
+<p>如果使用 cert-manager，用 <code>make setup-kube-for-outcluster-cm</code> 设置 Kubernetes 环境，用 <code>make clear-kube-for-outcluster-cm</code> 清理。</p>
+<p>可以使用 <code>make save-cert</code> 保存证书到本地文件。</p>
+<h2 id="测试结果">测试结果</h2>
+<p>尝试创建不含环境变量的 Pod，成功</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ kubectl run nginx --image nginx
+</span></span><span class="line"><span class="cl">pod/nginx created
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get pod nginx
+</span></span><span class="line"><span class="cl">NAME    READY   STATUS              RESTARTS   AGE
+</span></span><span class="line"><span class="cl">nginx   0/1     ContainerCreating   0          68s
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>尝试创建含环境变量的 Pod，失败并收到拒绝信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ kubectl run nginx --image nginx --env=&#39;FOO=BAR&#39;
+</span></span><span class="line"><span class="cl">Error from server (nginx is using env vars): admission webhook &#34;denyenv.zeng.dev&#34; denied the request: nginx is using env vars
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="拓展阅读">拓展阅读</h2>
+<ul>
+<li><a href="https://medium.com/trendyol-tech/tls-certificates-for-kubernetes-admission-webhooks-made-easy-with-certificator-and-helm-hook-89ece42fa193">TLS Certificates for Kubernetes Admission Webhooks made easy with Certificator and Helm Hook?</a></li>
+<li><a href="https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/">Dynamic Admission Control
+</a></li>
+<li><a href="https://en.wikipedia.org/wiki/File:Chain_Of_Trust.svg">Certificate Trust Chain</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Transport_Layer_Security">TLS</a></li>
+<li><a href="https://cert-manager.io/docs/configuration/selfsigned/">cert-manager</a></li>
+<li><a href="https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/">A Guide to Kubernetes Admission Controllers</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-04-28 11:25
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/container/">container</a>
+          <a href="/tags/webhook/">webhook</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2022-gen-self-signed-certificate/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Generate Self-Signed Certificate</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2020-container-runtimes/">
+            <span class="next-text nav-default">各种容器运行时都解决了什么问题</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2021-08-08 21:11:28 \u002b0800 \u002b0800',
+        title: 'Kubernetes admission webhook server 开发教程',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

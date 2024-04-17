@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Java &amp; Go 并发编程对比 - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="Java & Go 并发编程对比" /><meta name="keywords" content="Go, Java, Concurrency" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2019-java2go-concurrency/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Java &amp; Go 并发编程对比" />
+<meta property="og:description" content="Java &amp; Go 并发编程对比" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2019-java2go-concurrency/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2019-07-15T16:55:32+08:00" />
+<meta property="article:modified_time" content="2019-08-20T16:55:32+08:00" />
+<meta itemprop="name" content="Java &amp; Go 并发编程对比">
+<meta itemprop="description" content="Java &amp; Go 并发编程对比"><meta itemprop="datePublished" content="2019-07-15T16:55:32+08:00" />
+<meta itemprop="dateModified" content="2019-08-20T16:55:32+08:00" />
+<meta itemprop="wordCount" content="7915">
+<meta itemprop="keywords" content="Go,Java,Concurrency," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Java &amp; Go 并发编程对比"/>
+<meta name="twitter:description" content="Java &amp; Go 并发编程对比"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Java &amp; Go 并发编程对比</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2019-07-15 16:55 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#线程和任务">线程和任务</a>
+      <ul>
+        <li><a href="#在线程中运行任务">在线程中运行任务</a></li>
+        <li><a href="#定时任务和延时任务">定时任务和延时任务</a></li>
+        <li><a href="#async-callback-">async-callback ?</a></li>
+        <li><a href="#等待任意任务完成批量执行任务">等待任意任务完成，批量执行任务</a></li>
+        <li><a href="#thread-local-storage-">thread-local storage ?</a></li>
+        <li><a href="#任务中止">任务中止</a></li>
+        <li><a href="#优雅停机">优雅停机</a></li>
+      </ul>
+    </li>
+    <li><a href="#变量同步原语">变量同步原语</a>
+      <ul>
+        <li><a href="#锁的公平模式与非公平模式">锁的公平模式与非公平模式</a></li>
+        <li><a href="#锁的可重入支持-">锁的可重入支持 ?</a></li>
+        <li><a href="#锁的可中断式获取和超时获取">锁的可中断式获取和超时获取</a></li>
+        <li><a href="#条件变量">条件变量</a></li>
+        <li><a href="#信号量">信号量</a></li>
+        <li><a href="#casatomic">CAS/Atomic</a></li>
+        <li><a href="#once-与单例模式">Once 与单例模式</a></li>
+        <li><a href="#bsp-模型">BSP 模型</a></li>
+      </ul>
+    </li>
+    <li><a href="#内存模型">内存模型</a>
+      <ul>
+        <li><a href="#java-volatile">Java volatile</a></li>
+        <li><a href="#java-synchronized">Java synchronized</a></li>
+        <li><a href="#go-mutex">Go Mutex</a></li>
+        <li><a href="#go-once">Go Once</a></li>
+        <li><a href="#java-final">Java final</a></li>
+        <li><a href="#go-init">Go init</a></li>
+        <li><a href="#java-thread">Java Thread</a></li>
+        <li><a href="#goroutine">goroutine</a></li>
+        <li><a href="#chanel">chanel</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#延伸阅读">延伸阅读</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>Java 中 CPU 资源分配对象是 Thread，Go 中 CPU 资源分配对象是 goroutine。Java Thread 与系统线程为一一对应关系，goroutine 是 Go 实现的用户级线程，与系统线程是 m:n 关系。</p>
+<p>本文「线程」一词兼指 Java Thread 和 goroutine，涉及区别之处，则改用具体名词。</p>
+<h2 id="线程和任务">线程和任务</h2>
+<h3 id="在线程中运行任务">在线程中运行任务</h3>
+<p>在 Java 中，如要获得 CPU 资源并异步执行代码单元，需要将代码单元包装成 Runnable，并创建可以运行代码单元的 Thread 并执行 start 方法启动线程。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;task running&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Java 应用一般使用线程池集中处理任务，以避免线程反复创建回收带来的开销。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;task running&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">task</span><span class="o">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 Go 中，则需要将代码包装成函数。使用 <code>go</code> 关键字调用函数之后，便创建了一个可以运行代码单元的 goroutine。一旦 CPU 资源就绪，对应的代码单元便会在 goroutine 中执行。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;task running&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>Java 和 Go 的一个显著区别是：Java 官方库提供了强大的线程池（Executor 及 ExecutorService 接口实现）实施线程复用和线程管理，goroutine 则可以不断被创建和销毁，不需要任何显式管理（实际上应用也无法获取 goroutine 引用）。</strong></p>
+<h3 id="定时任务和延时任务">定时任务和延时任务</h3>
+<p>Java 使用 ScheduledExecutorService</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ScheduledExecutorService</span> <span class="n">schExecutor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadScheduledExecutor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Runnable</span> <span class="n">task</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;tick  at &#34;</span> <span class="o">+</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">getSecond</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">  <span class="n">schExecutor</span><span class="o">.</span><span class="na">scheduleAtFixedRate</span><span class="o">(</span><span class="n">task</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">1</span>  <span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">3000</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">schExecutor</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 使用 time channel</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Tick</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="o">&lt;-</span><span class="nx">ticker</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;tick at %d\n&#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Second</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>两门语言均可得到类似输出</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">tick at 27
+</span></span><span class="line"><span class="cl">tick at 28
+</span></span><span class="line"><span class="cl">tick at 29
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>定时任务和延时任务是类似的，这里只展示带有延时的定时任务，一次性延时任务，Java 可以使用 schedule，Go 去掉 for 循环即可。</p>
+<h3 id="async-callback-">async-callback ?</h3>
+<p>Java async-callback 模式一般基于 Future 拓展，8 之后加入的 CompletableFuture 提供了非常强大的 callback 支持，8 之前可以使用 Guava 库提供的 ListenableFuture。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">static</span> <span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">asyncJob</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">CompletableFuture</span><span class="o">.</span><span class="na">supplyAsync</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// some expensive job...
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">return</span> <span class="s">&#34;finish&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">});</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 运行异步任务并注册回调
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">asyncJob</span><span class="o">().</span><span class="na">whenComplete</span><span class="o">((</span><span class="n">ret</span><span class="o">,</span> <span class="n">ex</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="o">(</span><span class="n">ex</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">// 处理异常
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// 处理运行结果
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="o">});</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 并没有明显的 async-callback，如果需要用到类似 Future/Promise 之类的地方，应该使用 channel 替代。Go 代码不会有明显的同步、异步差别，请忘记回调。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">ResultErr</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ret</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">err</span> <span class="kt">error</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">asyncJob</span><span class="p">()</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">ResultErr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">retErr</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">ResultErr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// do expensive job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// 如果中途发生异常，返回错误
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// retErr &lt;- ResultErr{err: errors.New(&#34;error&#34;)}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">retErr</span> <span class="o">&lt;-</span> <span class="nx">ResultErr</span><span class="p">{</span><span class="nx">ret</span><span class="p">:</span> <span class="s">&#34;finish&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">retErr</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">retErr</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nf">asyncJob</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="nx">retErr</span><span class="p">.</span><span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// 错误处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// 结果处理
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// ret := retErr.ret
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="等待任意任务完成批量执行任务">等待任意任务完成，批量执行任务</h3>
+<p>Java 线程池 ExecutorService 提供了 2 个便捷的方法 invokeAny 和 invokeAll。invokeAny 表示并发执行一组任务，执行速度最快任务的结果将被返回。invokeAll 表示并发执行一组任务，所以执行结果以 Future 数组返回。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// ExecutorService
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">invokeAny</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">tasks</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">,</span> <span class="n">ExecutionException</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="nf">invokeAll</span><span class="o">(</span><span class="n">Collection</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">tasks</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">throws</span> <span class="n">InterruptedException</span><span class="o">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 很容易实现 invokeAny，只要创建一个 buffered channel 接收结果，创建一个 buffered channel 通知取消，同时创建一组 goroutine 执行任务。每个 goroutine 先检测是否有取消信号，如果有则直接结束，否则走默认路径执行任务，完成后往  buffered channel 写结果。</p>
+<p>调度方只要在接收到最快结果后通知取消即可。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">invokeAny</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">rets</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">stops</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">9</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stops</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">      <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// execute job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">rets</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ret</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">rets</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ret</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">stops</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>invokeAll 简单场景非常类似之前使用 RetErr channel 模拟 Future 的情况，改为 channel slice 即可，这里不再展示。</p>
+<p>复杂场景建议使用拓展库提供的 <a href="https://github.com/golang/sync/blob/master/errgroup/errgroup.go">x/sync/errgroup.Group</a>。</p>
+<h3 id="thread-local-storage-">thread-local storage ?</h3>
+<p>Java ThreadLocal 类支持 thread-local storage，合理利用 ThreadLocal 可以有效减少锁争用，提高并发度。下面代码展示了 ThreadLocal 的线程独立性，main Thread 无法获取新起 Thread 写入的值，新起 Thread 也无法读取 main Thread 写入的值，且写入互不干扰。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ThreadLocal</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">localMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThreadLocal</span><span class="o">&lt;&gt;();</span>
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">localMap</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&#34;main hello&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">String</span> <span class="n">tName</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tName</span> <span class="o">+</span> <span class="s">&#34; get &#34;</span> <span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">      <span class="n">localMap</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&#34;sub hello&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">tName</span> <span class="o">+</span> <span class="s">&#34; get &#34;</span> <span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl">  <span class="o">});</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">join</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Thread-main get &#34;</span><span class="o">+</span> <span class="n">localMap</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span> <span class="c1">//～
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Thread</span><span class="o">-</span><span class="mi">0</span> <span class="n">get</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl"><span class="n">Thread</span><span class="o">-</span><span class="mi">0</span> <span class="n">get</span> <span class="n">sub</span> <span class="n">hello</span>
+</span></span><span class="line"><span class="cl"><span class="n">Thread</span><span class="o">-</span><span class="n">main</span> <span class="n">get</span> <span class="n">main</span> <span class="n">hello</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>goroutine 并不支持本地存储，如果需传递上下文信息（比如链路追踪），可以使用 Context 接口，将其作为方法参数显式传递</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithValue</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">(),</span> <span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="s">&#34;value&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">withCtx</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">others</span> <span class="o">...</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Value</span><span class="p">(</span><span class="s">&#34;key&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="nf">withCtx</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">value</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="任务中止">任务中止</h3>
+<p>Java 和 Go 应用层任务中止，一般均使用协同式中止。</p>
+<p>Java 任务代码块需在每次循环前检查当前线程 interrupt 标志是否被设置，如果被设置则中止循环。一般可以通过 Thread 或者 Future 发起。</p>
+<p>注：目前 Java 仍可使用 stop 方法强行中止线程，但官方库在 1.2 时就已将该方法标注为 Deprecated。这种方式会导致线程立刻停止运行并释放所有 monitor，导致其他线程看到不一致的状态，容易引发严重的业务问题。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CancelableTask</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">interruptThread</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">interruptFuture</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">interruptThread</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(</span><span class="n">CancelableTask</span><span class="o">::</span><span class="n">loop</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">interruptFuture</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ExecutorService</span> <span class="n">exeSvc</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Future</span><span class="o">&lt;?&gt;</span> <span class="n">ft</span> <span class="o">=</span> <span class="n">exeSvc</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="n">CancelableTask</span><span class="o">::</span><span class="n">loop</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ft</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">exeSvc</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">loop</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(!</span><span class="n">Thread</span><span class="o">.</span><span class="na">interrupted</span><span class="o">())</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//... do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;looping&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;stopped&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 任务代码块可以依靠检查 select 关键字在每一轮循环检查 stop channel 是否有信号送达，如果没有则继续循环任务，如有则停止循环并返回。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">stop</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="nf">loop</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="o">&lt;-</span> <span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">close</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span> <span class="c1">// 也可使用 stop &lt;- struct{}{}
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">loop</span><span class="p">(</span><span class="nx">stop</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stop</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;stopped&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">//do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;looping&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>两种语言均会得到以下输出结果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">looping
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">looping
+</span></span><span class="line"><span class="cl">stopped
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Java 能不能用 BlockQueue 做类似事情？答案是可以，但 BlockQueue 占用内存太大，不适合作为状态同步工具。更主要原因是，BlockQueue 对于 Java 而言只是一个库实现，缺乏编译器和运行时支持，channel 对于 Go 而言是同步原语，有非常好的编译器和运行时支持。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">static</span> <span class="kt">void</span> <span class="nf">loopWithBlockQueue</span><span class="o">(</span><span class="n">BlockingQueue</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">queue</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(</span><span class="n">queue</span><span class="o">.</span><span class="na">poll</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">//... do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;looping&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;stopped&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">BlockingQueue</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">queue</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayBlockingQueue</span><span class="o">&lt;&gt;(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">loopWithBlockQueue</span><span class="o">(</span><span class="n">queue</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">queue</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">new</span> <span class="n">Object</span><span class="o">());</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 另一种常用的取消方式是使用 Context 接口</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">TODO</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;task canceled&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;running&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// do business
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}(</span><span class="nx">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">task</span> <span class="nx">canceled</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Context 除支持直接取消外，还支持超时取消 (WithDeadline，WithTimeout)。</p>
+<h3 id="优雅停机">优雅停机</h3>
+<p>优雅停机的思路一般都较为类似：先改状态为停机，接收函数停止接收任务，等待任务队列排空后退出进程。</p>
+<p>Java 应用优雅停机一般只需做前 2 步即可，第 3 步通常利用线程池完成（shutdown，awaitTermination）。</p>
+<p>上文提到，Go 并没有线程池概念，但利用 WaitGroup 实现优雅停机非常简单，见如下代码：</p>
+<ul>
+<li>接收任务时，先检查 stop channnel 是否关闭，如果关闭则拒绝任务，反之WaitGroup 加 1 并新建 goroutine 执行任务，执行完成后，WaitGroup 减 1。</li>
+<li>停机时，关闭 stop channel，随后调用 WaitGroup Wait 等待所有任务完成。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">wg</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">stop</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">accept</span><span class="p">(</span><span class="nx">task</span> <span class="kd">func</span><span class="p">())</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stop</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;reject&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">default</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="nf">handle</span><span class="p">(</span><span class="nx">task</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">handle</span><span class="p">(</span><span class="nx">task</span> <span class="kd">func</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">task</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">shutdown</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">close</span><span class="p">(</span><span class="nx">stop</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="变量同步原语">变量同步原语</h2>
+<p>下表列出了 Java 和 Go 官方库中同步方式的对应关系，切记这只是一种粗略的对应关系，因为两者有着不同的并发哲学。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Java</th>
+<th>Go</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>锁</td>
+<td>synchronized, ReentrantLock</td>
+<td>sync.Mutex, one unit buffered channel</td>
+</tr>
+<tr>
+<td>读写锁</td>
+<td>ReentrantReadWriteLock, StampedLock</td>
+<td>sync.RWMutex</td>
+</tr>
+<tr>
+<td>条件变量</td>
+<td>Condition</td>
+<td>sync.Cond</td>
+</tr>
+<tr>
+<td>信号量</td>
+<td>Semaphore</td>
+<td>buffered channel, x/sync/semaphore.Weighted</td>
+</tr>
+<tr>
+<td>CAS/Atomic</td>
+<td>Varhandle、volatile，Atomic 类</td>
+<td>atomic.Value，atomic 包</td>
+</tr>
+<tr>
+<td>once</td>
+<td>单例模式</td>
+<td>sync.Once</td>
+</tr>
+<tr>
+<td>BSP 模型</td>
+<td>CountDownLatch，CyclicBarrier</td>
+<td>sync.WaitGroup</td>
+</tr>
+</tbody>
+</table>
+<p>注：BSP 指 <a href="https://en.wikipedia.org/wiki/Bulk_synchronous_parallel">Bulk Synchronous Parallelism</a></p>
+<p>锁操作皆类似，即在进入关键代码路径时，调用锁定方法，同时保证无论中途是否发生异常，均确保释放方法得到调用。读写锁则是锁分为 2 把子锁分别对应于读路径和写路径的情况。这里不做过多介绍。</p>
+<h3 id="锁的公平模式与非公平模式">锁的公平模式与非公平模式</h3>
+<p>公平模式与非公平模式指的是，锁释放之际，等待队列非空，此时恰好有请求线程尝试获取锁，如果锁是公平模式，请求线程主动在队尾挂起，队头线程获得锁并立刻被唤醒运行；如果锁是非公平模式，请求线程直接获取锁。</p>
+<p>非公平模式上下文切换少、吞吐高，但容易造成线程饥饿。</p>
+<p>Java ReentrantLock、ReentrantReadWriteLock 锁，支持在构造函数中传递布尔值配置锁的公平性和非公平性。</p>
+<p>Go Mutex 不支持配置，但在运行期间自行在公平和非公平之间切换。Go Mutex 默认是非公平模式，如果在非公平模式检测到队尾 goroutine 发生饥饿（等待超过 1ms），会自动切换到公平模式；如果公平模式检测到队尾 goroutine 等待时间小于 1ms，则会且切回非公平模式。</p>
+<h3 id="锁的可重入支持-">锁的可重入支持 ?</h3>
+<p>Java synchronized 和带有 Reentrant 前缀的锁实现都能保护关键代码路径，同时支持可重入</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Locker</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Locker</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="kd">synchronized</span> <span class="o">(</span><span class="n">Lock</span><span class="o">.</span><span class="na">class</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">              <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">          <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantLock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">reentrant</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kd">static</span> <span class="kt">void</span> <span class="nf">reentrant</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;entered&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">entered</span>
+</span></span><span class="line"><span class="cl"><span class="n">entered</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">entered</span>
+</span></span><span class="line"><span class="cl"><span class="n">entered</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 官方库没有提供任何可重入锁实现，sync.Mutex，sync.RWMutex 均不支持可重入，类似这种操作会导致死锁</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">mu := sync.Mutex{}
+</span></span><span class="line"><span class="cl">mu.Lock() // ok
+</span></span><span class="line"><span class="cl">mu.Lock() // dead lock
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>遇到「可重入场景」，一般建议是将方法拆为公开版本和私有版本，公开方法加锁，私有方法不加锁，细节讨论参见 <a href="https://stackoverflow.com/questions/14670979/recursive-locking-in-go">6</a>。</p>
+<h3 id="锁的可中断式获取和超时获取">锁的可中断式获取和超时获取</h3>
+<p>Java 官方库的锁实现通常都支持可中断式获取和超时获取，查看 Lock 接口可以发现，lock、unlock 方法支持阻塞时获取，lockInterruptibly 支持中断式获取，tryLock 支持尝试性获取和超时获取。</p>
+<p>中断式获取操作上和上文展示的任务中断类似，如果 A 线程阻塞于取锁，B 线程代码调用 A 线程 interrupt 方法后，被挂起的 A 线程会从在随后恢复运行并抛出 InterruptedException 异常。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">public interface Lock {
+</span></span><span class="line"><span class="cl">    void lock();
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    void unlock();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    void lockInterruptibly() throws InterruptedException;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    boolean tryLock();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>以下代码展示了 Java 可中断式获取和超时获取</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ReentrantLock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Thread</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">try</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="c1">// 中断式获取，被中断抛出 InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">// lock.lockInterruptibly();
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="c1">// 超时获取，操作超时自动返回，被中断抛出 InterruptedException
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>          <span class="n">lock</span><span class="o">.</span><span class="na">tryLock</span><span class="o">(</span><span class="mi">10</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">          <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">      <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">});</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">100</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">java</span><span class="o">.</span><span class="na">lang</span><span class="o">.</span><span class="na">InterruptedException</span>
+</span></span><span class="line"><span class="cl">  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">AbstractQueuedSynchronizer</span><span class="o">.</span><span class="na">tryAcquireNanos</span><span class="o">(</span><span class="n">AbstractQueuedSynchronizer</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">992</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">ReentrantLock$Sync</span><span class="o">.</span><span class="na">tryLockNanos</span><span class="o">(</span><span class="n">ReentrantLock</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">168</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">util</span><span class="o">.</span><span class="na">concurrent</span><span class="o">.</span><span class="na">locks</span><span class="o">.</span><span class="na">ReentrantLock</span><span class="o">.</span><span class="na">tryLock</span><span class="o">(</span><span class="n">ReentrantLock</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="mi">479</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">  <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go sync.Mutex 并不支持可中断式获取和超时获取，因为这类场景应该使用 channel 实现，下面代码使用长度为 1 的 buffered channel 展示了这种技巧</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">lockCh</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">TryLock</span><span class="p">(</span><span class="nx">timeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nx">lockCh</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">time</span><span class="p">.</span><span class="nf">After</span><span class="p">(</span><span class="nx">timeout</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">LockInterruptibly</span><span class="p">(</span><span class="nx">interrupt</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{})</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">interrupt</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="cl">    <span class="k">case</span> <span class="nx">lockCh</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">UnLock</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="o">&lt;-</span><span class="nx">lockCh</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="条件变量">条件变量</h3>
+<p>一般来说，条件变量衍生于锁，不同条件变量只是同一锁空间下的不同等待队列。这点 Java 和 Go 类似。</p>
+<p>Java 可以使用 synchronized 代码块保护特定代码路径，兼而可以在 synchronized 代码块中使用 Object wait 和 notify、notifyall 方法实现单一条件等待。如果需要多个条件，可以使用官方库提供的 Lock 实现和 Condition 实现。</p>
+<p>Java 创建条件变量的方式是调用 Lock 接口 newCondition 方法。</p>
+<p>Go sync.Cond 结构体需设置 sync.Mutex 字段才能工作，挂起方法为 Wait，唤醒方法为 Braodcast。</p>
+<h3 id="信号量">信号量</h3>
+<p>Java 官方库 Semaphore 类实现了信号量机制</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Semaphore semaphore = new Semaphore(5);
+</span></span><span class="line"><span class="cl">semaphore.acquire(1);
+</span></span><span class="line"><span class="cl">semaphore.release(1);
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Go 官方库并没有提供 Semaphore 实现，拓展库提供了信号量实现 <a href="https://github.com/golang/sync/blob/master/semaphore/semaphore.go">x/sync/semaphore.Weighted</a>。不过，类似上面非阻塞锁和超时锁，同样可以使用 buffered channel 模拟之，一个简单的实现如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Semaphore</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">permits</span> <span class="kd">chan</span> <span class="kd">struct</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewSemaphore</span><span class="p">(</span><span class="nx">permits</span> <span class="kt">uint</span><span class="p">)</span> <span class="o">*</span><span class="nx">Semaphore</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">permitsCh</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="nx">permits</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Semaphore</span><span class="p">{</span><span class="nx">permits</span><span class="p">:</span> <span class="nx">permitsCh</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Semaphore</span><span class="p">)</span> <span class="nf">Acquire</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">s</span><span class="p">.</span><span class="nx">permits</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Semaphore</span><span class="p">)</span> <span class="nf">Release</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="o">&lt;-</span><span class="nx">s</span><span class="p">.</span><span class="nx">permits</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="casatomic">CAS/Atomic</h3>
+<p>Java 和 Go 均支持 CAS 及原子操作。</p>
+<p>Java 的 CAS 操作由 volatile 关键字和 VarHandle（9 之前是 UnSafe）支持，在此基础上有了 Atomic 类和并发包中的大量无锁实现（如 ConcurrentHashMap, AQS 队列等）。</p>
+<p>Go atomic.Value 提供了 CAS 操作基础，它保证任意类型（interface {}) 的 Load 和 Store 为原子操作，在此基础上有 atomic 包。</p>
+<h3 id="once-与单例模式">Once 与单例模式</h3>
+<p>Go sync.Once 常见用途是懒加载，它有 2 个特性</p>
+<ol>
+<li>保证程序运行期间某段代码只会执行一次</li>
+<li>如果多个 goroutine 同时执行 Once 守护代码，只有 1 个 goroutine 会获得执行机会，其他 goroutine 会阻塞直至代码执行完毕</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nx">once</span> <span class="p">=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">f</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once start&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;do once finish&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;block...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="nx">f</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;resume&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">//~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">do</span> <span class="nx">once</span> <span class="nx">start</span>
+</span></span><span class="line"><span class="cl"><span class="nx">block</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">block</span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="nx">do</span> <span class="nx">once</span>
+</span></span><span class="line"><span class="cl"><span class="nx">do</span> <span class="nx">once</span> <span class="nx">finish</span>
+</span></span><span class="line"><span class="cl"><span class="nx">resume</span>
+</span></span><span class="line"><span class="cl"><span class="nx">resume</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Java 较为接近这种需求的场景是懒加载单例模式，如</p>
+<ul>
+<li>双重检查单例模式</li>
+<li>静态内部类单例模式</li>
+<li>枚举单例模式</li>
+</ul>
+<p>如要获取一致的语义只需将对象创建改为 Runnable 执行即可。</p>
+<h3 id="bsp-模型">BSP 模型</h3>
+<p>BSP 原语支持等待一组执行线程完成，等待线程和执行可以在完成点同步线程本地计算结果，然后继续下一步操作。以如下场景为例：</p>
+<ol>
+<li>主线程向多个后台服务同时发起 HTTP 请求，主线程需等待其他线程返回后，才能继续执行</li>
+<li>反复执行类 Map-Reduce 计算，每轮 Map 完成后在同步点执行 Reduce 操作，之后开始下一轮计算</li>
+</ol>
+<p>在 Java 中，BSP 原语分为 CountDownLatch 和 CyclicBarrier 两种实现，两者均须在构造函数指定执行任务数量。CountDownLatch 仅支持一次性同步，执行线程调用 countdown 表示计算完成，等待线程调用 await 等待所有计算完成，所有计算完成后，调用 await 会立即返回（场景 1）。CyclicBarrier 支持多次同步，可以在 await 返回后调用 reset 方法恢复计数（场景 2）。</p>
+<p>Go BSP 原语统一由 sync.WaitGroup 支持，sync.WaitGroup 支持 Done 方法表示执行完成，Add 方法表示添加任务，Wait 方法表示等待所有任务完成。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span> <span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span> <span class="o">:=</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">WaitGroup</span><span class="p">{}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ii</span> <span class="o">:=</span> <span class="nx">i</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">defer</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">Done</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d finished\n&#34;</span><span class="p">,</span> <span class="nx">ii</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nx">wg</span><span class="p">.</span><span class="nf">Wait</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;all finish&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// do exchange
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="c1">// ~
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">2</span> <span class="nx">finished</span>
+</span></span><span class="line"><span class="cl"><span class="mi">0</span> <span class="nx">finished</span>
+</span></span><span class="line"><span class="cl"><span class="mi">1</span> <span class="nx">finished</span>
+</span></span><span class="line"><span class="cl"><span class="nx">all</span> <span class="nx">finish</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="内存模型">内存模型</h2>
+<p>内存模型指的是，Java 和 Go 之类的高级语言（相对 C）在各自语言层面实现的多线程内存同步规范。这些同步规范保证了多线程并发进入某一代码路径时，相应的读取和写入能按照预期的顺序发生。实现上，多采用禁止编译器重排指令和使用硬件指令强制同步缓存和主存（又称内存屏障）。下面仅在语言使用者而非语言开发者的角度讨论如何理解和应用内存模型，也即如何在边界内写好并发程序。</p>
+<p>注：下文描述「t2 时刻 线程 B 对 V 执行读取操作，线程 A 在 t1 时刻之前发生的所有写入均对线程 B 可见」与 <code>happened-before</code>、<code>happens-before</code> 等价，隐藏着一层含义是，语言编译器和运行时会禁止指令排，即保证在 t1 时刻不会有任何写入/读取操作被重排到 t1 之后，t2 时刻保证不会有任何写入/读取被重排到 t2 之前。</p>
+<h3 id="java-volatile">Java volatile</h3>
+<p>线程 A 对 volatile 修饰变量 V 执行写入操作后（t1 时刻），随后若任意线程 B 对 V 执行读取操作（t2 时刻，t2 &lt; t1），则线程 A 在 t1 时刻之前发生的所有写入均对 B 可见。</p>
+<p>Java 官方库 Lock 实现就利用了 volatile 语义：锁释放和锁获取分别对应 volatile 写和读，这样先发线程对受保护变量的写入就能顺利同步到后发线程。Atomic 类也是如此，先发尝试将更新 CAS 到 volatile 字段，后发线程立马能读取到最新值。</p>
+<h3 id="java-synchronized">Java synchronized</h3>
+<p>线程 A 在 t1 时刻释放 JVM 锁后（monitor exit)，在随后的 t2 时刻，若任意线程 B 获取到 JVM 锁（monintor enter），则线程 A 在 t1 时刻之前发生的所有写入均对 B 可见。</p>
+<p>synchronized 是 JVM 内置锁实现，写入 volatile 变量相当于 monitor exit，读取 volatile 变量相当于 monintor enter。</p>
+<h3 id="go-mutex">Go Mutex</h3>
+<p>Go 并未像 Java 一样提供 volatile 这样基础的关键字，但其 Mutex 相关内存模型和 synchronized 或 Java 官方库 Lock 实现有十分接近语义。</p>
+<p>若 goroutine A 在 t1 时刻释放 sync.Mutex 或 sync.RWMutex 后，在随后的 t2 时刻，若任意 goroutine B 获取到锁，则 goroutine A 在 t1 时刻之前发生的所有写入均对 B 可见。</p>
+<h3 id="go-once">Go Once</h3>
+<p>假设 Once 守护方法为 f()，那么发生在 f() 中所有写入对所有执行 once.Do(f) 返回后的 goroutine 可见。</p>
+<p>Go sync.Once 实现方式其实为 Mutex 和 CAS，根据上面关于 Mutex 和 Once 功能不断理解其原理，获取到执行权的 goroutine 执行完 f() 后，会解锁 Mutex，未争取到执行权的其他 goroutine 则会在后续陆续获取锁并释放锁，所以有以上保证。</p>
+<h3 id="java-final">Java final</h3>
+<p>如果某个对象类字段由 final 修饰，则线程 A 通过构造函数对该字段的赋值对后续所有线程可见，无需任何同步操作。</p>
+<p>Java 对象构造由 2 阶段组成，1 阶段为分配对象内存并 0 值化，2 阶段为调用构造函数执行字段初始化。如果 A 线程正执行对象构造 ，那么 B 线程在 1-2 阶段之间获取到对象引用并尝试进行字段读取，如果对应字段未由 final 修饰，那么便会出现不一致情况。</p>
+<h3 id="go-init">Go init</h3>
+<p>Go 基础启动初始化的规范，比较简单直白：</p>
+<ul>
+<li>初始化默认在单 goroutine 中执行，但是该 goroutine 在中途可能会创建其他 goroutine 执行并发初始化。</li>
+<li>如果 package p 引用了 package q，那么 q 中的所有 init functions 的执行完成时间发生在 p 中任意 init functions 开始执行前。</li>
+<li>main 包的 main 函数在所有 init functions 执行完成之后执行。</li>
+</ul>
+<h3 id="java-thread">Java Thread</h3>
+<p>如果 Thread A 启动 Thread B（t 时刻），则 Thread A 发生在 t 时刻之前的所有写入对 Thread B 可见。</p>
+<p>如果 Thread A join Thread B（t 时刻），则 Thread B 发生在 t 时刻之前所有写入对 Thread A 可见。</p>
+<h3 id="goroutine">goroutine</h3>
+<p>如果 goroutine A 启动 goroutine B（t 时刻），则 goroutine A 发生在 t 时刻之前的所有写入对 goroutine B 可见。</p>
+<p>反之，goroutine 退出并不附带内存同步操作。</p>
+<p>如下代码中，调用 hello 必然打印 hello, 调用 notHello 则不一定打印 hello。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">a</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">hello</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">a</span> <span class="p">=</span> <span class="s">&#34;hello&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nb">print</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">}()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">notHello</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">  <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span> <span class="nx">a</span> <span class="p">=</span> <span class="s">&#34;hello&#34;</span> <span class="p">}()</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">print</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="chanel">chanel</h3>
+<ol>
+<li>
+<p>goroutine A 对 channel C 执行发送操作或关闭操作后（t1 时刻），如果任意 goroutine B 对 channel C 执行对应接收操作（t2 时刻，t2 &lt; t1 或 t1 &gt; t2），则 goroutine A 在 t1 时刻之前发生所有的写入均对 goroutine B 可见。</p>
+</li>
+<li>
+<p>对于长度为 0 的 unbuffered channel C，有一条更特殊的规则，如果 goroutine A 对 C 执行接收操作（t1 时刻），若任意 goroutine B 对 channel C 执行发送操作（t2 时刻，t2 可以大于或者小于 t1），则 t2 之后，goroutine A 在 t1 时刻之前发生所有的写入均对 goroutine B 可见。</p>
+</li>
+<li>
+<p>对于长度为 n（n &gt; 0) 的 buffered channel C，如果 goroutine A 对 C 执行第 k 次接收操作（t1 时刻），若任意 goroutine B 对 channel C 执行第 n + k 次发送操作（t2 时刻，t2 可以大于或者小于 t1），则 t2 之后，goroutine A 在 t1 时刻之前发生所有的写入均对 goroutine B 可见。</p>
+</li>
+</ol>
+<p>Go channel 在语言层面是一种语法糖，无论是底层类似 Java ArrayBlockQueue，发送和接收并发由 sync.Mutex 守护。</p>
+<p>第 1 条规则很容易理解，写入的释放锁操作发生在接收的加锁操作之前。</p>
+<p>第 2 条规则也好理解，因为接收端的锁释放操作在发送端的加锁操作之前。注意不要用 Java SynchronousQueue 类比 unbuffered channel，前者只是基于 CAS，并没有这种保障。</p>
+<p>第 3 条规则其实可以是按第 2 条推导而来，对于长度为 n 的 channel，第 n + k 次发送加锁操作必然发生在第 k 次接收释放锁操作之后。</p>
+<h2 id="总结">总结</h2>
+<p>Java 开放了非常底层的内存模型，官方库在此基础上提供了丰富强大的并发工具。这种并发哲学，一方面留下了巨大的性能优化空间，另一方面则加大了编程难度，以任务中断为例，线程的 interrupt 状态便是一个不易理解的概念。这也导致了开发 Java 应用便离不开各种三方框架，新手 Java 程序员可能需要在各种别人写好的代码中摸爬滚打好些年，才能收发自如优化应用性能。</p>
+<p>Go 提供的内存模型则相对高层，最底层的 Mutex 和 channel 在 Java 中可以对应到 Lock 层。另外，Go 为 channel 提供了简洁优雅的语法糖，Go 为 channel 提供了 select、range 等关键字特性，Go 不允许应用获取 goroutine 引用，Go 不提供 thread-local 存储，等等。这一切组合起来，产生了非常简单健壮的并发哲学。我在上文多处展示过，许多 Java 中需要相当技巧和代码才能实现的并发同步操作，Go 只需很少的代码就实现了。</p>
+<p>同时可以发现，Go sync 包提供的能力极为有限，且很多需要用锁的场景，用 channel 可以做得更简单易懂。这与 Go 相对年轻，且同时提倡 <a href="https://en.wikipedia.org/wiki/Communicating_sequential_processes">CSP</a> 并发模型有关。<a href="https://go-proverbs.github.io/">Go 编程箴言</a> 第一条 <code>Don't communicate by sharing memory, share memory by communicating</code> ，即提倡使用 channel 作为线程同步手段。</p>
+<p>Java 平台中与 Go 并发哲学相似的是基于 <a href="https://en.wikipedia.org/wiki/Actor_model">Actor</a> 并发模型的 <a href="https://akka.io/">Akka</a> 和 <a href="https://vertx.io/">Vert.x</a>，不过类库实现的并发模型肯定不如语言级的并发模型简易好用。</p>
+<p>Java Thread 背后是系统线程，goroutine 是用户态线程，这带来了巨大的资源占用和切换速度差异：</p>
+<ul>
+<li>Java Thread 用户 stack 默认占用 1 MB，内核 stack 占用 8 KB [<a href="https://www.kernel.org/doc/html/latest/x86/kernel-stacks.html">1</a>]，而 goroutine stack 起始大小仅为 2 KB 并支持动态扩展 [<a href="https://golang.org/src/runtime/stack.go?h=StackMin#L72">2</a>]</li>
+<li>Java Thread 由操作系统内核调度，切换时间通常在 2000 ns 往上，goroutine 由 Go 运行时调度器切换，耗时在 170 ns 左右，后者比前者快 10 倍以上 [<a href="https://eli.thegreenplace.net/2018/measuring-context-switching-and-memory-overheads-for-linux-threads/">3</a>]</li>
+</ul>
+<p>在 Go 中，goroutine 则可以频繁被创建和销毁，不需要任何显式管理。Java 应用一般会使用标准库线程池以实现线程复用和线程管理。</p>
+<p>为减少上下文切换开销，Java 应用可以利用 async-callback 模型减少上下文切换开销，标准库 CompletableFuture（8 之后）、google Guava 库 ListenableFuture [<a href="https://github.com/google/guava/blob/master/guava/src/com/google/common/util/concurrent/ListenableFuture.java">4</a>] 均提供了非常好的 async-callback 模型。</p>
+<p>反观 Go，因为 goroutine 切换速度极快，所以不需要 async-callback 模型，select channel 之类的阻塞切换代码往往随处可见。以 Go 标准库为例，凡涉及系统调用，就会通过运行时调度器将调用方 goroutine 挂起并把 CPU 资源出让给其他 goroutine，系统调用返回之后，因阻塞挂起的 goroutine 会被重新调度，接着恢复运行，整个过程在调用方看来完全是同步的。</p>
+<p>所以 Bob Nystrom 在他的博客中说，Go 消灭了同步和异步的区别 [<a href="http://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/">5</a>]</p>
+<blockquote>
+<p>Go has eliminated the distinction between synchronous and asynchronous code.</p>
+</blockquote>
+<h2 id="延伸阅读">延伸阅读</h2>
+<ul>
+<li><a href="https://eli.thegreenplace.net/2018/go-hits-the-concurrency-nail-right-on-the-head">go-hits-the-concurrency-nail-right-on-the-head</a></li>
+<li><a href="https://golang.org/ref/mem">Go 内存模型</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Java_memory_model">Java 内存模型</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2019-08-20 16:55
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/go/">Go</a>
+          <a href="/tags/java/">Java</a>
+          <a href="/tags/concurrency/">Concurrency</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/%E7%A7%8B%E6%97%A5/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">里尔克 《秋日》</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2019-java-generic/">
+            <span class="next-text nav-default">Java 类型擦除与泛型信息恢复</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

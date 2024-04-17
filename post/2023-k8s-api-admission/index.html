@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>K8s API Admission Control and Policy - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="K8s API Admission Control and Policy" /><meta name="keywords" content="kubernetes, policy, webhook, plugin, go" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/2023-k8s-api-admission/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="K8s API Admission Control and Policy" />
+<meta property="og:description" content="K8s API Admission Control and Policy" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/2023-k8s-api-admission/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2023-06-19T23:19:35+08:00" />
+<meta property="article:modified_time" content="2023-06-19T23:19:35+08:00" />
+<meta itemprop="name" content="K8s API Admission Control and Policy">
+<meta itemprop="description" content="K8s API Admission Control and Policy"><meta itemprop="datePublished" content="2023-06-19T23:19:35+08:00" />
+<meta itemprop="dateModified" content="2023-06-19T23:19:35+08:00" />
+<meta itemprop="wordCount" content="1966">
+<meta itemprop="keywords" content="kubernetes,policy,webhook,plugin,go,en," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="K8s API Admission Control and Policy"/>
+<meta name="twitter:description" content="K8s API Admission Control and Policy"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">K8s API Admission Control and Policy</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2023-06-19 23:19 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#-what-is-admission-control-in-k8s">🎟️ What is Admission Control in K8s</a></li>
+    <li><a href="#-admission-internals">🧿 Admission internals</a></li>
+    <li><a href="#-write-an-admission-controller-in-apiserver">✍️ Write an Admission Controller in apiserver</a></li>
+    <li><a href="#-webhook-and-policy">🔮 Webhook and Policy</a></li>
+    <li><a href="#-write-an-admission-webhook">✍️ Write an Admission Webhook</a></li>
+    <li><a href="#-further-reading">📖 Further Reading</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <!-- 系列链接 -->
+<p>This post is one of the <strong>K8s API and Controllers</strong> series</p>
+<ul>
+<li><a href="../2023-k8s-api-by-crd">K8s CustomResourceDefinitions (CRD) internals</a></li>
+<li><a href="../2023-k8s-api-multi-version-conversion-best-practice">best practice for K8s api multi-version conversion</a></li>
+<li><a href="../2023-k8s-apiserver-from-scratch">simple K8s apiserver from scratch</a></li>
+<li><a href="../2023-k8s-apiserver-aggregation-internals">K8s apiserver aggregation internals</a></li>
+<li><a href="../2023-k8s-api-codegen">The most thorough K8s code generation tutorial</a></li>
+<li><a href="../2023-k8s-apiserver-using-library">Implement K8s apiserver using library</a></li>
+<li><a href="../2023-k8s-apiserver-avoid-using-runtime">Why custom K8s apiserver should avoid runtime?</a></li>
+<li><a href="../2023-k8s-api-admission">K8s API Admission Control and Policy</a> (this post)</li>
+</ul>
+<h2 id="-what-is-admission-control-in-k8s">🎟️ What is Admission Control in K8s</h2>
+<p>Admission control is a module in kube-apiserver that intercepts requests before an object is persisted but after the request is authenticated and authorized.
+Any API request coming to kube-apiserver follows these steps:</p>
+<ol>
+<li>Firstly, it passes filterchain, in which kube-apiserver does authn/authz to it</li>
+<li>Then, it is dispatched by kube-aggregator to the corresponding sub apiserver&rsquo;s HTTP mux</li>
+<li>After decoding/conversion/defaulting with <a href="https://github.com/kubernetes/apimachinery/blob/6b1428efc73348cc1c33935f3a39ab0f2f01d23d/pkg/runtime/scheme.go#L46">runtime.Scheme</a></li>
+<li><strong>The corresponding sub apiserver performs admission control on the request</strong></li>
+<li>RESTStorage strategy will be executed, and it finally is persisted to etcd</li>
+</ol>
+<p>The admission control is performed by <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a>.</p>
+<blockquote>
+<p>An admission controller is a piece of code that intercepts requests to
+the Kubernetes API server prior to persistence of the object,
+but after the request is authenticated and authorized.</p>
+</blockquote>
+<img src="/img/2023/k8s-admission-and-policy.png" width="650px"/>
+<p><a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a> are quite common in K8s, For example (in v1.27.3 and most previous versions),
+during the creation of a Pod, it will be mutated by ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controller. As show below</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">cat <span class="s">&lt;&lt; EOF | kubectl create --dry-run=server -o yaml -f -
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: Pod
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: web
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  containers:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - image: nginx
+</span></span></span><span class="line"><span class="cl"><span class="s">    name: web
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">kind: Pod
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  creationTimestamp: <span class="s2">&#34;2023-07-05T08:35:42Z&#34;</span>   <span class="c1"># generic registry Store</span>
+</span></span><span class="line"><span class="cl">  name: web
+</span></span><span class="line"><span class="cl">  namespace: default                          <span class="c1"># populated by kubectl, required by apiserver</span>
+</span></span><span class="line"><span class="cl">  uid: e8645a53-4676-4fb7-9441-a91b549f293c   <span class="c1"># generic registry Store</span>
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  containers:
+</span></span><span class="line"><span class="cl">  - image: nginx
+</span></span><span class="line"><span class="cl">    imagePullPolicy: Always   <span class="c1"># defaults, Always for tag latest, IfNotPresent for other tags</span>
+</span></span><span class="line"><span class="cl">    name: web
+</span></span><span class="line"><span class="cl">    resources: <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">    terminationMessagePath: /dev/termination-log  <span class="c1"># defaults</span>
+</span></span><span class="line"><span class="cl">    terminationMessagePolicy: File                <span class="c1"># defaults</span>
+</span></span><span class="line"><span class="cl">    volumeMounts:                           
+</span></span><span class="line"><span class="cl">    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount &lt;---+ 
+</span></span><span class="line"><span class="cl">      name: kube-api-access-rbr96                                  <span class="p">|</span>--&gt; by ServiceAccount Admission Controller
+</span></span><span class="line"><span class="cl">      readOnly: <span class="nb">true</span>                                           &lt;---+ 
+</span></span><span class="line"><span class="cl">  dnsPolicy: ClusterFirst    <span class="c1"># defaults</span>
+</span></span><span class="line"><span class="cl">  enableServiceLinks: <span class="nb">true</span>   <span class="c1"># defaults</span>
+</span></span><span class="line"><span class="cl">  preemptionPolicy: PreemptLowerPriority   &lt;-----------------------+
+</span></span><span class="line"><span class="cl">  priority: <span class="m">0</span>                              &lt;-----------------------+--&gt; by Priority Admission Controller
+</span></span><span class="line"><span class="cl">  restartPolicy: Always            <span class="c1"># defaults</span>
+</span></span><span class="line"><span class="cl">  schedulerName: default-scheduler <span class="c1"># defaults</span>
+</span></span><span class="line"><span class="cl">  securityContext: <span class="o">{}</span>         
+</span></span><span class="line"><span class="cl">  serviceAccount: default       <span class="c1"># conversion from serviceAccountName</span>
+</span></span><span class="line"><span class="cl">  serviceAccountName: default   &lt;--------------------------------------&gt; by ServiceAccount Admission Controller
+</span></span><span class="line"><span class="cl">  terminationGracePeriodSeconds: <span class="m">30</span>
+</span></span><span class="line"><span class="cl">  tolerations:
+</span></span><span class="line"><span class="cl">  - effect: NoExecute              &lt;--------------------------------+
+</span></span><span class="line"><span class="cl">    key: node.kubernetes.io/not-ready                               <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    operator: Exists                                                <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    tolerationSeconds: <span class="m">300</span>                                          <span class="p">|</span>--&gt; by DefaultTolerationSeconds Admission Controller
+</span></span><span class="line"><span class="cl">  - effect: NoExecute                                               <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    key: node.kubernetes.io/unreachable                             <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    operator: Exists                                                <span class="p">|</span>
+</span></span><span class="line"><span class="cl">    tolerationSeconds: <span class="m">300</span>         &lt;--------------------------------+
+</span></span><span class="line"><span class="cl">  volumes: 
+</span></span><span class="line"><span class="cl">  - name: kube-api-access-rbr96    &lt;--------------------------------+
+</span></span><span class="line"><span class="cl">    projected:                                                      <span class="p">|</span>
+</span></span><span class="line"><span class="cl">      defaultMode: <span class="m">420</span>                                              <span class="p">|</span>
+</span></span><span class="line"><span class="cl">      sources:                                                      <span class="p">|</span>
+</span></span><span class="line"><span class="cl">      - serviceAccountToken:                                        <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          expirationSeconds: <span class="m">3607</span>                                   <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          path: token                                               <span class="p">|</span>
+</span></span><span class="line"><span class="cl">      - configMap:                                                  <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          items:                                                    <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          - key: ca.crt                                             <span class="p">|</span>--&gt; by ServiceAccount Admission Controller
+</span></span><span class="line"><span class="cl">            path: ca.crt                                            <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          name: kube-root-ca.crt                                    <span class="p">|</span>
+</span></span><span class="line"><span class="cl">      - downwardAPI:                                                <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          items:                                                    <span class="p">|</span>
+</span></span><span class="line"><span class="cl">          - fieldRef:                                               <span class="p">|</span>
+</span></span><span class="line"><span class="cl">              apiVersion: v1                                        <span class="p">|</span>
+</span></span><span class="line"><span class="cl">              fieldPath: metadata.namespace                         <span class="p">|</span>
+</span></span><span class="line"><span class="cl">            path: namespace      &lt;----------------------------------+
+</span></span><span class="line"><span class="cl">status:
+</span></span><span class="line"><span class="cl">  phase: Pending        <span class="c1"># podStrategy.PrepareForCreate</span>
+</span></span><span class="line"><span class="cl">  qosClass: BestEffort  <span class="c1"># podStrategy.PrepareForCreate</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>When attempting to create a Pod within a namespace that does not exist in the cluster, a 404 response will be returned. This is handled by the NamespaceLifecycle Admission Controller.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl -n ns-not-exist run nginx --image<span class="o">=</span>nginx
+</span></span><span class="line"><span class="cl">Error from server <span class="o">(</span>NotFound<span class="o">)</span>: namespaces <span class="s2">&#34;ns-not-exist&#34;</span> not found
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Admission controllers perform deep inspection of a given request (including content).
+Some controllers, such as the NamespaceLifecycle Admission Controller, validate the request and determine its admissibility.
+Others, like the ServiceAccount, Priority, and DefaultTolerationSeconds Admission Controllers, may mutate the content of the request.</p>
+<p>All of the <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a> are compiled-in kube-apiserver. For more detailed information, please click the link provided.</p>
+<h2 id="-admission-internals">🧿 Admission internals</h2>
+<p>Admission is a module in <a href="https://github.com/kubernetes/apiserver/tree/master/pkg/admission">k8s.io/apiserver pkg/admission</a>. In which these interfaces are exposed to apiserver developer</p>
+<ul>
+<li>An admission controller must implement Interface.Handles to decide whether to handle the incoming operation (CREATE, UPDATE, DELETE, or CONNECT), and MutationInterface or ValidationInterface to make an admission decision.</li>
+<li>The MutationInterface is also an admission Interface (by nesting). Its function <code>Admit</code> makes an admission decision, and is allowed mutate the request object</li>
+<li>The ValidationInterface is quite similar to MutationInterface, but its function <code>Validate</code> is not allowed to mutate the request object</li>
+</ul>
+<p>All admission controllers are implementation of MutationInterface or ValidationInterface.
+MutationInterface implementation can mutate and validate request content, but ValidationInterface implementation can only validate request content.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">admission</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Interface is an abstract, pluggable interface for Admission Control decisions.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Interface</span> <span class="kd">interface</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Handles returns true if this admission controller can handle the given operation
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// where operation can be one of CREATE, UPDATE, DELETE, or CONNECT
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">Handles</span><span class="p">(</span><span class="nx">operation</span> <span class="nx">Operation</span><span class="p">)</span> <span class="kt">bool</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">MutationInterface</span> <span class="kd">interface</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Interface</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Admit makes an admission decision based on the request attributes.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// Context is used only for timeout/deadline/cancellation and tracing information.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">Admit</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">a</span> <span class="nx">Attributes</span><span class="p">,</span> <span class="nx">o</span> <span class="nx">ObjectInterfaces</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// ValidationInterface is an abstract, pluggable interface for Admission Control decisions.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">ValidationInterface</span> <span class="kd">interface</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Interface</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Validate makes an admission decision based on the request attributes.  It is NOT allowed to mutate
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// Context is used only for timeout/deadline/cancellation and tracing information.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nf">Validate</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">a</span> <span class="nx">Attributes</span><span class="p">,</span> <span class="nx">o</span> <span class="nx">ObjectInterfaces</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The official kube-apiserver has many <a href="https://github.com/kubernetes/kubernetes/tree/master/plugin/pkg/admission">built-in admission plugins</a> on top of the admission package,
+and here&rsquo;s the detail of <a href="https://github.com/kubernetes/kubernetes/blob/master/pkg/kubeapiserver/options/plugins.go">built-in admission plugins register</a>.
+These built-in plugins are commonly known as <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a>.</p>
+<h2 id="-write-an-admission-controller-in-apiserver">✍️ Write an Admission Controller in apiserver</h2>
+<p>As admission control is performed after the dispatch of kube-aggregator, the custom apiserver should implement admission controllers by itself.</p>
+<p>👻👻👻 If interested in K8s apiserver aggregation, you can read this post: <a href="../2023-k8s-apiserver-aggregation-internals">K8s apiserver aggregation internals</a>.</p>
+<p>Implementing the admission interfaces, then registering it to apiserver, that&rsquo;s all for writing an Admission Controller in apiserver.</p>
+<p>As <a href="https://github.com/phosae/x-kubernetes/commit/c2bfa30485677249374dbb582e8a111c0b897f0c">x-kubernetes commit: add admission</a> shows</p>
+<p>Firstly write the Admission Controller implements admission.ValidationInterface under pkg/admisssion</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">disallow</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Register registers a plugin
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">Register</span><span class="p">(</span><span class="nx">plugins</span> <span class="o">*</span><span class="nx">admission</span><span class="p">.</span><span class="nx">Plugins</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">plugins</span><span class="p">.</span><span class="nf">Register</span><span class="p">(</span><span class="s">&#34;DisallowFoo&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">config</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Reader</span><span class="p">)</span> <span class="p">(</span><span class="nx">admission</span><span class="p">.</span><span class="nx">Interface</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="o">&amp;</span><span class="nx">DisallowFoo</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">Handler</span><span class="p">:</span> <span class="o">*</span><span class="nx">admission</span><span class="p">.</span><span class="nf">NewHandler</span><span class="p">(</span><span class="nx">admission</span><span class="p">.</span><span class="nx">Create</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl">    <span class="p">})</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">DisallowFoo</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">admission</span><span class="p">.</span><span class="nx">Handler</span> <span class="c1">// nested Handler implements admission.Interface
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Validate implements admission.ValidationInterface
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="o">*</span><span class="nx">DisallowFoo</span><span class="p">)</span> <span class="nf">Validate</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span> <span class="nx">a</span> <span class="nx">admission</span><span class="p">.</span><span class="nx">Attributes</span><span class="p">,</span> <span class="nx">o</span> <span class="nx">admission</span><span class="p">.</span><span class="nx">ObjectInterfaces</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// write admission code here
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Then register Admission Controller to Admission options and enactive admission module in apiserver</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Options</span><span class="p">)</span> <span class="nf">Complete</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">disallow</span><span class="p">.</span><span class="nf">Register</span><span class="p">(</span><span class="nx">o</span><span class="p">.</span><span class="nx">Admission</span><span class="p">.</span><span class="nx">Plugins</span><span class="p">)</span> <span class="c1">// register the Admission Controller
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">o</span><span class="p">.</span><span class="nx">Admission</span><span class="p">.</span><span class="nx">RecommendedPluginOrder</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">o</span><span class="p">.</span><span class="nx">Admission</span><span class="p">.</span><span class="nx">RecommendedPluginOrder</span><span class="p">,</span> <span class="s">&#34;DisallowFoo&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">nil</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="nx">Options</span><span class="p">)</span> <span class="nf">ApiserverConfig</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span> 
+</span></span><span class="line"><span class="cl">    <span class="c1">// Apply Admission Options to apiserver config. 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// If RecommendedOptions was used to configure apiserver, just call RecommendedOptions.ApplyTo.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">o</span><span class="p">.</span><span class="nx">Admission</span><span class="p">.</span><span class="nf">ApplyTo</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">serverConfig</span><span class="p">.</span><span class="nx">Config</span><span class="p">,</span> <span class="nx">serverConfig</span><span class="p">.</span><span class="nx">SharedInformerFactory</span><span class="p">,</span> <span class="nx">serverConfig</span><span class="p">.</span><span class="nx">ClientConfig</span><span class="p">,</span> <span class="nx">feature</span><span class="p">.</span><span class="nx">DefaultFeatureGate</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Things happen in kube-apiserver are quite similar to it in custom apiserver</p>
+<ul>
+<li><a href="https://github.com/kubernetes/kubernetes/tree/master/plugin/pkg/admission">built-in admission plugins</a> are where the Admission Controller codes in</li>
+<li><a href="https://github.com/kubernetes/kubernetes/blob/master/pkg/kubeapiserver/options/plugins.go">built-in admission plugins register</a> are codes about plugin register</li>
+</ul>
+<p><a href="https://github.com/kubernetes/apiserver/blob/0e613811b6d0e41341abffac5a2f423eeee0fbaf/pkg/server/options/admission.go#L81-L95">k8s.io/apiserver pkg/server/options.NewAdmissionOptions</a> provides a convinient way for admission module initialization, which register these necessary admission controllers for custom apiserver</p>
+<ul>
+<li>NamespaceLifecycle</li>
+<li>MutatingAdmissionWebhook</li>
+<li>ValidatingAdmissionPolicy</li>
+<li>ValidatingAdmissionWebhook</li>
+</ul>
+<p>NamespaceLifecycle is mostly used for custom object creation. The others are intended for dynamic policies.</p>
+<h2 id="-webhook-and-policy">🔮 Webhook and Policy</h2>
+<p>All of the <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a> are compiled-in kube-apiserver, with three notable guys</p>
+<ol>
+<li>MutatingAdmissionWebhook</li>
+<li>ValidatingAdmissionWebhook</li>
+<li>ValidatingAdmissionPolicy</li>
+</ol>
+<p>MutatingAdmissionWebhook and ValidatingAdmissionWebhook controller make third-party admission controller possible.
+This two controller dynamically load and unload webhook configurations at runtime.
+The actual admisson controls are delegated to webhooks configured.</p>
+<p>Applying the MutatingWebhookConfiguration below will install a mutating webhook to cluster.
+Matching requests (any request with action create or update of any resources) will be forwarded to and reviewed by this webhook.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">admissionregistration.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">MutatingWebhookConfiguration</span><span class="w"> </span><span class="c"># or ValidatingWebhookConfiguration</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">webhooks</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span>- <span class="nt">admissionReviewVersions</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;v1&#34;</span><span class="p">]</span><span class="w"> </span><span class="c"># accept admission/v1 AdmissionReview</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">clientConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">caBundle</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># url: https://127.0.01:8000/validate # url or K8s service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span>{<span class="nt">&#34;name&#34;: &#34;foo&#34;, &#34;namespace&#34;:&#34;default&#34;, &#34;port&#34;: 443, &#34;path&#34;: </span><span class="s2">&#34;/admission&#34;</span>}<span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello.zeng.dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">sideEffects</span><span class="p">:</span><span class="w"> </span><span class="l">None</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">apiGroups</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">]</span><span class="w">     </span><span class="c"># match all apiGroups, [&#34;&#34;, &#34;apps&#34;] match core group and apps group</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">apiVersions</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">]</span><span class="w">   </span><span class="c"># match all apiVersions, [&#34;v1&#34;, &#34;v1beta1&#34;] match apiVersions v1 and v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">operations</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;CREATE&#34;</span><span class="p">,</span><span class="w"> </span><span class="s2">&#34;UPDATE&#34;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;*&#34;</span><span class="p">]</span><span class="w">     </span><span class="c"># match all resources</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespaceSelector</span><span class="p">:</span><span class="w"> </span>{}<span class="w">  </span><span class="c"># match all namesapces can use .matchExpressions to limit matching range</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>During admission control, MutatingAdmissionWebhook controller sends a <a href="https://github.com/kubernetes/api/blob/master/admission/v1/types.go#L28-L37">admission/v1 AdmissionReview</a> to this mutating webhook, with comming request in AdmissionReview.Request.
+The webhook decodes the object from request, provides its mutation as JSONPatch in AdmissionReview.Response, and returns an <a href="https://github.com/kubernetes/api/blob/master/admission/v1/types.go#L28-L37">admission/v1 AdmissionReview</a> back to the apiserver.</p>
+<p>If mutation and validation succeed, return AdmissionReview with Response field <code>allowed: true</code>, otherwise with <code>allowed: false</code>.</p>
+<div class="mermaid">flowchart LR
+
+apiserver --> |AdmissionReview<br/>Request| webhook-server
+webhook-server --> |AdmissionReview<br/>Response<br/>allowed: true/false<br/>result:...jsonpatch| apiserver
+
+webhook-server --> |mutate/validate<br/>object| webhook-server 
+</div>
+<p>MutatingAdmissionWebhook admission controller calls any mutating webhooks which match the request.
+Matching webhooks are called in serial; each one may modify the object if it desires.</p>
+<p>ValidatingAdmissionWebhook admission controller calls any validating webhooks which match the request.
+Matching webhooks are called in parallel; if any of them rejects the request, the request fails.</p>
+<p><strong>Validating webhooks must not mutate the object. So mutating webhooks can work as validating webhooks, but not vice versa.</strong></p>
+<p>Mutating webhooks are similar to the built-in controller implements admission.MutationInterface, while
+validating webhooks are similar to the built-in controller implements admission.ValidationInterface.</p>
+<img src="/img/2023/k8s-admission-and-policy-webhook.png" width="600px"/>
+<p>Admission webhooks are super powerful in K8s. A well-known example of mutating webhook is istio&rsquo;s <a href="https://istio.io/latest/docs/setup/additional-setup/sidecar-injection/#automatic-sidecar-injection">automatic sidecar injection</a>.</p>
+<p>Another example is building policy management system based on admission webhook.
+<a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> and <a href="https://github.com/kyverno/kyverno">Kyverno</a> are popular policy engines. Its policies are defined as CRDs in Kubernetes native way.</p>
+<p>Once <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> or <a href="https://github.com/kyverno/kyverno">Kyverno</a> deployed, user simply need to provide they policies as custom resources.
+Webhook module of <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> and <a href="https://github.com/kyverno/kyverno">Kyverno</a> will load user-defined policies and apply mutations/validations to the comming reuqest.</p>
+<p>A Policy management system can enforce best practice for K8s usage, thereby improving cluster security, among other benefits. Out-of-the-box policies widely used in K8s community can be found at <a href="https://open-policy-agent.github.io/gatekeeper-library/website/">OPA/Gatekeeper Library</a> and <a href="https://kyverno.io/policies/">Kyverno Policies</a>.
+Some of them are:</p>
+<ul>
+<li>Restrict Image Registries</li>
+<li>Pod Security Policies, such as enforce Pod spec.allowPrivilegeEscalation to false</li>
+<li>Automount Service Account Token for Pod</li>
+<li>Disallows all Services with type LoadBalancer</li>
+<li>Enforce Container Resources</li>
+<li>Add Certificates as a Volume</li>
+<li>Add Tolerations</li>
+<li>Disallow CRI socket mounts</li>
+</ul>
+<p>For custom resources by custom apiserver, apply admisson control is simple and straightforward.
+For custom resources by CRDs, the only option is the admission webhook.
+Does any constraits, like validate resource field, deserve to implement and deploy a admission webhook?</p>
+<p>In v1.26 Kubernetes imports Validating Admission Policy (powered by controller ValidatingAdmissionPolicy).</p>
+<blockquote>
+<p>Validating admission policies offer a declarative, in-process alternative to validating admission webhooks.</p>
+</blockquote>
+<img src="/img/2023/k8s-admission-and-policy-built-in-cel.png" width="500px"/>
+<p>ValidatingAdmissionPolicy is the official policy engine that use the <a href="https://github.com/google/cel-spec">Common Expression Language (CEL)</a> to declare the validation rules of a policy. Compared to <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> and <a href="https://github.com/kyverno/kyverno">Kyverno</a>, Validating Admission Policy are really at early stage now (2023-7). Out-of-the-box policies are rare.</p>
+<p>Usage details can be found at <a href="https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/">Kubernetes Documentation: Validating Admission Policy</a>.</p>
+<p>Repo <a href="https://github.com/douglasmakey/k8s-validating-admission-policy">douglasmakey/k8s-validating-admission-policy</a> also provides good example.</p>
+<p>Repo <a href="https://github.com/kubescape/cel-admission-library">kubescape/cel-admission-library</a> contains out-of-the-box policies.</p>
+<p>✅ The relationship between Validating Admission Policy and popular policy engines (such as <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a>, <a href="https://github.com/kyverno/kyverno">Kyverno</a>) is not a matter of choosing one over the other, it can be a complementary relationship. <a href="https://github.com/open-policy-agent/gatekeeper">OPA/Gatekeeper</a> have <a href="https://github.com/open-policy-agent/gatekeeper/issues/2682">integration with K8s Validating Admission Policy</a>.</p>
+<h2 id="-write-an-admission-webhook">✍️ Write an Admission Webhook</h2>
+<p>My repo <a href="https://github.com/phosae/denyenv-validating-admission-webhook">denyenv-validating-admission-webhook</a> is a validating webhook example.</p>
+<p>//todo add mutating webhook example</p>
+<h2 id="-further-reading">📖 Further Reading</h2>
+<ul>
+<li><a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/">Admission Controllers</a></li>
+<li><a href="https://open-policy-agent.github.io/gatekeeper-library/website/">OPA/Gatekeeper Library</a></li>
+<li><a href="https://kyverno.io/policies/">Kyverno Policies</a></li>
+<li><a href="https://kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/">Kubernetes Documentation: Validating Admission Policy</a></li>
+<li><a href="https://github.com/google/cel-spec">Common Expression Language (CEL)</a></li>
+<li><a href="https://flavio.castelli.me/2022/07/21/playing-with-common-expression-language/">Playing with Common Expression Language</a></li>
+<li><a href="https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/492-admission-webhooks">KEP-492: Admission Webhooks</a></li>
+<li><a href="https://github.com/kubernetes/enhancements/tree/master/keps/sig-api-machinery/3488-cel-admission-control">KEP-3488: CEL for Admission Control</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2023-06-19 23:19
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/kubernetes/">kubernetes</a>
+          <a href="/tags/policy/">policy</a>
+          <a href="/tags/webhook/">webhook</a>
+          <a href="/tags/plugin/">plugin</a>
+          <a href="/tags/go/">go</a>
+          <a href="/tags/en/">en</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2023-kubevirt-mix-kubeovn-calico/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">Calico ➕ KubeOVN —— 为 KubeVirt VMs 提供受限的 underlay 网络访问</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2023-k8s-api-multi-version-conversion-best-practice/">
+            <span class="next-text nav-default">K8s 多版本 API 转换最佳实践</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2023-06-19 23:19:35 \u002b0800 \u002b0800',
+        title: 'K8s API Admission Control and Policy',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true });
+</script>
+
+
+
+
+
+</body>
+</html>

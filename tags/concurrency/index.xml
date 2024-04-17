@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Concurrency on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/concurrency/</link>
+    <description>Recent content in Concurrency on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 15 Jul 2019 16:55:32 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/concurrency/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java &amp; Go 并发编程对比</title>
+      <link>https://www.zeng.dev/post/2019-java2go-concurrency/</link>
+      <pubDate>Mon, 15 Jul 2019 16:55:32 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2019-java2go-concurrency/</guid>
+      <description>Java &amp;amp; Go 并发编程对比</description>
+    </item>
+    
+  </channel>
+</rss>

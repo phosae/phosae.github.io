@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>cri-o on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/cri-o/</link>
+    <description>Recent content in cri-o on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 01 Jul 2020 17:31:56 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/cri-o/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>各种容器运行时都解决了什么问题</title>
+      <link>https://www.zeng.dev/post/2020-container-runtimes/</link>
+      <pubDate>Wed, 01 Jul 2020 17:31:56 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2020-container-runtimes/</guid>
+      <description>容器运行时原理小综述</description>
+    </item>
+    
+  </channel>
+</rss>

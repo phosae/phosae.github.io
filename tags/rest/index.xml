@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>rest on ZengXu&#39;s BLOG</title>
+    <link>https://www.zeng.dev/tags/rest/</link>
+    <description>Recent content in rest on ZengXu&#39;s BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 07 Jun 2023 16:11:19 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/rest/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>使用 library 实现 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</link>
+      <pubDate>Wed, 07 Jun 2023 16:11:19 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-using-library/</guid>
+      <description>理解 K8s apiserver 的最好方式就是自己动手实现同款</description>
+    </item>
+    
+    <item>
+      <title>实现一个极简 K8s apiserver</title>
+      <link>https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/</link>
+      <pubDate>Fri, 26 May 2023 07:43:51 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-apiserver-from-scratch/</guid>
+      <description>本文实现了一个符合 Kubernetes REST 风格的极简 apiserver，代码量只有 500 行左右。无论是单独运行还是集成到 K8s 集群，它都支持 kubectl 增删改查操作。动手把玩这个 apiserver，可以很好理解 K8s apiserver aggregation 原理，以及 kubectl 与 apiserver 的交互机制</description>
+    </item>
+    
+    <item>
+      <title>K8s CustomResourceDefinitions (CRD) 原理</title>
+      <link>https://www.zeng.dev/post/2023-k8s-api-by-crd/</link>
+      <pubDate>Fri, 19 May 2023 10:09:09 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-k8s-api-by-crd/</guid>
+      <description>K8s CustomResourceDefinition (CRD) 为使用者提供了开箱即用的 REST API 拓展能力。使用方只需创建一份 CRD 声明，kube-apiserver 就会自动提供一套成熟的 HTTP REST API，并直接将 Custom Resources 存储到背后存储（通常是 etcd）中。本文由浅入深，先展示了 CRD 的基本使用方式、kubectl 与对应 Custom API 模块的交互原理，再深入探究 CRD 在 kube-apiserver 内部的实现原理，最后对其特性的利弊做了总结</description>
+    </item>
+    
+    <item>
+      <title>REST: Part 2 - HTTP 缓存</title>
+      <link>https://www.zeng.dev/post/2023-rest-part2-cache/</link>
+      <pubDate>Fri, 07 Apr 2023 14:59:31 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part2-cache/</guid>
+      <description>HTTP REST 缓存简述</description>
+    </item>
+    
+    <item>
+      <title>REST: Part 1 - HTTP API 设计思路</title>
+      <link>https://www.zeng.dev/post/2023-rest-part1-api/</link>
+      <pubDate>Wed, 05 Apr 2023 15:28:41 +0800</pubDate>
+      
+      <guid>https://www.zeng.dev/post/2023-rest-part1-api/</guid>
+      <description>HTTP REST API 通用设计思路</description>
+    </item>
+    
+  </channel>
+</rss>

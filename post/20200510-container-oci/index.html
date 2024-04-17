@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>理解 OCI - ZengXu&#39;s BLOG</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="Zeng Xu" /><meta name="description" content="Dive into Open Container Initiative" /><meta name="keywords" content="container, oci, docker" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.109.0 with theme even" />
+
+
+<link rel="canonical" href="https://www.zeng.dev/post/20200510-container-oci/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.3ab191e0444a0833d62fa8f1e44231fc793f2c04a2474a8b9348894c550f8388.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="理解 OCI" />
+<meta property="og:description" content="Dive into Open Container Initiative" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zeng.dev/post/20200510-container-oci/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-05-10T22:43:15+08:00" />
+<meta property="article:modified_time" content="2020-06-03T22:43:15+08:00" />
+<meta itemprop="name" content="理解 OCI">
+<meta itemprop="description" content="Dive into Open Container Initiative"><meta itemprop="datePublished" content="2020-05-10T22:43:15+08:00" />
+<meta itemprop="dateModified" content="2020-06-03T22:43:15+08:00" />
+<meta itemprop="wordCount" content="4765">
+<meta itemprop="keywords" content="container,oci,docker," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="理解 OCI"/>
+<meta name="twitter:description" content="Dive into Open Container Initiative"/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">主页</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">归档</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">标签</li>
+      </a><a href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">
+        <li class="mobile-menu-item">杂文</li>
+      </a><a href="/about">
+        <li class="mobile-menu-item">我</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">Zeng Xu&#39;s BLOG</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">主页</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">归档</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">标签</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7">杂文</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about">我</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">理解 OCI</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-05-10 22:43 </span>
+        
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#docker-的味道">Docker 的味道</a></li>
+    <li><a href="#oci-的出现">OCI 的出现</a></li>
+    <li><a href="#镜像是什么">镜像是什么</a>
+      <ul>
+        <li><a href="#docker-镜像里有什么">Docker 镜像里有什么</a></li>
+        <li><a href="#转换-docker-镜像为-oci-镜像">转换 Docker 镜像为 OCI 镜像</a></li>
+        <li><a href="#oci-v1-和-docker-image-manifest-v2">OCI V1 和 Docker Image Manifest V2</a></li>
+        <li><a href="#理解定义">理解定义</a></li>
+      </ul>
+    </li>
+    <li><a href="#runc">runC</a>
+      <ul>
+        <li><a href="#简单-runc-容器">简单 runC 容器</a></li>
+        <li><a href="#给-runc-容器绑定虚拟网卡">给 runC 容器绑定虚拟网卡</a></li>
+      </ul>
+    </li>
+    <li><a href="#oci-标准的意义">OCI 标准的意义</a></li>
+    <li><a href="#resources">Resources</a></li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h2 id="docker-的味道">Docker 的味道</h2>
+<p>写一个 Java HTTP 应用，启动后监听 8000 端口，执行 <code>curl localhost:8000/hello</code> 后返回 hello world。将其打包成可执行 jar 后，可通过如下 Dockerfile 将其镜像化：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">FROM openjdk:8-jdk-alpine
+</span></span><span class="line"><span class="cl">WORKDIR /
+</span></span><span class="line"><span class="cl">COPY app.jar .
+</span></span><span class="line"><span class="cl">ENTRYPOINT [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;]
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在独立文件夹中放置 app.jar 和 Dockerfile 并执行 docker 镜像构建命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ docker build -t oci-demo-app:v0 .
+</span></span><span class="line"><span class="cl">Step 1/4 : FROM openjdk:8-jdk-alpine3.9
+</span></span><span class="line"><span class="cl"> ---&gt; a3562aa0b991
+</span></span><span class="line"><span class="cl">Step 2/4 : WORKDIR /
+</span></span><span class="line"><span class="cl"> ---&gt; Using cache
+</span></span><span class="line"><span class="cl"> ---&gt; 6cbcc0fdd452
+</span></span><span class="line"><span class="cl">Step 3/4 : COPY app.jar .
+</span></span><span class="line"><span class="cl"> ---&gt; 60bf11322039
+</span></span><span class="line"><span class="cl">Step 4/4 : ENTRYPOINT [&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;]
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 9ff5a344724b
+</span></span><span class="line"><span class="cl">Removing intermediate container 9ff5a344724b
+</span></span><span class="line"><span class="cl"> ---&gt; 73330cad5c12
+</span></span><span class="line"><span class="cl">Successfully built 73330cad5c12
+</span></span><span class="line"><span class="cl">Successfully tagged oci-demo-app:v0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我已经将 oci-demo-app:v0 推送到了 Dockerhub，你可以通过 <code>docker pull zengxu/oci-demo-app:v0</code> Pull 镜像并在自己的电脑上复现本文中贴出的结果。</p>
+<p>使用 docker run 运行容器，随之就可以通过 HTTP 请求访问服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ docker run -p 8000:8000 oci-demo-app:v0
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">[main] o.z.o.OciImageDemoApplication : Starting OciImageDemoApplication v0.0.1-SNAPSHOT on c7b8e0f373bc with PID 1 (/app.jar started by root in /)
+</span></span><span class="line"><span class="cl">[main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8000 (http)
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># 另起一个控制台访问服务
+</span></span><span class="line"><span class="cl">$ curl localhost:8000/hello
+</span></span><span class="line"><span class="cl">hello world
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>上面使用的 Docker 命令展示了如下功能：</p>
+<ol>
+<li><code>docker build</code>，镜像构建功能</li>
+<li><code>docker push/pull</code>，镜像存储功能</li>
+<li><code>docker run -p</code>，镜像解压功能、容器运行功能以及容器网络设置功能（根据镜像文件运行容器，并将容器网络端口 8000 映射到 host 网络端口 8000）</li>
+</ol>
+<h2 id="oci-的出现">OCI 的出现</h2>
+<p>尤其随着 Kubernetes 成熟并成为容器编排的事实标准，Docker 对于 Kubernetes 来说功能太多了</p>
+<ul>
+<li>Kubernetes 不需要镜像构建功能</li>
+<li>Kubernetes 只需要镜像拉取功能</li>
+<li>Kubernetes 有自己的 CNI 网络插件，所以也不需要 Docker 的网络功能</li>
+<li>&hellip;&hellip;</li>
+</ul>
+<p>于是 2015 年，在 Linux 基金会的支持下有了 <a href="https://opencontainers.org/about/overview/">Open Container Initiative (OCI)</a>（功能上来说就是负责制定开放社区容器标准的组织）：</p>
+<blockquote>
+<p>The Open Container Initiative (OCI) is a lightweight, open governance structure (project), formed under the auspices of the Linux Foundation, for the express purpose of creating open industry standards around container formats and runtime. The OCI was launched on June 22nd 2015 by Docker, CoreOS and other leaders in the container industry.</p>
+</blockquote>
+<p>Docker 将自己容器格式和运行时 <a href="https://github.com/opencontainers/runc">runC</a> 捐给了 OCI。OCI 在此基础上制定了 2 个标准：运行时标准 Runtime Specification (runtime-spec) 和 镜像标准 Image Specification (image-spec) :</p>
+<p><code>runtime-spec</code> 很简单，就是规范了拿到文件夹和配置文件之后，如何把容器跑起来（下文将展示它有多简单！）：</p>
+<blockquote>
+<p>The Runtime Specification outlines how to run a “filesystem bundle” that is unpacked on disk.</p>
+</blockquote>
+<p><code>image-spec</code> 则比较啰嗦，以至于 OCI 在首页介绍中没贴出它是干嘛的。它其实规范了镜像应按照何种格式组织文件层、镜像配置文件该怎么写。你可以先忽略它，下文会展示 OCI 镜像到底是什么玩意。</p>
+<blockquote>
+<p>This specification defines how to create an OCI Image, which will generally be done by a build system, and output an <a href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">image manifest</a>, a <a href="https://github.com/opencontainers/image-spec/blob/master/layer.md">filesystem (layer) serialization</a>, and an <a href="https://github.com/opencontainers/image-spec/blob/master/config.md">image configuration</a>. At a high level the image manifest contains metadata about the contents and dependencies of the image including the content-addressable identity of one or more filesystem serialization archives that will be unpacked to make up the final runnable filesystem. The image configuration includes information such as application arguments, environments, etc. The combination of the image manifest, image configuration, and one or more filesystem serializations is called the OCI Image.</p>
+</blockquote>
+<h2 id="镜像是什么">镜像是什么</h2>
+<p>为什么讲明白规范，有必要先弄明白镜像是什么。</p>
+<h3 id="docker-镜像里有什么">Docker 镜像里有什么</h3>
+<p>通过 docker image save 命令导出镜像，并使用 tar 命令解压，使用 tree 命令即可得到镜像文件结构。没错，镜像就是 tar 格式压缩包，而且压缩包中还包含着多个 layer.tar 压缩包。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">docker pull zengxu/oci-demo-app:v0
+</span></span><span class="line"><span class="cl">docker image save zengxu/oci-demo-app:v0 -o oci-demo-app.tar
+</span></span><span class="line"><span class="cl">mkdir oci-demo-app-docker-image
+</span></span><span class="line"><span class="cl">tar -C oci-demo-app-docker-image -xvf oci-demo-app.tar
+</span></span><span class="line"><span class="cl">tree oci-demo-app-docker-image
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">oci-demo-app-docker-image
+</span></span><span class="line"><span class="cl">├── 1a58e6937db044ef6f2e2962a0dc7bef16a6c33fdfc5a0318c39092612a1bd1a # (amd64/alpine:3.9.4)
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar
+</span></span><span class="line"><span class="cl">│   └── VERSION
+</span></span><span class="line"><span class="cl">├── 98867178f60349f16652222772d086159a6d087fcd50bc32b9d75c23cd01ed8d # (openjdk8)
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar
+</span></span><span class="line"><span class="cl">│   └── VERSION
+</span></span><span class="line"><span class="cl">├── c12f86d2a60fc27a1d93d555944262fda4ed66e3a3172ac45cd861151a0dc6c1 # (java_home)
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar
+</span></span><span class="line"><span class="cl">│   └── VERSION
+</span></span><span class="line"><span class="cl">├── d39aa2f569c9d3100f9f2f2ddbe9133bc1688ba332d445409112952ada1fffbb #(app.jar)
+</span></span><span class="line"><span class="cl">│   ├── json
+</span></span><span class="line"><span class="cl">│   ├── layer.tar
+</span></span><span class="line"><span class="cl">│   └── VERSION
+</span></span><span class="line"><span class="cl">├── fa903e5799bb733ed874b5161bfaf6ec363b54ac9020541735305b5d515d6335.json
+</span></span><span class="line"><span class="cl">├── manifest.json
+</span></span><span class="line"><span class="cl">└── repositories
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>manifest.json 声明了镜像的配置、tag 和包含的层级，同时每个 layer 文件夹包含了一个 json 文件，声明了当前层的配置和自己的 parent layer。其实每个 layer 都是一镜像，然后组合起来成了新的镜像。通过镜像分层，存储实现在处理 Push 和 Pull 只需传输不存在的层即可。<code>oci-demo-app:v0</code> 层次关系如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">amd64/alpine:3.9.4
+</span></span><span class="line"><span class="cl">      |
+</span></span><span class="line"><span class="cl">      v 
+</span></span><span class="line"><span class="cl">   java_home
+</span></span><span class="line"><span class="cl">      |
+</span></span><span class="line"><span class="cl">      v
+</span></span><span class="line"><span class="cl">   openjdk8
+</span></span><span class="line"><span class="cl">      |
+</span></span><span class="line"><span class="cl">      v
+</span></span><span class="line"><span class="cl">   app.jar
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ cat manifest.json  | jq
+</span></span><span class="line"><span class="cl">[
+</span></span><span class="line"><span class="cl">  {
+</span></span><span class="line"><span class="cl">    &#34;Config&#34;: &#34;fa903e5799bb733ed874b5161bfaf6ec363b54ac9020541735305b5d515d6335.json&#34;,
+</span></span><span class="line"><span class="cl">    &#34;RepoTags&#34;: [
+</span></span><span class="line"><span class="cl">      &#34;zengxu/oci-demo-app:v0&#34;
+</span></span><span class="line"><span class="cl">    ],
+</span></span><span class="line"><span class="cl">    &#34;Layers&#34;: [
+</span></span><span class="line"><span class="cl">      &#34;1a58e6937db044ef6f2e2962a0dc7bef16a6c33fdfc5a0318c39092612a1bd1a/layer.tar&#34;,
+</span></span><span class="line"><span class="cl">      &#34;c12f86d2a60fc27a1d93d555944262fda4ed66e3a3172ac45cd861151a0dc6c1/layer.tar&#34;,
+</span></span><span class="line"><span class="cl">      &#34;98867178f60349f16652222772d086159a6d087fcd50bc32b9d75c23cd01ed8d/layer.tar&#34;,
+</span></span><span class="line"><span class="cl">      &#34;d39aa2f569c9d3100f9f2f2ddbe9133bc1688ba332d445409112952ada1fffbb/layer.tar&#34;
+</span></span><span class="line"><span class="cl">    ]
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">]
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果查看 json config 文件，就会找到之前在 Dockerfile 中声明的 EntryPoint，同时也包含了 Linux std、tty 以及熟悉的 Java 环境变量。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;architecture&#34;</span><span class="p">:</span> <span class="s2">&#34;amd64&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;config&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Hostname&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Domainname&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;User&#34;</span><span class="p">:</span> <span class="s2">&#34;&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;AttachStdin&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;AttachStdout&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;AttachStderr&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Tty&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;OpenStdin&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;StdinOnce&#34;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Env&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;LANG=C.UTF-8&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;JAVA_VERSION=8u212&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;JAVA_ALPINE_VERSION=8.212.04-r0&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Cmd&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Image&#34;</span><span class="p">:</span> <span class="s2">&#34;sha256:9fbacfbc982e07b153f6f23f0857a33765bc48d3c935a051dd16ad132f749ef7&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Volumes&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;WorkingDir&#34;</span><span class="p">:</span> <span class="s2">&#34;/&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Entrypoint&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;java&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;-jar&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;app.jar&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;OnBuild&#34;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Labels&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="err">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果我们按照压缩包中 layer 的关系，从顶层开始，逐级解压文件再合并组织到一个目录树，得到的就是容器运行时文件系统。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">app.jar	 bin  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>实际上，如果通过 <code>docker export</code> 命令将容器文件系统导出，也会得到该文件结构</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ docker pull zengxu/oci-demo-app:v0
+</span></span><span class="line"><span class="cl">$ docker export $(docker create zengxu/oci-demo-app:v0) &gt; oci-demo-app-container.tar
+</span></span><span class="line"><span class="cl">$ mkdir oci-demo-app-container
+</span></span><span class="line"><span class="cl">$ tar -C oci-demo-app-container -xvf oci-demo-app-container.tar
+</span></span><span class="line"><span class="cl">$ ls ./oci-demo-app-container
+</span></span><span class="line"><span class="cl">app.jar  bin  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="转换-docker-镜像为-oci-镜像">转换 Docker 镜像为 OCI 镜像</h3>
+<p>使用 <a href="https://github.com/containers/skopeo">skopeo</a> 将远程镜像拷贝以 OCI 格式拷贝到本地</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ skopeo copy docker://zengxu/oci-demo-app:v0 oci:oci-demo-app:v0
+</span></span><span class="line"><span class="cl">Getting image source signatures
+</span></span><span class="line"><span class="cl">Copying blob e7c96db7181b done
+</span></span><span class="line"><span class="cl">Copying blob f910a506b6cb done
+</span></span><span class="line"><span class="cl">Copying blob c2274a1a0e27 done
+</span></span><span class="line"><span class="cl">Copying blob e4d6c83503a9 done
+</span></span><span class="line"><span class="cl">Copying config d4a44c93e6 done
+</span></span><span class="line"><span class="cl">Writing manifest to image destination
+</span></span><span class="line"><span class="cl">Storing signatures
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>得到的 OCI 格式镜像由如下部分组成</p>
+<ul>
+<li>index.json，故名思义，索引文件，指向了镜像 manifest 文件列表，如果镜像包含多个不同平台版本软件包，那么每个版本各对应一个 manifest 项</li>
+<li>oci-layout, json 格式文件，只有一个字段 <code>imageLayoutVersion</code>，指明了目前镜像组织形式的版本，当前为 <code>1.0.0</code></li>
+<li>blobs/sha256，sh256 表示每个文件签名（也即文件名）所用的算法，包含了镜像 mafifest 文件、镜像 config 文件和一系列 layer 压缩文件，和 docker client 导出的不同，这里的 layer 压缩文件是 .tar.gz 格式</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ sudo tree oci-demo-app
+</span></span><span class="line"><span class="cl">oci-demo-app
+</span></span><span class="line"><span class="cl">├── blobs
+</span></span><span class="line"><span class="cl">│   └── sha256
+</span></span><span class="line"><span class="cl">│       ├── c2274a1a0e2786ee9101b08f76111f9ab8019e368dce1e325d3c284a0ca33397
+</span></span><span class="line"><span class="cl">│       ├── d45802acb2a6c862e2d5576bd9bb90d7a2a57cfcbc160b81cf44322c8e20ab73   &lt;----------------|
+</span></span><span class="line"><span class="cl">│       ├── d4a44c93e6326fd854b559a254310ba3e8861e7e35d062607f0a32e7562e9deb                    |
+</span></span><span class="line"><span class="cl">│       ├── e4d6c83503a9bf0b4922dd67e42b92eb8c3d5a59322585570c6c6f91b1cbd924                    |
+</span></span><span class="line"><span class="cl">│       ├── e7c96db7181be991f19a9fb6975cdbbd73c65f4a2681348e63a141a2192a5f10                    |
+</span></span><span class="line"><span class="cl">│       └── f910a506b6cb1dbec766725d70356f695ae2bf2bea6224dbe8c7c6ad4f3664a2                    |
+</span></span><span class="line"><span class="cl">├── index.json                                                                                  |
+</span></span><span class="line"><span class="cl">└── oci-layout                                                                                  |
+</span></span><span class="line"><span class="cl">                                                                                                |
+</span></span><span class="line"><span class="cl">$ cat oci-demo-app/index.json | jq                                                              |
+</span></span><span class="line"><span class="cl">{                                                                                               |
+</span></span><span class="line"><span class="cl">  &#34;schemaVersion&#34;: 2,                                                                           |
+</span></span><span class="line"><span class="cl">  &#34;manifests&#34;: [                                                                                |
+</span></span><span class="line"><span class="cl">    {                                                                                           |
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.oci.image.manifest.v1+json&#34;,                                |
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:d45802acb2a6c862e2d5576bd9bb90d7a2a57cfcbc160b81cf44322c8e20ab73&#34;, &lt;----|
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 821,
+</span></span><span class="line"><span class="cl">      &#34;annotations&#34;: {
+</span></span><span class="line"><span class="cl">        &#34;org.opencontainers.image.ref.name&#34;: &#34;v0&#34;
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ]
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>根据 index.json，可以立马找到镜像 manifest 文件， OCI 格式比 docker 直接导出更有描述性</p>
+<ul>
+<li>application/vnd.oci.image.config.v1+json，json 格式的配置文件，和上面 docker 导出的一样</li>
+<li>application/vnd.oci.image.layer.v1.tar+gzip，镜像 layer 层，和 docker 直接导出一样是 4 个</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ cat oci-demo-app/blobs/sha256/d45802acb2a6c862e2d5576bd9bb90d7a2a57cfcbc160b81cf44322c8e20ab73 | jq
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;schemaVersion&#34;: 2,
+</span></span><span class="line"><span class="cl">  &#34;config&#34;: {
+</span></span><span class="line"><span class="cl">    &#34;mediaType&#34;: &#34;application/vnd.oci.image.config.v1+json&#34;,
+</span></span><span class="line"><span class="cl">    &#34;digest&#34;: &#34;sha256:d4a44c93e6326fd854b559a254310ba3e8861e7e35d062607f0a32e7562e9deb&#34;,
+</span></span><span class="line"><span class="cl">    &#34;size&#34;: 2698
+</span></span><span class="line"><span class="cl">  },
+</span></span><span class="line"><span class="cl">  &#34;layers&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.oci.image.layer.v1.tar+gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:e7c96db7181be991f19a9fb6975cdbbd73c65f4a2681348e63a141a2192a5f10&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 2757034
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.oci.image.layer.v1.tar+gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:f910a506b6cb1dbec766725d70356f695ae2bf2bea6224dbe8c7c6ad4f3664a2&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 238
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.oci.image.layer.v1.tar+gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:c2274a1a0e2786ee9101b08f76111f9ab8019e368dce1e325d3c284a0ca33397&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 70732768
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.oci.image.layer.v1.tar+gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:e4d6c83503a9bf0b4922dd67e42b92eb8c3d5a59322585570c6c6f91b1cbd924&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 14737188
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ]
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="oci-v1-和-docker-image-manifest-v2">OCI V1 和 Docker Image Manifest V2</h3>
+<p>使用如下命令从 docker registry 获取镜像 zengxu/oci-demo-app:v0 的 Docker Image manifest V2，两边对比可以发现，OCI V1 Image manifest 的 layer 压缩文件与 Docker Image manifest V2 sha256 值完全一致，只是 OCI V1 Image config 文件小一些（因为 docker Image Config 会额外包含容器配置和 Docker 相关信息）。
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 0
+</span><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="hl"><span class="lnt">11
+</span></span><span class="hl"><span class="lnt">12
+</span></span><span class="hl"><span class="lnt">13
+</span></span><span class="hl"><span class="lnt">14
+</span></span><span class="hl"><span class="lnt">15
+</span></span><span class="hl"><span class="lnt">16
+</span></span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">TOKEN=&#34;Bearer $(curl -s \
+</span></span><span class="line"><span class="cl">    &#34;https://auth.docker.io/token?scope=repository%3Azengxu%2Foci-demo-app%3Apull&amp;service=registry.docker.io&#34; \
+</span></span><span class="line"><span class="cl">    | jq -r &#39;.token&#39;)&#34;
+</span></span><span class="line"><span class="cl">curl -s https://registry-1.docker.io/v2/zengxu/oci-demo-app/manifests/v0 \
+</span></span><span class="line"><span class="cl">    -H &#34;Authorization:$TOKEN&#34; -H &#34;Accept:application/vnd.docker.distribution.manifest.v2+json&#34; \
+</span></span><span class="line"><span class="cl">    | jq
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;schemaVersion&#34;: 2,
+</span></span><span class="line hl"><span class="cl">  &#34;mediaType&#34;: &#34;application/vnd.docker.distribution.manifest.v2+json&#34;,
+</span></span><span class="line hl"><span class="cl">  &#34;config&#34;: {
+</span></span><span class="line hl"><span class="cl">    &#34;mediaType&#34;: &#34;application/vnd.docker.container.image.v1+json&#34;,
+</span></span><span class="line hl"><span class="cl">    &#34;size&#34;: 3792,
+</span></span><span class="line hl"><span class="cl">    &#34;digest&#34;: &#34;sha256:fa903e5799bb733ed874b5161bfaf6ec363b54ac9020541735305b5d515d6335&#34;
+</span></span><span class="line hl"><span class="cl">  },
+</span></span><span class="line"><span class="cl">  &#34;layers&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.docker.image.rootfs.diff.tar.gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 2757034,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:e7c96db7181be991f19a9fb6975cdbbd73c65f4a2681348e63a141a2192a5f10&#34;
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.docker.image.rootfs.diff.tar.gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 238,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:f910a506b6cb1dbec766725d70356f695ae2bf2bea6224dbe8c7c6ad4f3664a2&#34;
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.docker.image.rootfs.diff.tar.gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 70732768,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:c2274a1a0e2786ee9101b08f76111f9ab8019e368dce1e325d3c284a0ca33397&#34;
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;mediaType&#34;: &#34;application/vnd.docker.image.rootfs.diff.tar.gzip&#34;,
+</span></span><span class="line"><span class="cl">      &#34;size&#34;: 14737188,
+</span></span><span class="line"><span class="cl">      &#34;digest&#34;: &#34;sha256:e4d6c83503a9bf0b4922dd67e42b92eb8c3d5a59322585570c6c6f91b1cbd924&#34;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ]
+</span></span><span class="line"><span class="cl">}</span></span></code></pre></td></tr></table>
+</div>
+</div></p>
+<p>事实上，OCI Image Spec V1 就是基于 Docker Image Manifest V2 而来，两者的几乎一致。 MediaType 的对应关系可以在 <a href="https://github.com/opencontainers/image-spec/blob/master/manifest.md">这里</a> 找到。</p>
+<img src="/img/2020567/oci-image-spec.png" width="600px">
+<div class='align-center'>
+<p>图来自 github opencontainers/image-spec</p>
+</div>
+<p>如果我们使用 Docker Registry V2 api <code>GET /v2/&lt;name&gt;/blobs/&lt;digest&gt;</code> (如 <a href="https://registry-1.docker.io/v2/zengxu/oci-demo-app/blobs/sha256:e4d6c83503a9bf0b4922dd67e42b92eb8c3d5a59322585570c6c6f91b1cbd924">https://registry-1.docker.io/v2/zengxu/oci-demo-app/blobs/sha256:e4d6c83503a9bf0b4922dd67e42b92eb8c3d5a59322585570c6c6f91b1cbd924</a>) 逐个下载 blob，并按照 OCI layout 组织，得到的结果和 <a href="https://github.com/containers/skopeo">skopeo</a> copy 是一致的。</p>
+<p>这里直接使用工具 <a href="https://github.com/opencontainers/image-tools">oci-image-tool</a> 将下载压缩包转化为文件系统，结果也是同样</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ mkdir oci-demo-app-bundle
+</span></span><span class="line"><span class="cl">$ oci-image-tool unpack --ref name=v0 oci-demo-app oci-demo-app-bundle
+</span></span><span class="line"><span class="cl">$ ls oci-demo-app-bundle
+</span></span><span class="line"><span class="cl">app.jar  bin  dev  etc  home lib  media mnt  opt  proc root run sbin srv sys tmp  usr  var
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="理解定义">理解定义</h3>
+<p>经过上面的实操折腾，再来理解这段英文</p>
+<blockquote>
+<p>At a high level the <strong>image manifest</strong> contains metadata about the contents and dependencies of the image including the content-addressable identity of <strong>one or more filesystem serialization archives</strong> that will be unpacked to make up the final runnable filesystem. The <strong>image configuration</strong> includes information such as application arguments, environments, etc.</p>
+<p><strong>The combination of the image manifest, image configuration, and one or more filesystem serializations is called the OCI Image.</strong></p>
+</blockquote>
+<p>直白来说</p>
+<div class="admonition ">
+<p>镜像 = 一份文件清单 (manifest) + 一个或多个文件压缩包 (layer) + 一份配置文件 (config)</p>
+<p><strong>文件清单</strong>列明了镜像所需的文件压缩包，同时指明了每种压缩包使用的压缩算法、哈希值和文件大小 (字节数)</p>
+<p><strong>配置文件</strong>包含了程序运行所需的硬件架构、操作系统、系统环境变量、启动命令、启动参数、工作目录等。</p>
+</div>
+<p>利用文件压缩包 hash 值的唯一性，镜像存储设施在交互时，只需根据文件清单检查本地存储，相同的压缩包只需存储一份即可，大幅提高了镜像分发的效率。在一个预热良好的机器上，传输镜像相当于只传输程序包。</p>
+<p>用户只需提供程序包、程序配置，并声明程序依赖，即可通过构建工具组织出镜像。</p>
+<img src="/img/2020567/oci-build-diagram.png" width="800px">
+<div class='align-center'>
+<p>图来自 github opencontainers/image-spec</p>
+</div>
+<p>按照 OCI 规范组合并解压这些压缩包，便组成了一个包含程序包和依赖库的可运行文件系统。只要把该文件系统 (在 OCI 规范中叫做 rootfs) 和 json 配置文件交给 OCI 容器运行时，容器运行时便能够按照用户期望运行目标应用程序。</p>
+<h2 id="runc">runC</h2>
+<p>runC 是 OCI 提供的 <code>runtime-spec</code> 标准实现，使用它可以直接运行容器。</p>
+<h3 id="简单-runc-容器">简单 runC 容器</h3>
+<p>经过上面铺垫，接着使用 OCI runC 从 bundle 文件夹创建容器。首先新建 rootfs 目录，把文件都拷贝到 rootfs 目录</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">cd oci-demo-app-bundle
+</span></span><span class="line"><span class="cl">mkdir rootfs
+</span></span><span class="line"><span class="cl">mv -r * ./rootfs/
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 runC spec 生成 OCI 容器运行配置文件 config.json，稍做修改以与镜像配置保持一致</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">runc spec
+</span></span><span class="line"><span class="cl">sed -i &#39;s;&#34;sh&#34;;&#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;;&#39; config.json
+</span></span><span class="line"><span class="cl">sed -i &#39;s;&#34;terminal&#34;: true;&#34;terminal&#34;: false;&#39; config.json
+</span></span><span class="line"><span class="cl">sed -i &#39;s;&#34;readonly&#34;: true;&#34;readonly&#34;: false;&#39; config.json
+</span></span><span class="line"><span class="cl">chmod -R 777 ./rootfs/tmp/
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改后的 config.json 如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;ociVersion&#34;: &#34;1.0.1-dev&#34;,
+</span></span><span class="line"><span class="cl">  &#34;process&#34;: {
+</span></span><span class="line"><span class="cl">    &#34;terminal&#34;: false,
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">    &#34;args&#34;: [
+</span></span><span class="line"><span class="cl">      &#34;java&#34;,&#34;-jar&#34;,&#34;app.jar&#34;
+</span></span><span class="line"><span class="cl">    ],
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">  &#34;root&#34;: { 
+</span></span><span class="line"><span class="cl">    &#34;path&#34;: &#34;rootfs&#34;,
+</span></span><span class="line"><span class="cl">    &#34;readonly&#34;: false
+</span></span><span class="line"><span class="cl">  },
+</span></span><span class="line"><span class="cl">  ...  
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 runc run 以 detach 模式运行容器，并通过 runc list 查看容器运行情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># runc run -d oci-demo-app &gt; oci-demo-app.out 2&gt;&amp;1
+</span></span><span class="line"><span class="cl"># runc list
+</span></span><span class="line"><span class="cl">ID             PID         STATUS     ...   OWNER
+</span></span><span class="line"><span class="cl">oci-demo-app   3054        running    ...   root
+</span></span><span class="line"><span class="cl"># ps -ef | grep 3054
+</span></span><span class="line"><span class="cl">root  3054  1  0 ...  00:01:18 java -jar app.jar
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">cat oci-demo-app.out
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">[main] o.z.o.OciImageDemoApplication: Starting OciImageDemoApplication v0.0.1-SNAPSHOT with PID 1 (/app.jar started by root in /)
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">[main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8000 (http) with context path &#39;&#39;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>通过 runC  exec 进入容器 shell 控制台，运行 ifconfig 会发现，默认情况下 runC 容器只有一张 loop 网卡，只有 127.0.0.1 一个地址</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">runc exec -t oci-demo-app sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">/ # ifconfig
+</span></span><span class="line"><span class="cl">lo  Link encap:Local Loopback
+</span></span><span class="line"><span class="cl">    inet addr:127.0.0.1  Mask:255.0.0.0
+</span></span><span class="line"><span class="cl">    inet6 addr: ::1/128 Scope:Host
+</span></span><span class="line"><span class="cl">    UP LOOPBACK RUNNING  MTU:65536  Metric:1
+</span></span><span class="line"><span class="cl">    RX packets:24 errors:0 dropped:0 overruns:0 frame:0
+</span></span><span class="line"><span class="cl">    TX packets:24 errors:0 dropped:0 overruns:0 carrier:0
+</span></span><span class="line"><span class="cl">    collisions:0 txqueuelen:1000
+</span></span><span class="line"><span class="cl">    RX bytes:1536 (1.5 KiB)  TX bytes:1536 (1.5 KiB)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>也即，通过这种方式运行的容器，被隔离在独立 cgroup 的 network namespace 中，无法直接从宿主机访问容器。</p>
+<h3 id="给-runc-容器绑定虚拟网卡">给 runC 容器绑定虚拟网卡</h3>
+<p>先停止并移除容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># runc kill oci-demo-app
+</span></span><span class="line"><span class="cl"># runc delete oci-demo-app
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>注: brctl 可能需自行安装，CentOS 可以通过如下命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">sudo yum install bridge-utils -y
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 brctl 生成在宿主机生成网桥 runc0 并往 runc0 上挂一张虚拟网卡，网卡的一端 veth-host 绑定在宿主机，网卡的另外一端 veth-guest 将绑定到容器（即容器里的 eth0）。</p>
+<p>同时使用 ip netns 针对 namespace 进行操作，我们赋予容器网卡（地址在 /var/run/netns/runc-demo-contaienr），同时给予它一个 IP 地址 10.200.0.2，如此一来即可访问容器。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">brctl addbr runc0
+</span></span><span class="line"><span class="cl">ip link set runc0 up
+</span></span><span class="line"><span class="cl">ip addr add 10.200.0.1/24 dev runc0
+</span></span><span class="line"><span class="cl">ip link add name veth-host type veth peer name veth-guest
+</span></span><span class="line"><span class="cl">ip link set veth-host up
+</span></span><span class="line"><span class="cl">brctl addif runc0 veth-host
+</span></span><span class="line"><span class="cl">ip netns add runc-demo-contaienr
+</span></span><span class="line"><span class="cl">ip link set veth-guest netns runc-demo-contaienr
+</span></span><span class="line"><span class="cl">ip netns exec runc-demo-contaienr ip link set veth-guest name eth0
+</span></span><span class="line"><span class="cl">ip netns exec runc-demo-contaienr ip addr add 10.200.0.2/24 dev eth0
+</span></span><span class="line"><span class="cl">ip netns exec runc-demo-contaienr ip link set eth0 up
+</span></span><span class="line"><span class="cl">ip netns exec runc-demo-contaienr ip addr add 127.0.0.1 dev lo
+</span></span><span class="line"><span class="cl">ip netns exec runc-demo-contaienr ip link set lo up
+</span></span><span class="line"><span class="cl">ip netns exec runc-demo-contaienr ip route add default via 10.200.0.1
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>修改 config.json .linux.namespaces 的网络部分（注：最终的完整版配置放在 <a href="/file/oci-demo-app-config.json">这里</a>）
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="hl"><span class="lnt"> 8
+</span></span><span class="hl"><span class="lnt"> 9
+</span></span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  ...
+</span></span><span class="line"><span class="cl">  &#34;linux&#34;: {
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">    &#34;namespaces&#34;: [
+</span></span><span class="line"><span class="cl">      ...
+</span></span><span class="line"><span class="cl">      {
+</span></span><span class="line hl"><span class="cl">        &#34;type&#34;: &#34;network&#34;,
+</span></span><span class="line hl"><span class="cl">        &#34;path&#34;: &#34;/var/run/netns/runc-demo-contaienr&#34;
+</span></span><span class="line"><span class="cl">      },
+</span></span><span class="line"><span class="cl">      ...
+</span></span><span class="line"><span class="cl">    ],
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}</span></span></code></pre></td></tr></table>
+</div>
+</div></p>
+<p>运行容器，并使用 curl 访问容器服务，网络通了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># runc run -d oci-demo-app &gt; oci-demo-app.out 2&gt;&amp;1
+</span></span><span class="line"><span class="cl"># curl 10.200.0.2:8000/hello
+</span></span><span class="line"><span class="cl">hello world
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果进入容器，可以发现多了一张 eth0 网卡</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">runc exec -t oci-demo-app sh
+</span></span><span class="line"><span class="cl">/ # ifconfig
+</span></span><span class="line"><span class="cl">eth0      Link encap:Ethernet  HWaddr 66:25:83:FA:3D:27
+</span></span><span class="line"><span class="cl">          inet addr:10.200.0.2  Bcast:0.0.0.0  Mask:255.255.255.0
+</span></span><span class="line"><span class="cl">          inet6 addr: fe80::6425:83ff:fefa:3d27/64 Scope:Link
+</span></span><span class="line"><span class="cl">          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+</span></span><span class="line"><span class="cl">          RX packets:55 errors:0 dropped:0 overruns:0 frame:0
+</span></span><span class="line"><span class="cl">          TX packets:57 errors:0 dropped:0 overruns:0 carrier:0
+</span></span><span class="line"><span class="cl">          collisions:0 txqueuelen:1000
+</span></span><span class="line"><span class="cl">          RX bytes:4426 (4.3 KiB)  TX bytes:4080 (3.9 KiB)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">lo        Link encap:Local Loopback
+</span></span><span class="line"><span class="cl">          inet addr:127.0.0.1  Mask:255.255.255.255
+</span></span><span class="line"><span class="cl">          inet6 addr: ::1/128 Scope:Host
+</span></span><span class="line"><span class="cl">          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+</span></span><span class="line"><span class="cl">          RX packets:24 errors:0 dropped:0 overruns:0 frame:0
+</span></span><span class="line"><span class="cl">          TX packets:24 errors:0 dropped:0 overruns:0 carrier:0
+</span></span><span class="line"><span class="cl">          collisions:0 txqueuelen:1000
+</span></span><span class="line"><span class="cl">          RX bytes:1536 (1.5 KiB)  TX bytes:1536 (1.5 KiB)
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>同样，在宿主机可以看到 runc0 网桥和  veth-host 网卡，这里不再展示。Docker 网络原理也是类似的，你会在自己机器上发现名为 docker0 的网桥和若干名为 veth-xxxx 的虚拟网卡。</p>
+<p>值得一提的是，如果多个容器可以共享同一张 namespace 网卡，同一空间内的容器之间网络也是通的，这就是 k8s Pod 的网络原理。</p>
+<h2 id="oci-标准的意义">OCI 标准的意义</h2>
+<p>在 OCI 之前，容器生态发展百花齐放，Docker 一骑绝尘瞩目，但大小社区各自为政，开发人员兼容疲惫，用户使用痛苦。</p>
+<p>有了 OCI 镜像标准之后，不同平台在沿着各自方向优化镜像的存储和传输，同时也能够使用同一套标准下实现互通，用户因此得以在不同平台自由迁移。</p>
+<p>借助 OCI Runtime 标准，客户端只需提供 rootfs 和 config.json 声明，便可借助不用的 OCI Runtime 实现，将应用跑到不同操作系统上，且达到不同的隔离效果。如只需达到 namespace 级别隔离，Linux 使用 runC，Windows 使用 runhcs，这也是传统容器的隔离级别，隔离资源但并不隔离内核。如果需要达到 VM 级的强隔离，可以使用 gVisor runsc 实现用户态内核隔离，也可以使用 kata-runtime 实现 hypervisor VM 级别隔离。</p>
+<img src="/img/2020567/oci2containers.png" width="666px">
+<p>OCI 既没有定下网络标准，也没有定下存储标准，因为这都与平台实现关联。但如 runC 小结展示，使用方只要使用平台相关技术（示例是 Linux namespace network)，就能挂载好网络和存储。OCI Runtime 实现支持使用 create 和 start 2 阶段启动容器，使用方可以在 create 和 start 间隔准备网络、存储等资源。</p>
+<p>如今比较流行容器网络接口标准是 <a href="https://github.com/containernetworking/cni">CNCF CNI</a>，比较流行的容器存储标准是 <a href="https://github.com/container-storage-interface/spec/blob/master/spec.md">container-storage-interface-community CSI</a>。</p>
+<p>事实上，正是 OCI 将标准定在足够低级的通用范围，才取得了巨大的成功。</p>
+<p>现如今，它跨云平台、跨操作系统、跨硬件平台、支持各种隔离&hellip;&hellip;</p>
+<h2 id="resources">Resources</h2>
+<ul>
+<li><a href="https://github.com/opencontainers/runtime-spec/blob/master/spec.md">runtime-spec</a></li>
+<li><a href="https://github.com/opencontainers/image-spec/blob/master/spec.md">image-spec</a></li>
+<li><a href="https://docs.docker.com/registry/spec/api/">Docker Registry Api</a></li>
+<li><a href="https://github.com/opencontainers/runc">runC</a></li>
+<li><a href="https://katacontainers.io/">kata-containers</a>, <a href="https://github.com/kata-containers/runtime">kata-runtime</a></li>
+<li><a href="https://gvisor.dev/">gVisor</a>, <a href="https://github.com/google/gvisor/tree/master/runsc">runsc</a></li>
+<li><a href="https://docs.microsoft.com/en-us/virtualization/windowscontainers/deploy-containers/containerd">Container platform tools on Windows</a></li>
+<li><a href="https://github.com/containernetworking/cni">CNI</a>, <a href="https://github.com/container-storage-interface">CSI</a></li>
+</ul>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">Zeng Xu</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-06-03 22:43
+        
+    </span>
+  </p>
+  
+  <p class="copyright-item">
+    <span class="item-title">License</span>
+    <span class="item-content">本作品采用 <a rel="license noopener" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a> 进行许可，转载时请注明原文链接。</span>
+  </p>
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/container/">container</a>
+          <a href="/tags/oci/">oci</a>
+          <a href="/tags/docker/">docker</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2020-container-runtimes/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">各种容器运行时都解决了什么问题</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/20200428-eureka-multil-cluster-replica/">
+            <span class="next-text nav-default">如何迁移 Spring Cloud Eureka 注册体系至 k8s</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        <div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      var gitalk = new Gitalk({
+        id: '2020-05-10 22:43:15 \u002b0800 \u002b0800',
+        title: '理解 OCI',
+        clientID: '6ab3c721bb197ea92f1e',
+        clientSecret: '217d38cc1905f60f1d963c555be606ed3e707937',
+        repo: 'phosae.github.io',
+        owner: 'phosae',
+        admin: ['phosae'],
+        body: decodeURI(location.href)
+      });
+      gitalk.render('gitalk-container');
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://github.com/gitalk/gitalk">comments powered by gitalk.</a></noscript>
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="mailto:zenngxu@gmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://github.com/phosae" class="iconfont icon-github" title="github"></a>
+      <a href="https://weibo.com/u/1566013967" class="iconfont icon-weibo" title="weibo"></a>
+  <a href="https://www.zeng.dev/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2019 - 
+    2024<span class="heart"><i class="iconfont icon-heart"></i></span><span>Zeng Xu</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+<script>
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
