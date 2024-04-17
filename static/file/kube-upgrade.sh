@@ -354,6 +354,11 @@ function next-version() {
 function upgrade-cluter() {
     local CLUSTER_VERSION=$(kubectl version -o json | jq -r '.serverVersion.major + "." + .serverVersion.minor')
     local TARGET_CLUSTER_VERSION=$(next-version $CLUSTER_VERSION)
+    if [[ -z "$TARGET_CLUSTER_VERSION" ]]; then
+        echo "cluster version $CLUSTER_VERSION is not supported"
+        exit 1
+    fi
+
     local FIRST_MASTER=$(hostname)
     echo "start do upgrade cluster on master/$FIRST_MASTER: $CLUSTER_VERSION => $TARGET_CLUSTER_VERSION"
 
