@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.109.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/" />
@@ -39,19 +39,26 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="Kubernetes admission webhook server 开发教程" />
-<meta property="og:description" content="How to implement a Kubernetes validating admission webhook" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2021-08-08T21:11:28+08:00" />
-<meta property="article:modified_time" content="2023-04-28T11:25:00+08:00" />
-<meta itemprop="name" content="Kubernetes admission webhook server 开发教程">
-<meta itemprop="description" content="How to implement a Kubernetes validating admission webhook"><meta itemprop="datePublished" content="2021-08-08T21:11:28+08:00" />
-<meta itemprop="dateModified" content="2023-04-28T11:25:00+08:00" />
-<meta itemprop="wordCount" content="2726">
-<meta itemprop="keywords" content="kubernetes,container,webhook," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Kubernetes admission webhook server 开发教程"/>
-<meta name="twitter:description" content="How to implement a Kubernetes validating admission webhook"/>
+<meta property="og:url" content="https://www.zeng.dev/post/2021-denyenv-validating-admission-webhook/">
+  <meta property="og:site_name" content="ZengXu&#39;s BLOG">
+  <meta property="og:title" content="Kubernetes admission webhook server 开发教程">
+  <meta property="og:description" content="How to implement a Kubernetes validating admission webhook">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+  <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-08-08T21:11:28+08:00">
+    <meta property="article:modified_time" content="2023-04-28T11:25:00+08:00">
+    <meta property="article:tag" content="Kubernetes">
+    <meta property="article:tag" content="Container">
+    <meta property="article:tag" content="Webhook">
+
+  <meta itemprop="name" content="Kubernetes admission webhook server 开发教程">
+  <meta itemprop="description" content="How to implement a Kubernetes validating admission webhook">
+  <meta itemprop="datePublished" content="2021-08-08T21:11:28+08:00">
+  <meta itemprop="dateModified" content="2023-04-28T11:25:00+08:00">
+  <meta itemprop="wordCount" content="2726">
+  <meta itemprop="keywords" content="kubernetes,container,webhook"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Kubernetes admission webhook server 开发教程">
+<meta name="twitter:description" content="How to implement a Kubernetes validating admission webhook">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -492,8 +499,8 @@
 </span><span class="lnt">2
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">$ kubectl run nginx --image nginx --env=&#39;FOO=BAR&#39;
-</span></span><span class="line"><span class="cl">Error from server (nginx is using env vars): admission webhook &#34;denyenv.zeng.dev&#34; denied the request: nginx is using env vars
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="o">$</span> <span class="n">kubectl</span> <span class="n">run</span> <span class="n">nginx</span> <span class="o">--</span><span class="n">image</span> <span class="n">nginx</span> <span class="o">--</span><span class="n">env</span><span class="o">=</span><span class="s1">&#39;FOO=BAR&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">Error</span> <span class="n">from</span> <span class="n">server</span> <span class="p">(</span><span class="n">nginx</span> <span class="n">is</span> <span class="n">using</span> <span class="n">env</span> <span class="n">vars</span><span class="p">):</span> <span class="n">admission</span> <span class="n">webhook</span> <span class="s2">&#34;denyenv.zeng.dev&#34;</span> <span class="n">denied</span> <span class="n">the</span> <span class="n">request</span><span class="p">:</span> <span class="n">nginx</span> <span class="n">is</span> <span class="n">using</span> <span class="n">env</span> <span class="n">vars</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="拓展阅读">拓展阅读</h2>
@@ -616,16 +623,25 @@
 <script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
-}
-</script>
+  
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-FEPN2KZF84');
+        }
+      </script>
+    
+  
+
 
 
 

@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>code-generation on ZengXu&#39;s BLOG</title>
+    <title>Code-Generation on ZengXu&#39;s BLOG</title>
     <link>https://www.zeng.dev/tags/code-generation/</link>
-    <description>Recent content in code-generation on ZengXu&#39;s BLOG</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <description>Recent content in Code-Generation on ZengXu&#39;s BLOG</description>
+    <generator>Hugo 0.125.0</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 05 Jun 2023 18:08:17 +0800</lastBuildDate><atom:link href="https://www.zeng.dev/tags/code-generation/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 11 Jun 2023 15:36:17 +0800</lastBuildDate>
+    <atom:link href="https://www.zeng.dev/tags/code-generation/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>最不厌其烦的 K8s 代码生成教程</title>
       <link>https://www.zeng.dev/post/2023-k8s-api-codegen/</link>
       <pubDate>Mon, 05 Jun 2023 18:08:17 +0800</pubDate>
-      
       <guid>https://www.zeng.dev/post/2023-k8s-api-codegen/</guid>
       <description>彻底而全面的梳理，甚至提供了复制即用的脚本和镜像&amp;hellip;</description>
     </item>
-    
   </channel>
 </rss>

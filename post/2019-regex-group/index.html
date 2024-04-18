@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.109.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2019-regex-group/" />
@@ -39,19 +39,26 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="正则组匹配" />
-<meta property="og:description" content="Regex group puzzles" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.zeng.dev/post/2019-regex-group/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2019-05-09T00:34:10+08:00" />
-<meta property="article:modified_time" content="2019-05-09T00:50:10+08:00" />
-<meta itemprop="name" content="正则组匹配">
-<meta itemprop="description" content="Regex group puzzles"><meta itemprop="datePublished" content="2019-05-09T00:34:10+08:00" />
-<meta itemprop="dateModified" content="2019-05-09T00:50:10+08:00" />
-<meta itemprop="wordCount" content="2075">
-<meta itemprop="keywords" content="Regex,Java,Go," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="正则组匹配"/>
-<meta name="twitter:description" content="Regex group puzzles"/>
+<meta property="og:url" content="https://www.zeng.dev/post/2019-regex-group/">
+  <meta property="og:site_name" content="ZengXu&#39;s BLOG">
+  <meta property="og:title" content="正则组匹配">
+  <meta property="og:description" content="Regex group puzzles">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+  <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2019-05-09T00:34:10+08:00">
+    <meta property="article:modified_time" content="2019-05-09T00:50:10+08:00">
+    <meta property="article:tag" content="Regex">
+    <meta property="article:tag" content="Java">
+    <meta property="article:tag" content="Go">
+
+  <meta itemprop="name" content="正则组匹配">
+  <meta itemprop="description" content="Regex group puzzles">
+  <meta itemprop="datePublished" content="2019-05-09T00:34:10+08:00">
+  <meta itemprop="dateModified" content="2019-05-09T00:50:10+08:00">
+  <meta itemprop="wordCount" content="2075">
+  <meta itemprop="keywords" content="Regex,Java,Go"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="正则组匹配">
+<meta name="twitter:description" content="Regex group puzzles">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -162,24 +169,24 @@
 </span><span class="lnt">17
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Pattern</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;([a-z]+)([0-9]+)([a-z]+)&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;aaa123ccc/aaa123ccc/&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){</span>
-</span></span><span class="line"><span class="cl">    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="o">.</span><span class="na">groupCount</span><span class="o">();</span><span class="n">i</span><span class="o">++){</span>
-</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;group %d [%d,%d] : %s\n&#34;</span><span class="o">,</span> <span class="n">i</span><span class="o">,</span><span class="n">m</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="n">i</span><span class="o">),</span> <span class="n">m</span><span class="o">.</span><span class="na">end</span><span class="o">(</span><span class="n">i</span><span class="o">)</span> <span class="o">,</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//～
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">group</span> <span class="mi">0</span> <span class="o">[</span><span class="mi">0</span><span class="o">,</span><span class="mi">9</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa123ccc</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">1</span> <span class="o">[</span><span class="mi">0</span><span class="o">,</span><span class="mi">3</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">2</span> <span class="o">[</span><span class="mi">3</span><span class="o">,</span><span class="mi">6</span><span class="o">]</span> <span class="o">:</span> <span class="mi">123</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">3</span> <span class="o">[</span><span class="mi">6</span><span class="o">,</span><span class="mi">9</span><span class="o">]</span> <span class="o">:</span> <span class="n">ccc</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">0</span> <span class="o">[</span><span class="mi">10</span><span class="o">,</span><span class="mi">19</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa123ccc</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">1</span> <span class="o">[</span><span class="mi">10</span><span class="o">,</span><span class="mi">13</span><span class="o">]</span> <span class="o">:</span> <span class="n">aaa</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">2</span> <span class="o">[</span><span class="mi">13</span><span class="o">,</span><span class="mi">16</span><span class="o">]</span> <span class="o">:</span> <span class="mi">123</span>
-</span></span><span class="line"><span class="cl"><span class="n">group</span> <span class="mi">3</span> <span class="o">[</span><span class="mi">16</span><span class="o">,</span><span class="mi">19</span><span class="o">]</span> <span class="o">:</span> <span class="n">ccc</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Pattern</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;([a-z]+)([0-9]+)([a-z]+)&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;aaa123ccc/aaa123ccc/&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">()){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="n">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">m</span><span class="p">.</span><span class="na">groupCount</span><span class="p">();</span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&#34;group %d [%d,%d] : %s\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="n">m</span><span class="p">.</span><span class="na">start</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="na">end</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="n">m</span><span class="p">.</span><span class="na">group</span><span class="p">(</span><span class="n">i</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//～</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="o">[</span><span class="n">0</span><span class="p">,</span><span class="n">9</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">aaa123ccc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="o">[</span><span class="n">0</span><span class="p">,</span><span class="n">3</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">aaa</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">2</span><span class="w"> </span><span class="o">[</span><span class="n">3</span><span class="p">,</span><span class="n">6</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">123</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">3</span><span class="w"> </span><span class="o">[</span><span class="n">6</span><span class="p">,</span><span class="n">9</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ccc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="o">[</span><span class="n">10</span><span class="p">,</span><span class="n">19</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">aaa123ccc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="o">[</span><span class="n">10</span><span class="p">,</span><span class="n">13</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">aaa</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">2</span><span class="w"> </span><span class="o">[</span><span class="n">13</span><span class="p">,</span><span class="n">16</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">123</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">group</span><span class="w"> </span><span class="n">3</span><span class="w"> </span><span class="o">[</span><span class="n">16</span><span class="p">,</span><span class="n">19</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ccc</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>容易知道，0 号捕获组为整个表达式，余下则按照左括号出现的顺序编号。</p>
 <p>在正则环境中，Java 可通过 <code>$1</code>、<code>$2</code> 引用对应的 capture group，Go 使用 <code>${1}</code>、<code>${2}</code>。如，我们将整个匹配文本替换某几个特定捕获组和特殊字符的组合并作为结果返回</p>
@@ -215,16 +222,16 @@
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Pattern</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;(?&lt;year&gt;\\d{4})-(?&lt;month&gt;\\d{2})-(?&lt;day&gt;\\d{2})&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;2019-05-09&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){</span>
-</span></span><span class="line"><span class="cl">    <span class="n">String</span> <span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="na">replaceFirst</span><span class="o">(</span><span class="s">&#34;${year}&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">out</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//~
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">2019</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Pattern</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;(?&lt;year&gt;\\d{4})-(?&lt;month&gt;\\d{2})-(?&lt;day&gt;\\d{2})&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;2019-05-09&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">()){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="p">.</span><span class="na">replaceFirst</span><span class="p">(</span><span class="s">&#34;${year}&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">out</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//~</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">2019</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>Go 则需使用格式 <code>(?P&lt;Name&gt;...)</code></p>
 <div class="highlight"><div class="chroma">
@@ -269,10 +276,10 @@
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;([a-z]+)(([0-9]+)([a-z]+))&#34;</span><span class="o">)</span>
-</span></span><span class="line"><span class="cl">                <span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;aaa123ccc/aaa123ccc&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="n">m</span><span class="o">.</span><span class="na">replaceAll</span><span class="o">(</span><span class="s">&#34;%$2&#34;</span><span class="o">);</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;([a-z]+)(([0-9]+)([a-z]+))&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;aaa123ccc/aaa123ccc&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">m</span><span class="p">.</span><span class="na">replaceAll</span><span class="p">(</span><span class="s">&#34;%$2&#34;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>为什么这样设计呢，主要是，如果 replace 支持声明删除某个 sub group，原有的 <code>$1</code>、<code>${1}</code> 势必要引入额外的标识，额外的语法会带来更大的使用负担；其次在 replace 的接口中声明去掉某个东西其实很奇怪。。。</p>
 <p>如果非要针对特定 sub captured group 做替换，可以写代码自己实现，毕竟捕获组结果其实只是一个字符串 index 集合而已，使用 Java 或者 Go 中的工具按照 index 替换即可。</p>
@@ -365,17 +372,17 @@
 </span><span class="lnt">10
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Pattern</span> <span class="n">p</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;a(?&gt;bc|b)c&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;abc&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span><span class="o">(!</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;not match&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">m</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;abcc&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;matched&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="c1">//～
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">not</span> <span class="n">match</span>
-</span></span><span class="line"><span class="cl"><span class="n">matched</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Pattern</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;a(?&gt;bc|b)c&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="n">p</span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;abc&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">())</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;not match&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;abcc&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">())</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;matched&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//～</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">not</span><span class="w"> </span><span class="n">match</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">matched</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>假设我们需要判断单词 <code>ints</code> 是否为 int、string 或者 intstring 其中一个，group 可以这样写 <code>\b(int|string|intstring)\b</code>，这是引擎会先判断 <code>ints</code> 不是 <code>int</code>，再判断 <code>ints</code> 不是 <code>string</code>，再判断 <code>ints</code> 不是 <code>intstring</code>，然后才断定不匹配。</p>
 <p>如果改为 atomic group <code>\b(?&gt;int|string|intstring)\b</code>，引擎直接将 <code>ints</code> 匹配到 <code>int</code> 后，再往后发现还存在 s 字符，直接就会断定不匹配。</p>
@@ -407,14 +414,14 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;a(?=foo)(.*)&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;afoo&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;a(?=foo)(.*)&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;axoo&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
-</span></span><span class="line"><span class="cl"><span class="k">else</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;not match&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// afoo
-</span></span></span><span class="line"><span class="cl"><span class="c1">// not match
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;a(?=foo)(.*)&#34;</span><span class="p">).</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;afoo&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">())</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">group</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;a(?=foo)(.*)&#34;</span><span class="p">).</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;axoo&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">())</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">group</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">else</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;not match&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// afoo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// not match</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><strong>(?&lt;=&hellip;)</strong> Lookbehind、<strong>(?&lt;!&hellip;)</strong> Negative Lookbehind</p>
@@ -432,14 +439,14 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;(?&lt;=foo)a&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;fooa&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">m</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;(?&lt;!foo)a&#34;</span><span class="o">).</span><span class="na">matcher</span><span class="o">(</span><span class="s">&#34;fooa&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
-</span></span><span class="line"><span class="cl"><span class="k">else</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;not found&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="c1">// a
-</span></span></span><span class="line"><span class="cl"><span class="c1">// not found
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;(?&lt;=foo)a&#34;</span><span class="p">).</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;fooa&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">())</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">group</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;(?&lt;!foo)a&#34;</span><span class="p">).</span><span class="na">matcher</span><span class="p">(</span><span class="s">&#34;fooa&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">())</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">group</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">else</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;not found&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// not found</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="附-atomic-group-benchmark-测试结果">附 atomic group benchmark 测试结果</h2>
@@ -515,44 +522,44 @@
 </span><span class="lnt">37
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">String</span> <span class="n">in</span> <span class="o">=</span> <span class="s">&#34; tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker &#34;</span> <span class="o">+</span>
-</span></span><span class="line"><span class="cl">            <span class="s">&#34; tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker&#34;</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">doBenchmark</span><span class="o">(</span><span class="mi">1_000_000</span><span class="o">,</span> <span class="n">in</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="n">doBenchmark</span><span class="o">(</span><span class="mi">10_000_000</span><span class="o">,</span> <span class="n">in</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="n">doBenchmark</span><span class="o">(</span><span class="mi">100_000_000</span><span class="o">,</span> <span class="n">in</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">doBenchmark</span><span class="o">(</span><span class="kt">int</span> <span class="n">times</span><span class="o">,</span> <span class="n">String</span> <span class="n">input</span><span class="o">){</span>
-</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;--- benchmark %d times ---\n&#34;</span><span class="o">,</span> <span class="n">times</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="kt">long</span> <span class="n">now</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
-</span></span><span class="line"><span class="cl">    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">times</span><span class="o">;</span><span class="n">i</span><span class="o">++){</span>
-</span></span><span class="line"><span class="cl">        <span class="n">benchmarkNormalMatch</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;normal group cost: %d ms\n&#34;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">now</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">now</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
-</span></span><span class="line"><span class="cl">    <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">times</span><span class="o">;</span><span class="n">i</span><span class="o">++){</span>
-</span></span><span class="line"><span class="cl">        <span class="n">benchmarkAtomicMatch</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;atomic group cost: %d ms\n&#34;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">now</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span>  <span class="n">Pattern</span> <span class="n">_normal</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;\btra(?:ck|ce|ining|de|in|nsit|ns|uma)\b&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">benchmarkNormalMatch</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">){</span>
-</span></span><span class="line"><span class="cl">    <span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_normal</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){</span> <span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span>  <span class="n">Pattern</span> <span class="n">_atomic</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">&#34;\btra(?&gt;ck|ce|ining|de|in|nsit|ns|uma)\b&#34;</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">benchmarkAtomicMatch</span><span class="o">(</span><span class="n">String</span> <span class="n">input</span><span class="o">){</span>
-</span></span><span class="line"><span class="cl">    <span class="n">Matcher</span> <span class="n">m</span> <span class="o">=</span> <span class="n">_atomic</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="o">(</span><span class="n">m</span><span class="o">.</span><span class="na">find</span><span class="o">()){}</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span></code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34; tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker &#34;</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="s">&#34; tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker tracker&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">doBenchmark</span><span class="p">(</span><span class="n">1_000_000</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">doBenchmark</span><span class="p">(</span><span class="n">10_000_000</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">doBenchmark</span><span class="p">(</span><span class="n">100_000_000</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">doBenchmark</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">times</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">input</span><span class="p">){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&#34;--- benchmark %d times ---\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">times</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="n">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">times</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">benchmarkNormalMatch</span><span class="p">(</span><span class="n">input</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&#34;normal group cost: %d ms\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">now</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">now</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="n">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">times</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">benchmarkAtomicMatch</span><span class="p">(</span><span class="n">input</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&#34;atomic group cost: %d ms\n&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">now</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w">  </span><span class="n">Pattern</span><span class="w"> </span><span class="n">_normal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;\btra(?:ck|ce|ining|de|in|nsit|ns|uma)\b&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">benchmarkNormalMatch</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">input</span><span class="p">){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_normal</span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="n">input</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">()){</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w">  </span><span class="n">Pattern</span><span class="w"> </span><span class="n">_atomic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Pattern</span><span class="p">.</span><span class="na">compile</span><span class="p">(</span><span class="s">&#34;\btra(?&gt;ck|ce|ining|de|in|nsit|ns|uma)\b&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">benchmarkAtomicMatch</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">input</span><span class="p">){</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Matcher</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_atomic</span><span class="p">.</span><span class="na">matcher</span><span class="p">(</span><span class="n">input</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="na">find</span><span class="p">()){}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
     </div>
@@ -640,16 +647,25 @@
 <script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
-}
-</script>
+  
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-FEPN2KZF84');
+        }
+      </script>
+    
+  
+
 
 
 

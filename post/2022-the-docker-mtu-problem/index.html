@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.109.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2022-the-docker-mtu-problem/" />
@@ -39,19 +39,25 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="虚拟网络环境中 Docker MTU 问题及解决方式" />
-<meta property="og:description" content="在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.zeng.dev/post/2022-the-docker-mtu-problem/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-11-18T18:11:28+08:00" />
-<meta property="article:modified_time" content="2022-11-30T23:35:00+08:00" />
-<meta itemprop="name" content="虚拟网络环境中 Docker MTU 问题及解决方式">
-<meta itemprop="description" content="在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题"><meta itemprop="datePublished" content="2022-11-18T18:11:28+08:00" />
-<meta itemprop="dateModified" content="2022-11-30T23:35:00+08:00" />
-<meta itemprop="wordCount" content="775">
-<meta itemprop="keywords" content="docker,container," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="虚拟网络环境中 Docker MTU 问题及解决方式"/>
-<meta name="twitter:description" content="在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题"/>
+<meta property="og:url" content="https://www.zeng.dev/post/2022-the-docker-mtu-problem/">
+  <meta property="og:site_name" content="ZengXu&#39;s BLOG">
+  <meta property="og:title" content="虚拟网络环境中 Docker MTU 问题及解决方式">
+  <meta property="og:description" content="在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+  <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2022-11-18T18:11:28+08:00">
+    <meta property="article:modified_time" content="2022-11-30T23:35:00+08:00">
+    <meta property="article:tag" content="Docker">
+    <meta property="article:tag" content="Container">
+
+  <meta itemprop="name" content="虚拟网络环境中 Docker MTU 问题及解决方式">
+  <meta itemprop="description" content="在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题">
+  <meta itemprop="datePublished" content="2022-11-18T18:11:28+08:00">
+  <meta itemprop="dateModified" content="2022-11-30T23:35:00+08:00">
+  <meta itemprop="wordCount" content="775">
+  <meta itemprop="keywords" content="docker,container"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="虚拟网络环境中 Docker MTU 问题及解决方式">
+<meta name="twitter:description" content="在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -448,16 +454,25 @@
 <script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
-}
-</script>
+  
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-FEPN2KZF84');
+        }
+      </script>
+    
+  
+
 
 
 

@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.109.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2022-gen-self-signed-certificate/" />
@@ -39,19 +39,27 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="Generate Self-Signed Certificate" />
-<meta property="og:description" content="Generate Self-Signed Certificate" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.zeng.dev/post/2022-gen-self-signed-certificate/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-07-06T14:16:05+08:00" />
-<meta property="article:modified_time" content="2023-05-01T14:16:05+08:00" />
-<meta itemprop="name" content="Generate Self-Signed Certificate">
-<meta itemprop="description" content="Generate Self-Signed Certificate"><meta itemprop="datePublished" content="2022-07-06T14:16:05+08:00" />
-<meta itemprop="dateModified" content="2023-05-01T14:16:05+08:00" />
-<meta itemprop="wordCount" content="948">
-<meta itemprop="keywords" content="ssl,tls,go,en," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Generate Self-Signed Certificate"/>
-<meta name="twitter:description" content="Generate Self-Signed Certificate"/>
+<meta property="og:url" content="https://www.zeng.dev/post/2022-gen-self-signed-certificate/">
+  <meta property="og:site_name" content="ZengXu&#39;s BLOG">
+  <meta property="og:title" content="Generate Self-Signed Certificate">
+  <meta property="og:description" content="Generate Self-Signed Certificate">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+  <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2022-07-06T14:16:05+08:00">
+    <meta property="article:modified_time" content="2023-05-01T14:16:05+08:00">
+    <meta property="article:tag" content="Ssl">
+    <meta property="article:tag" content="Tls">
+    <meta property="article:tag" content="Go">
+    <meta property="article:tag" content="En">
+
+  <meta itemprop="name" content="Generate Self-Signed Certificate">
+  <meta itemprop="description" content="Generate Self-Signed Certificate">
+  <meta itemprop="datePublished" content="2022-07-06T14:16:05+08:00">
+  <meta itemprop="dateModified" content="2023-05-01T14:16:05+08:00">
+  <meta itemprop="wordCount" content="907">
+  <meta itemprop="keywords" content="ssl,tls,go"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Generate Self-Signed Certificate">
+<meta name="twitter:description" content="Generate Self-Signed Certificate">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -484,7 +492,7 @@ Option groups can be pre-defined in CA config, and reused to generate TLS certif
 </span></span><span class="line"><span class="cl">                pub: 
 </span></span><span class="line"><span class="cl">                    04:70:da:c2:1e:02:ac:d7:23:0c:53:cc:f2:70:df:
 </span></span><span class="line"><span class="cl">                    30:3f:16:e5:fd:ce:18:b6:48:9f:02:e4:25:29:54:
-</span></span><span class="line"><span class="cl">                    5b:07:8c:1e:92💿25:94:f7:81:e3:fe:76:8c:b0:
+</span></span><span class="line"><span class="cl">                    5b:07:8c:1e:92:cd:25:94:f7:81:e3:fe:76:8c:b0:
 </span></span><span class="line"><span class="cl">                    26:84:49:8c:92:3e:85:1e:0e:bf:21:bd:4a:95:a7:
 </span></span><span class="line"><span class="cl">                    71:ed:b4:db:fb
 </span></span><span class="line"><span class="cl">                ASN1 OID: prime256v1
@@ -628,16 +636,25 @@ Option groups can be pre-defined in CA config, and reused to generate TLS certif
 <script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
-}
-</script>
+  
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-FEPN2KZF84');
+        }
+      </script>
+    
+  
+
 
 
 

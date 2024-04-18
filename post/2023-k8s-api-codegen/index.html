@@ -23,7 +23,7 @@
 
 
 
-<meta name="generator" content="Hugo 0.109.0 with theme even" />
+<meta name="generator" content="Hugo 0.125.0 with theme even" />
 
 
 <link rel="canonical" href="https://www.zeng.dev/post/2023-k8s-api-codegen/" />
@@ -39,19 +39,25 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="最不厌其烦的 K8s 代码生成教程" />
-<meta property="og:description" content="An exquisitely thorough K8s code generation tutorial" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.zeng.dev/post/2023-k8s-api-codegen/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2023-06-05T18:08:17+08:00" />
-<meta property="article:modified_time" content="2023-06-11T15:36:17+08:00" />
-<meta itemprop="name" content="最不厌其烦的 K8s 代码生成教程">
-<meta itemprop="description" content="An exquisitely thorough K8s code generation tutorial"><meta itemprop="datePublished" content="2023-06-05T18:08:17+08:00" />
-<meta itemprop="dateModified" content="2023-06-11T15:36:17+08:00" />
-<meta itemprop="wordCount" content="4342">
-<meta itemprop="keywords" content="kubernetes,code-generation," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="最不厌其烦的 K8s 代码生成教程"/>
-<meta name="twitter:description" content="An exquisitely thorough K8s code generation tutorial"/>
+<meta property="og:url" content="https://www.zeng.dev/post/2023-k8s-api-codegen/">
+  <meta property="og:site_name" content="ZengXu&#39;s BLOG">
+  <meta property="og:title" content="最不厌其烦的 K8s 代码生成教程">
+  <meta property="og:description" content="An exquisitely thorough K8s code generation tutorial">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+  <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2023-06-05T18:08:17+08:00">
+    <meta property="article:modified_time" content="2023-06-11T15:36:17+08:00">
+    <meta property="article:tag" content="Kubernetes">
+    <meta property="article:tag" content="Code-Generation">
+
+  <meta itemprop="name" content="最不厌其烦的 K8s 代码生成教程">
+  <meta itemprop="description" content="An exquisitely thorough K8s code generation tutorial">
+  <meta itemprop="datePublished" content="2023-06-05T18:08:17+08:00">
+  <meta itemprop="dateModified" content="2023-06-11T15:36:17+08:00">
+  <meta itemprop="wordCount" content="4342">
+  <meta itemprop="keywords" content="kubernetes,code-generation"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="最不厌其烦的 K8s 代码生成教程">
+<meta name="twitter:description" content="An exquisitely thorough K8s code generation tutorial">
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -232,17 +238,17 @@
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">api                           # external APIs     
-</span></span><span class="line"><span class="cl">└── hello.zeng.dev
-</span></span><span class="line"><span class="cl">    ├── v1
-</span></span><span class="line"><span class="cl">    │   ├── defaults.go       # 提供用户默认函数 func SetDefaults_TYPE
-</span></span><span class="line"><span class="cl">    │   ├── doc.go            # packge 级别生成声明
-</span></span><span class="line"><span class="cl">    │   ├── register.go       # 注册 API Structs, generated funcs 到 K8s Schema，提供通用的序列化/反序列化能力
-</span></span><span class="line"><span class="cl">    │   ├── types.go          # 提供 API Structs
-</span></span><span class="line"><span class="cl">    └── v2
-</span></span><span class="line"><span class="cl">        ├── doc.go
-</span></span><span class="line"><span class="cl">        ├── register.go
-</span></span><span class="line"><span class="cl">        └── types.go
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">api</span>                           <span class="c1"># external APIs     </span>
+</span></span><span class="line"><span class="cl"><span class="err">└──</span> <span class="n">hello</span><span class="o">.</span><span class="n">zeng</span><span class="o">.</span><span class="n">dev</span>
+</span></span><span class="line"><span class="cl">    <span class="err">├──</span> <span class="n">v1</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>   <span class="err">├──</span> <span class="n">defaults</span><span class="o">.</span><span class="n">go</span>       <span class="c1"># 提供用户默认函数 func SetDefaults_TYPE</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>   <span class="err">├──</span> <span class="n">doc</span><span class="o">.</span><span class="n">go</span>            <span class="c1"># packge 级别生成声明</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>   <span class="err">├──</span> <span class="n">register</span><span class="o">.</span><span class="n">go</span>       <span class="c1"># 注册 API Structs, generated funcs 到 K8s Schema，提供通用的序列化/反序列化能力</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>   <span class="err">├──</span> <span class="n">types</span><span class="o">.</span><span class="n">go</span>          <span class="c1"># 提供 API Structs</span>
+</span></span><span class="line"><span class="cl">    <span class="err">└──</span> <span class="n">v2</span>
+</span></span><span class="line"><span class="cl">        <span class="err">├──</span> <span class="n">doc</span><span class="o">.</span><span class="n">go</span>
+</span></span><span class="line"><span class="cl">        <span class="err">├──</span> <span class="n">register</span><span class="o">.</span><span class="n">go</span>
+</span></span><span class="line"><span class="cl">        <span class="err">└──</span> <span class="n">types</span><span class="o">.</span><span class="n">go</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>doc.go</code> 在代码生成中最为重要。它声明了按照 package 维度，为所有 structs 提供生成声明</p>
@@ -257,13 +263,13 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// +k8s:openapi-gen=true ➡️ 生成 OpenAPI 相关
-</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:deepcopy-gen=package ➡️ 生成 deepcopy funcs
-</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:protobuf-gen=package ➡️ 生成 protobuf 定义和并从 protobuf 定义生成 protobuf funcs
-</span></span></span><span class="line"><span class="cl"><span class="c1">// +k8s:defaulter-gen=TypeMeta ➡️ 生成 default funcs，如果 package 下存在 defaults.go 且存在函数签名 `func SetDefaults_TYPE(obj *TYPE)`
-</span></span></span><span class="line"><span class="cl"><span class="c1">// +groupName=hello.zeng.dev // API Group，可供 register-gen 读取并使用
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
-</span></span><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">v1</span>
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="o">//</span> <span class="o">+</span><span class="n">k8s</span><span class="p">:</span><span class="n">openapi</span><span class="o">-</span><span class="n">gen</span><span class="o">=</span><span class="bp">true</span> <span class="err">➡️</span> <span class="err">生成</span> <span class="n">OpenAPI</span> <span class="err">相关</span>
+</span></span><span class="line"><span class="cl"><span class="o">//</span> <span class="o">+</span><span class="n">k8s</span><span class="p">:</span><span class="n">deepcopy</span><span class="o">-</span><span class="n">gen</span><span class="o">=</span><span class="n">package</span> <span class="err">➡️</span> <span class="err">生成</span> <span class="n">deepcopy</span> <span class="n">funcs</span>
+</span></span><span class="line"><span class="cl"><span class="o">//</span> <span class="o">+</span><span class="n">k8s</span><span class="p">:</span><span class="n">protobuf</span><span class="o">-</span><span class="n">gen</span><span class="o">=</span><span class="n">package</span> <span class="err">➡️</span> <span class="err">生成</span> <span class="n">protobuf</span> <span class="err">定义和并从</span> <span class="n">protobuf</span> <span class="err">定义生成</span> <span class="n">protobuf</span> <span class="n">funcs</span>
+</span></span><span class="line"><span class="cl"><span class="o">//</span> <span class="o">+</span><span class="n">k8s</span><span class="p">:</span><span class="n">defaulter</span><span class="o">-</span><span class="n">gen</span><span class="o">=</span><span class="n">TypeMeta</span> <span class="err">➡️</span> <span class="err">生成</span> <span class="n">default</span> <span class="n">funcs</span><span class="err">，如果</span> <span class="n">package</span> <span class="err">下存在</span> <span class="n">defaults</span><span class="o">.</span><span class="n">go</span> <span class="err">且存在函数签名</span> <span class="err">`</span><span class="k">func</span> <span class="n">SetDefaults_TYPE</span><span class="p">(</span><span class="n">obj</span> <span class="o">*</span><span class="n">TYPE</span><span class="p">)</span><span class="err">`</span>
+</span></span><span class="line"><span class="cl"><span class="o">//</span> <span class="o">+</span><span class="n">groupName</span><span class="o">=</span><span class="n">hello</span><span class="o">.</span><span class="n">zeng</span><span class="o">.</span><span class="n">dev</span> <span class="o">//</span> <span class="n">API</span> <span class="n">Group</span><span class="err">，可供</span> <span class="n">register</span><span class="o">-</span><span class="n">gen</span> <span class="err">读取并使用</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">package</span> <span class="n">v1</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>types.go</code> 包含了 <a href="https://github.com/kubernetes/code-generator">kubernetes/code-generator</a> 注释 tag</p>
@@ -1533,16 +1539,25 @@ client-go
 <script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
 
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
-<script>
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-	gtag('config', 'G-FEPN2KZF84', { 'anonymize_ip': false });
-}
-</script>
+  
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-FEPN2KZF84"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-FEPN2KZF84');
+        }
+      </script>
+    
+  
+
 
 
 
