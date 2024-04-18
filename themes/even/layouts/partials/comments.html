@@ -82,7 +82,7 @@
     <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js" crossorigin="anonymous"></script>
     <script type="text/javascript">
       var gitalk = new Gitalk({
-        id: '{{ .Date }}',
+        id: '{{ time.Format "2006-01-02 15:04:05 -0700 CST" .Date }}',// CST is fixed at the end, due to historical reasons and to ensure compatibility. When Golang cannot find the time zone abbreviation on Linux, it will directly write timezone instead of the abbreviation.
         title: '{{ .Title }}',
         clientID: '{{ .Site.Params.gitalk.clientId }}',
         clientSecret: '{{ .Site.Params.gitalk.clientSecret }}',

@@ -20,8 +20,10 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
+          # $ hugo version
+          # hugo v0.109.0-47b12b83e636224e5e601813ff3e6790c191e371+extended darwin/arm64 BuildDate=2022-12-23T10:38:11Z VendorInfo=gohugoio
           hugo-version: '0.109.0'
-          # extended: true
+          extended: true
 
       - name: Build
         #run: hugo --minify
