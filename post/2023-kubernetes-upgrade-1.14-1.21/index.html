@@ -47,14 +47,14 @@
   <meta property="og:type" content="article">
   <meta property="article:section" content="post">
     <meta property="article:published_time" content="2023-11-30T16:58:24+08:00">
-    <meta property="article:modified_time" content="2023-11-30T16:58:24+08:00">
+    <meta property="article:modified_time" content="2024-05-24T16:38:00+08:00">
     <meta property="article:tag" content="Kubernetes">
 
   <meta itemprop="name" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
   <meta itemprop="description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
   <meta itemprop="datePublished" content="2023-11-30T16:58:24+08:00">
-  <meta itemprop="dateModified" content="2023-11-30T16:58:24+08:00">
-  <meta itemprop="wordCount" content="3216">
+  <meta itemprop="dateModified" content="2024-05-24T16:38:00+08:00">
+  <meta itemprop="wordCount" content="3399">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
 <meta name="twitter:description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
 
@@ -522,6 +522,54 @@
 <ul>
 <li>kubelet 会使用 pause:3.4.1，需要保证 pause:3.4.1 在内网可拉取</li>
 <li>为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 <code>sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml</code></li>
+<li>1.21 feature BoundServiceAccountTokenVolume 默认启用后，ServiceAccount 凭证从 Secret 挂载改为动态 Token 获取。按照声明来看挂载权限无差异。但在生产集群中，Pod Container 设置 <code>securityContext.runAsUser: 101</code> 以非 root user 运行时，读取 token 文件报错 <code>open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied</code>。
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># before 1.21 
+</span></span><span class="line"><span class="cl">- name: nginx-ingress-serviceaccount-token-vqxzw
+</span></span><span class="line"><span class="cl">  secret:
+</span></span><span class="line"><span class="cl">    defaultMode: 420
+</span></span><span class="line"><span class="cl">    secretName: nginx-ingress-serviceaccount-token-vqxzw
+</span></span><span class="line"><span class="cl">---
+</span></span><span class="line"><span class="cl"># after 1.21
+</span></span><span class="line"><span class="cl">volumes:
+</span></span><span class="line"><span class="cl">- name: kube-api-access-xbwws
+</span></span><span class="line"><span class="cl">  projected:
+</span></span><span class="line"><span class="cl">    defaultMode: 420
+</span></span><span class="line"><span class="cl">    sources:
+</span></span><span class="line"><span class="cl">    - serviceAccountToken:
+</span></span><span class="line"><span class="cl">        expirationSeconds: 3607
+</span></span><span class="line"><span class="cl">        path: token
+</span></span><span class="line"><span class="cl">    - configMap:
+</span></span><span class="line"><span class="cl">        items:
+</span></span><span class="line"><span class="cl">        - key: ca.crt
+</span></span><span class="line"><span class="cl">          path: ca.crt
+</span></span><span class="line"><span class="cl">        name: kube-root-ca.crt
+</span></span></code></pre></td></tr></table>
+</div>
+</div>解决方式：为 Pod 设置 <code>spec.securityContext.fsGroup: 65534</code>，确保所有 container 对挂载目录有读取权限。</li>
 </ul>
 <h2 id="系统级镜像坑点">系统级镜像坑点</h2>
 <p>如因内网环境或者其他原因导致国外镜像不可达，应该使用 <code>kubeadm apply &lt;targetVersion&gt; --dry-run</code> 打印执行结果，重点 grep 如下组件镜像并提前做好分发</p>
@@ -627,7 +675,7 @@
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2023-11-30 16:58
+        2024-05-24 16:38
         
     </span>
   </p>
