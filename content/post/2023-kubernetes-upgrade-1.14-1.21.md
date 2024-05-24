@@ -1,7 +1,7 @@
 ---
 title: "v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录"
 date: 2023-11-30T16:58:24+08:00
-lastmod: 2023-11-30T16:58:24+08:00
+lastmod: 2024-05-24T16:38:00+08:00
 draft: false
 keywords: ["kubernetes"]
 description: "Upgrade Kubernetes from v1.14.5 to v1.21.14"
@@ -246,6 +246,30 @@ data:
 ## 1.20 -> 1.21 注意点
 - kubelet 会使用 pause:3.4.1，需要保证 pause:3.4.1 在内网可拉取
 - 为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 `sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml`
+- 1.21 feature BoundServiceAccountTokenVolume 默认启用后，ServiceAccount 凭证从 Secret 挂载改为动态 Token 获取。按照声明来看挂载权限无差异。但在生产集群中，Pod Container 设置 `securityContext.runAsUser: 101` 以非 root user 运行时，读取 token 文件报错 `open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied`。
+    ```
+    # before 1.21 
+    - name: nginx-ingress-serviceaccount-token-vqxzw
+      secret:
+        defaultMode: 420
+        secretName: nginx-ingress-serviceaccount-token-vqxzw
+    ---
+    # after 1.21
+    volumes:
+    - name: kube-api-access-xbwws
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+    ```
+    解决方式：为 Pod 设置 `spec.securityContext.fsGroup: 65534`，确保所有 container 对挂载目录有读取权限。
 
 ## 系统级镜像坑点
 
