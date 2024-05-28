@@ -54,7 +54,7 @@
   <meta itemprop="description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
   <meta itemprop="datePublished" content="2023-11-30T16:58:24+08:00">
   <meta itemprop="dateModified" content="2024-05-24T16:38:00+08:00">
-  <meta itemprop="wordCount" content="3399">
+  <meta itemprop="wordCount" content="3483">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
 <meta name="twitter:description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
 
@@ -522,7 +522,7 @@
 <ul>
 <li>kubelet 会使用 pause:3.4.1，需要保证 pause:3.4.1 在内网可拉取</li>
 <li>为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 <code>sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml</code></li>
-<li>1.21 feature BoundServiceAccountTokenVolume 默认启用后，ServiceAccount 凭证从 Secret 挂载改为动态 Token 获取。按照声明来看挂载权限无差异。但在生产集群中，Pod Container 设置 <code>securityContext.runAsUser: 101</code> 以非 root user 运行时，读取 token 文件报错 <code>open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied</code>。
+<li>1.21 feature BoundServiceAccountTokenVolume 默认启用后，ServiceAccount 凭证从 Secret 挂载改为动态 Token 获取。按照声明来看挂载权限无差异。但在生产集群中，Pod Container 设置 <code>securityContext.runAsUser: 101</code> 以非 root user 运行时，读取 token 文件报错 <code>open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied</code> (container image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.31.0)。
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -545,9 +545,15 @@
 </span><span class="lnt">18
 </span><span class="lnt">19
 </span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># before 1.21 
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># before 1.21
 </span></span><span class="line"><span class="cl">- name: nginx-ingress-serviceaccount-token-vqxzw
 </span></span><span class="line"><span class="cl">  secret:
 </span></span><span class="line"><span class="cl">    defaultMode: 420
@@ -567,6 +573,12 @@
 </span></span><span class="line"><span class="cl">        - key: ca.crt
 </span></span><span class="line"><span class="cl">          path: ca.crt
 </span></span><span class="line"><span class="cl">        name: kube-root-ca.crt
+</span></span><span class="line"><span class="cl">    - downwardAPI:
+</span></span><span class="line"><span class="cl">      items:
+</span></span><span class="line"><span class="cl">      - fieldRef:
+</span></span><span class="line"><span class="cl">          apiVersion: v1
+</span></span><span class="line"><span class="cl">          fieldPath: metadata.namespace
+</span></span><span class="line"><span class="cl">        path: namespace
 </span></span></code></pre></td></tr></table>
 </div>
 </div>解决方式：为 Pod 设置 <code>spec.securityContext.fsGroup: 65534</code>，确保所有 container 对挂载目录有读取权限。</li>
