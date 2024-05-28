@@ -143,6 +143,34 @@ spec:
 
 最后，可能还需为极端情况做预案。如某个 Ingress 节点长时间无法升级成功时，可采用添加新节点为 Ingress 节点的方式恢复。
 
+## 教训 - BoundServiceAccountTokenVolume 变动导致 Ingress Nginx 新建容器启动失败
+
+1.21 之后，ServiceAccount 绑定 Pod 默认方式由 Secret 挂载改为 ServiceAccountToken 挂载。
+
+[v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录] 1.20 -> 1.21 升级注意点提到，这个变动会导致新创建 Ingress Nginx Pod（ServiceAccountToken 挂载）与旧留存 Ingress Nginx Pod（ServiceAccountToken 挂载）存在不一致的情况。
+
+对于 Container Image `quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.31.0` 而言，如果容器以非 root user 运行，读取 ServiceAccountToken 挂载文件会报错 `open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied`。
+
+解决方式则是利用 `spec.securityContext.fsGroup` 更改挂载文件归属和权限。
+
+```git
+spec:
+  containers:
+    name: nginx-ingress-controller
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+        - NET_BIND_SERVICE
+        drop:
+        - ALL
+      runAsUser: 101
++ securityContext: # fix 
++   fsGroup: 65534 # fix
+```
+
+教训：重视 Pod API 变更，升级集群时，所有 Pod 尽快滚动到最新版本。
+
 ## 裸金属环境 apiserver 真是高可用吗
 
 升级某个集群时，预期架构为所有 worker 节点通过 keepalived virtual IP 连接至某台 apiserver。这样可以假设 apiserver-1 处于升级期间，流量可以转发至 apiserver-2 或 apiserver-3。
@@ -181,6 +209,7 @@ spec:
 ## 结语：设计可持续演进的软件体系
 
 本次升级只涉及 Kubernetes 容器组件，仍然不包括
+- Ingress Controller 更新
 - Calico CNI 更新
 - Prometheus 更新
 - Linux kernel 更新
