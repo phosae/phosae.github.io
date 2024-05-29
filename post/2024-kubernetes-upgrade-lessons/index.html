@@ -54,7 +54,7 @@
   <meta itemprop="description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
   <meta itemprop="datePublished" content="2024-03-26T15:31:54+08:00">
   <meta itemprop="dateModified" content="2024-04-10T17:07:07+08:00">
-  <meta itemprop="wordCount" content="2564">
+  <meta itemprop="wordCount" content="2566">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 <meta name="twitter:description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 
@@ -324,7 +324,7 @@ sha256:e086f32dcf9f00bae7a5d1c4fe7c9760b3af37fe222c28803fd9060d32e4fb27 not foun
 </span></span><span class="line"><span class="cl">+   fsGroup: 65534 # fix
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>教训：重视 Pod API 变更，升级集群时，所有 Pod 尽快滚动到最新版本。</p>
+</div><p>教训：重视 Pod API 变更，升级集群时，应尽快将所有 Pod 滚动至最新版本。</p>
 <h2 id="裸金属环境-apiserver-真是高可用吗">裸金属环境 apiserver 真是高可用吗</h2>
 <p>升级某个集群时，预期架构为所有 worker 节点通过 keepalived virtual IP 连接至某台 apiserver。这样可以假设 apiserver-1 处于升级期间，流量可以转发至 apiserver-2 或 apiserver-3。</p>
 <p>实际情况是，该集群 keepalived 背后 apiserver-2 节点和 apiserver-3 节点在某次操作被注释掉了，并且该配置之前没有入库。
