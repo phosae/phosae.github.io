@@ -214,6 +214,10 @@ spec:
 - Prometheus 更新
 - Linux kernel 更新
 
+旧版本可能会有 K8s 兼容问题。以 Nginx Ingress Controller 为例，其就有[明确的版本兼容列表](https://github.com/kubernetes/ingress-nginx?tab=readme-ov-file#supported-versions-table)。而在升 1.21 过程中，随着控制面组件渐次废弃 HTTP 明文端口，老旧 Prometheus 爬取规则也出现了不兼容的情况。
+
+应同步更新应用级组件，通常做到这点并不难。
+
 中小公司不会有专门的基础架构团队分别负责网络、存储、监控、Kubernetes 等。单靠业务团队小部分人兼职处理所有更新，是不可能完成的任务。走流程提需求至运维团队，对方可能会告诉你，没有现成工具可以升级 kernel、Kubernetes。追至负责负责工具的团队时，往往又会以优先级不够之类的理由，要么排期靠后，要么不予处理。
 
 而随着时间流逝，人事更迭，你会发现，24 年做业务，仍旧用着 21 年的 Go 1.16，19 年的 Kubernetes 和 16 年的 Ubuntu 16.04 乃至 10 多年前的 CentOS 6。
