@@ -246,7 +246,7 @@ data:
 ## 1.20 -> 1.21 注意点
 - kubelet 会使用 pause:3.4.1，需要保证 pause:3.4.1 在内网可拉取
 - 为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 `sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml`
-- 1.21 feature BoundServiceAccountTokenVolume 默认启用后，ServiceAccount 凭证从 Secret 挂载改为动态 Token 获取。按照声明来看挂载权限无差异。但在生产集群中，Pod Container 设置 `securityContext.runAsUser: 101` 以非 root user 运行时，读取 token 文件报错 `open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied` (container image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.31.0)。
+- 1.21 feature BoundServiceAccountTokenVolume 默认启用后，ServiceAccount 凭证从 Secret 挂载改为动态 Token 获取。按照声明来看挂载权限无差异。但在生产集群中，Pod Container 设置 `securityContext.runAsUser: 101` 以非 root user 运行时，读取 token 文件报错 `open /var/run/secrets/kubernetes.io/serviceaccount/token: permission denied` (container image: quay.io/kubernetes-ingress-controller/[nginx-ingress-controller:0.31.0])。
     ```
     # before 1.21
     - name: nginx-ingress-serviceaccount-token-vqxzw
@@ -355,3 +355,4 @@ done
 [kubeadm#2207 - remove --port from kube-controller-manager and kube-scheduler]: https://github.com/kubernetes/kubeadm/issues/2207
 [kubeadm#2924 - adjust the kubeadm/kubelet skew policy]: https://github.com/kubernetes/kubeadm/issues/2924
 [Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训]: ../2024-kubernetes-upgrade-lessons
+[nginx-ingress-controller:0.31.0]: https://github.com/kubernetes/ingress-nginx/tree/controller-0.31.0
