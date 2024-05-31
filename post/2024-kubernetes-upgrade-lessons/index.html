@@ -54,7 +54,7 @@
   <meta itemprop="description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
   <meta itemprop="datePublished" content="2024-03-26T15:31:54+08:00">
   <meta itemprop="dateModified" content="2024-04-10T17:07:07+08:00">
-  <meta itemprop="wordCount" content="2566">
+  <meta itemprop="wordCount" content="2663">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 <meta name="twitter:description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 
@@ -363,6 +363,8 @@ apiserver-1  apiserver-2  apiserver-3
 <li>Prometheus 更新</li>
 <li>Linux kernel 更新</li>
 </ul>
+<p>旧版本可能会有 K8s 兼容问题。以 Nginx Ingress Controller 为例，其就有<a href="https://github.com/kubernetes/ingress-nginx?tab=readme-ov-file#supported-versions-table">明确的版本兼容列表</a>。而在升 1.21 过程中，随着控制面组件渐次废弃 HTTP 明文端口，老旧 Prometheus 爬取规则也出现了不兼容的情况。</p>
+<p>应同步更新应用级组件，通常做到这点并不难。</p>
 <p>中小公司不会有专门的基础架构团队分别负责网络、存储、监控、Kubernetes 等。单靠业务团队小部分人兼职处理所有更新，是不可能完成的任务。走流程提需求至运维团队，对方可能会告诉你，没有现成工具可以升级 kernel、Kubernetes。追至负责负责工具的团队时，往往又会以优先级不够之类的理由，要么排期靠后，要么不予处理。</p>
 <p>而随着时间流逝，人事更迭，你会发现，24 年做业务，仍旧用着 21 年的 Go 1.16，19 年的 Kubernetes 和 16 年的 Ubuntu 16.04 乃至 10 多年前的 CentOS 6。</p>
 <p>一名优秀的工程管理者在引入三方依赖之前，首先应该想清楚已有依赖能否解决业务问题。如果是，则慎重引入。比如当前团队 100% Java，Java 能解决好业务需求，那么就不要为了某些酷炫特性引入 Golang。</p>
