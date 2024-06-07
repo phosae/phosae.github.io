@@ -54,7 +54,7 @@
   <meta itemprop="description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
   <meta itemprop="datePublished" content="2023-11-30T16:58:24+08:00">
   <meta itemprop="dateModified" content="2024-05-24T16:38:00+08:00">
-  <meta itemprop="wordCount" content="3483">
+  <meta itemprop="wordCount" content="3555">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
 <meta name="twitter:description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
 
@@ -517,6 +517,7 @@
 <li>kubelet 会使用 pause:3.2，需要保证 pause:3.2 在内网可拉取</li>
 <li>v1.19 至 v1.20 最大变化就是废弃了 <code>apiserver serve on an insecure port</code>，因此在升级前应该修改 kubeadm ClusterConfiguration 移除 apiserver 参数 <code>--insecure-bind-address</code> 和参数 <code>--insecure-port</code>。同时应该检查左右客户端 kubeconfig，如果使用了 HTTP 连接 kube-apiserver，应该更新至 HTTPS 版。</li>
 <li>为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 <code>sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml</code></li>
+<li>1.20 kubelet 移除了 endpoint <code>metrics/resource/v1alpha1</code>，如果 Prometheus 配置了从该路径爬取 Metrics 的 ServiceMonitor，需修改对应资源，改成 <code>metrics/resource</code></li>
 </ul>
 <h2 id="120---121-注意点">1.20 -&gt; 1.21 注意点</h2>
 <ul>
