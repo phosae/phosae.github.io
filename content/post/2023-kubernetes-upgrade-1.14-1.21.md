@@ -242,6 +242,7 @@ data:
 - kubelet 会使用 pause:3.2，需要保证 pause:3.2 在内网可拉取
 - v1.19 至 v1.20 最大变化就是废弃了 `apiserver serve on an insecure port`，因此在升级前应该修改 kubeadm ClusterConfiguration 移除 apiserver 参数 `--insecure-bind-address` 和参数 `--insecure-port`。同时应该检查左右客户端 kubeconfig，如果使用了 HTTP 连接 kube-apiserver，应该更新至 HTTPS 版。
 - 为兼容 Prometheus HTTP 探测 kube-scheduler 和 kube-controller-manager，应该继续执行 `sed -i '/- --port=0/d'  /etc/kubernetes/manifests/kube-scheduler.yaml  /etc/kubernetes/manifests/kube-controller-manager.yaml`
+- 1.20 kubelet 移除了 endpoint `metrics/resource/v1alpha1`，如果 Prometheus 配置了从该路径爬取 Metrics 的 ServiceMonitor，需修改对应资源，改成 `metrics/resource`
 
 ## 1.20 -> 1.21 注意点
 - kubelet 会使用 pause:3.4.1，需要保证 pause:3.4.1 在内网可拉取
