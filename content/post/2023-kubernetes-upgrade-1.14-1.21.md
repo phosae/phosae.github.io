@@ -324,7 +324,7 @@ for NODE in work-1 work-2 work-3; do
 done
 ```
 
-注意: kubelet 更新时的参数更新，如 `参数移除`， `feature-gates 移除`， `pause container 更新` 等，具体因实际集群而异。
+注意: kubelet 更新时所涉及的参数更新，如 `参数移除`， `feature-gates 移除`， `pause container 更新` 等，具体因实际集群而异。
 
 ## 总结
 集群升级概要
