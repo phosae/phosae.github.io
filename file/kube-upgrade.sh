@@ -154,6 +154,16 @@ function wait_kubeproxy_ready() {
 }
 
 function format-container-disk() {
+    if [ "$(docker ps -a -q)" ]; then
+        echo "try remove all containers on disk..."
+        docker stop $(docker ps -a -q)
+        docker rm $(docker ps -a -q)
+    else
+        echo "no containers to remove."
+    fi
+
+    systemctl stop docker
+
     docker_device_name=/dev/$(lsblk --json | jq 'del(.blockdevices[] | select(.children != null) | .children[] | select(.children == null))' | jq -r '.blockdevices[] | select(.children != null) | select(.children[].children != null) | select(.children[].children[].name? == "docker-thinpool_tmeta") | .children[0].name')
 
     sudo rm -rf /var/lib/docker
@@ -169,6 +179,8 @@ function format-container-disk() {
     cp /etc/fstab /etc/fstab.bak
     echo "UUID=${uuid}  /var/lib/containerd  ext4  defaults,noatime  0  2" | sudo tee -a /etc/fstab
     mount -a
+
+    echo "docker lvm disk formatted success"
 }
 
 function prepare-containerd() {
@@ -265,19 +277,17 @@ function switch-runtime() {
     echo "start switch runtime: docker => containerd"
     systemctl stop kubelet
     echo "kubelet stopped"
-    docker stop $(docker ps -a -q)
-    docker rm $(docker ps -a -q)
-    systemctl stop docker
+    
     format-container-disk
-    echo "docker lvm disk formatted success"
-    systemctl stop docker
     prepare-containerd
     start-containerd
     echo "containerd started"
+    
     sed -i '/KUBELET_ARGS=/a \--container-runtime=remote \\\n--container-runtime-endpoint=unix:///var/run/containerd/containerd.sock \\' /etc/kubernetes/kubelet.env
     sed -i 's/--cgroup-driver=cgroupfs/--cgroup-driver=systemd/' /etc/kubernetes/kubelet.env
     systemctl daemon-reload
     systemctl restart kubelet
+
     echo "end switch runtime: docker => containerd"
 }
 
@@ -286,9 +296,9 @@ function update-worker-kubelet() {
     UPGRADEDIR=/etc/kubernetes/upgrade
     mkdir -p $UPGRADEDIR
 
-    wget -O $UPGRADEDIR/kubeadm-$VERSION https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubeadm
+    wget -O $UPGRADEDIR/kubeadm-$VERSION https://files.m.daocloud.io/storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubeadm
     chmod +x $UPGRADEDIR/kubeadm-$VERSION
-    wget -O $UPGRADEDIR/kubelet-$VERSION https://storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubelet
+    wget -O $UPGRADEDIR/kubelet-$VERSION https://files.m.daocloud.io/storage.googleapis.com/kubernetes-release/release/$VERSION/bin/linux/amd64/kubelet
     chmod +x $UPGRADEDIR/kubelet-$VERSION
 
     # start of updating args, it depends on your kubelet's status, don't use it
