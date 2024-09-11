@@ -54,7 +54,7 @@
   <meta itemprop="description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
   <meta itemprop="datePublished" content="2024-03-26T15:31:54+08:00">
   <meta itemprop="dateModified" content="2024-04-10T17:07:07+08:00">
-  <meta itemprop="wordCount" content="2663">
+  <meta itemprop="wordCount" content="2785">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 <meta name="twitter:description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 
@@ -153,6 +153,7 @@
     <li><a href="#教训---所有-ingress-节点同时升级导致全集群业务不可用">教训 - 所有 Ingress 节点同时升级导致全集群业务不可用</a></li>
     <li><a href="#教训---boundserviceaccounttokenvolume-变动导致-ingress-nginx-新建容器启动失败">教训 - BoundServiceAccountTokenVolume 变动导致 Ingress Nginx 新建容器启动失败</a></li>
     <li><a href="#裸金属环境-apiserver-真是高可用吗">裸金属环境 apiserver 真是高可用吗</a></li>
+    <li><a href="#经验---runtime-切换之-gpu-节点处理">经验 - Runtime 切换之 GPU 节点处理</a></li>
     <li><a href="#结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</a></li>
   </ul>
 </nav>
@@ -353,9 +354,70 @@ apiserver-1  apiserver-2  apiserver-3
                   |
                 haproxy     
                   |
-               worker-2          
+               worker-2
 </code></pre>
-<h2 id="结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</h2>
+<h2 id="经验---runtime-切换之-gpu-节点处理">经验 - Runtime 切换之 GPU 节点处理</h2>
+<p>旧版 Docker 支持 NVIDIA GPU 之 runtime 相关配置 (/etc/docker/daemon.json) 如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;default-runtime&#34;</span><span class="p">:</span> <span class="s2">&#34;nvidia&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;runtimes&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;nvidia&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="s2">&#34;/usr/bin/nvidia-container-runtime&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;runtimeArgs&#34;</span><span class="p">:</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>切换到 containerd 应对应为</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="cl">    <span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.grpc.v1.cri&#34;</span><span class="p">.</span><span class="nx">containerd</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">default_runtime_name</span> <span class="p">=</span> <span class="s2">&#34;nvidia&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="nx">snapshotter</span> <span class="p">=</span> <span class="s2">&#34;overlayfs&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.grpc.v1.cri&#34;</span><span class="p">.</span><span class="nx">containerd</span><span class="p">.</span><span class="nx">runtimes</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.grpc.v1.cri&#34;</span><span class="p">.</span><span class="nx">containerd</span><span class="p">.</span><span class="nx">runtimes</span><span class="p">.</span><span class="nx">nvidia</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">          <span class="nx">runtime_type</span> <span class="p">=</span> <span class="s2">&#34;io.containerd.runc.v2&#34;</span>
+</span></span><span class="line"><span class="cl">          <span class="p">[</span><span class="nx">plugins</span><span class="p">.</span><span class="s2">&#34;io.containerd.grpc.v1.cri&#34;</span><span class="p">.</span><span class="nx">containerd</span><span class="p">.</span><span class="nx">runtimes</span><span class="p">.</span><span class="nx">nvidia</span><span class="p">.</span><span class="nx">options</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">BinaryName</span> <span class="p">=</span> <span class="s2">&#34;/usr/bin/nvidia-container-runtime&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">systemdCgroup</span> <span class="p">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">        <span class="c"># 填写多个 runtimes 以便用户使用 K8s RuntimeClass 自由切换 https://kubernetes.io/docs/concepts/containers/runtime-class/</span>
+</span></span><span class="line"><span class="cl">        <span class="c">#[plugins.&#34;io.containerd.grpc.v1.cri&#34;.containerd.runtimes.runc]</span>
+</span></span><span class="line"><span class="cl">        <span class="c">#  runtime_type = &#34;io.containerd.runc.v2&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="c">#  [plugins.&#34;io.containerd.grpc.v1.cri&#34;.containerd.runtimes.runc.options]</span>
+</span></span><span class="line"><span class="cl">        <span class="c">#    systemdCgroup = true</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</h2>
 <p>本次升级只涉及 Kubernetes 容器组件，仍然不包括</p>
 <ul>
 <li>Ingress Controller 更新</li>

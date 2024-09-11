@@ -194,6 +194,13 @@ function prepare-containerd() {
     rm $CONTAINERD_FILE
     mkdir -p /etc/containerd
 
+    RUNTIME_NAME=runc
+    NVIDIA_RUNTIME_PATH=""
+    if jq -e '.["default-runtime"] == "nvidia"' /etc/docker/daemon.json > /dev/null; then
+        RUNTIME_NAME=nvidia
+        NVIDIA_RUNTIME_PATH=$(jq -r '.runtimes.nvidia.path' /etc/docker/daemon.json)
+    fi
+
     cat <<EOF >/etc/containerd/config.toml
 version = 2
 root = "/var/lib/containerd" 
@@ -216,7 +223,7 @@ oom_score = 0
     sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
     max_container_log_line_size = -1
     [plugins."io.containerd.grpc.v1.cri".containerd]
-      default_runtime_name = "runc"
+      default_runtime_name = "$RUNTIME_NAME"
       snapshotter = "overlayfs"
       [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
@@ -225,6 +232,16 @@ oom_score = 0
           runtime_root = ""
           [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
             systemdCgroup = true
+$(if [ "$RUNTIME_NAME" == "nvidia" ]; then cat <<'NV'   
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+          runtime_type = "io.containerd.runc.v2"
+          runtime_engine = ""
+          runtime_root = ""
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+            BinaryName = "/usr/bin/nvidia-container-runtime"
+            systemdCgroup = true
+NV
+fi)
     [plugins."io.containerd.grpc.v1.cri".registry]
       [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
         [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
