@@ -204,7 +204,42 @@ spec:
                       |
                     haproxy     
                       |
-                   worker-2          
+                   worker-2
+
+## 经验 - Runtime 切换之 GPU 节点处理
+
+旧版 Docker 支持 NVIDIA GPU 之 runtime 相关配置 (/etc/docker/daemon.json) 如下
+
+```json
+{
+  "default-runtime": "nvidia",
+  "runtimes": {
+    "nvidia": {
+      "path": "/usr/bin/nvidia-container-runtime",
+      "runtimeArgs": []
+    }
+  }
+}
+```
+
+切换到 containerd 应对应为
+
+```toml
+    [plugins."io.containerd.grpc.v1.cri".containerd]
+      default_runtime_name = "nvidia"
+      snapshotter = "overlayfs"
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+          runtime_type = "io.containerd.runc.v2"
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+            BinaryName = "/usr/bin/nvidia-container-runtime"
+            systemdCgroup = true
+        # 填写多个 runtimes 以便用户使用 K8s RuntimeClass 自由切换 https://kubernetes.io/docs/concepts/containers/runtime-class/
+        #[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+        #  runtime_type = "io.containerd.runc.v2"
+        #  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+        #    systemdCgroup = true
+```
 
 ## 结语：设计可持续演进的软件体系
 
