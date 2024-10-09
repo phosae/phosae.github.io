@@ -207,7 +207,7 @@ data:
     }
 ```
 
-## 1.15 -> 1.17 踩坑记录
+## 1.16 -> 1.17 踩坑记录
 
 ```bash
 root@first-master:~# /etc/kubernetes/upgrade/kubeadm-v1.17.17 upgrade apply v1.17.17 -f 
