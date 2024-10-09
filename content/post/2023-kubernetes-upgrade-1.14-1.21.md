@@ -1,7 +1,7 @@
 ---
 title: "v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录"
 date: 2023-11-30T16:58:24+08:00
-lastmod: 2024-05-24T16:38:00+08:00
+lastmod: 2024-10-09T15:55:00+08:00
 draft: false
 keywords: ["kubernetes"]
 description: "Upgrade Kubernetes from v1.14.5 to v1.21.14"
@@ -205,6 +205,33 @@ data:
         reload
         loadbalance
     }
+```
+
+## 1.15 -> 1.17 踩坑记录
+
+```bash
+root@first-master:~# /etc/kubernetes/upgrade/kubeadm-v1.17.17 upgrade apply v1.17.17 -f 
+root@first-master:~# kubeadm upgrade node
+```
+
+执行完 control plane 和第 1 台 master 升级后，出现 kubelet 报错并无法启动的情况
+
+```bash
+Oct 09 15:09:36 first-master kubelet [22604]: E1009 15:09:36.565646  22604 csi_plugin.go:287] Failed to initialize CSINode: 
+error updating CSINode annotation: timed out waiting for the condition; caused by: the server could not find the requested resource
+```
+原因是 1.17 CSINode 相关处理有了非兼容更新并默认开启，1.17 kubelet 请求到了 1.16 老版本 kube-apiserver 后报错退出。
+
+解决方式
+1. 控制面升级期间，在当前 master 节点的 kubelet 启动配置中暂时关闭该特性
+2. 待所有 master 全部升级到 1.17 之后，再写回原来配置即可
+
+```bash
+# /var/lib/kubelet/config.yaml
+featureGates:
+  CSIMigration: false
+# command line args
+--feature-gates=VolumeSubpathEnvExpansion=true,**CSIMigration=false**
 ```
 
 ## 1.18 -> 1.19 踩坑记录
