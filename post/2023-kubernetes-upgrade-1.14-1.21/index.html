@@ -47,14 +47,14 @@
   <meta property="og:type" content="article">
   <meta property="article:section" content="post">
     <meta property="article:published_time" content="2023-11-30T16:58:24+08:00">
-    <meta property="article:modified_time" content="2024-05-24T16:38:00+08:00">
+    <meta property="article:modified_time" content="2024-10-09T15:55:00+08:00">
     <meta property="article:tag" content="Kubernetes">
 
   <meta itemprop="name" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
   <meta itemprop="description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
   <meta itemprop="datePublished" content="2023-11-30T16:58:24+08:00">
-  <meta itemprop="dateModified" content="2024-05-24T16:38:00+08:00">
-  <meta itemprop="wordCount" content="3558">
+  <meta itemprop="dateModified" content="2024-10-09T15:55:00+08:00">
+  <meta itemprop="wordCount" content="3751">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="v1.14.5 - v1.21.14 Kubernetes 跨版本升级记录">
 <meta name="twitter:description" content="Upgrade Kubernetes from v1.14.5 to v1.21.14">
 
@@ -152,6 +152,7 @@
     <li><a href="#其他-master-节点更新">其他 master 节点更新</a></li>
     <li><a href="#114--115-踩坑记录">1.14 → 1.15 踩坑记录</a></li>
     <li><a href="#115---116-踩坑记录">1.15 -&gt; 1.16 踩坑记录</a></li>
+    <li><a href="#115---117-踩坑记录">1.15 -&gt; 1.17 踩坑记录</a></li>
     <li><a href="#118---119-踩坑记录">1.18 -&gt; 1.19 踩坑记录</a></li>
     <li><a href="#119---120-注意点">1.19 -&gt; 1.20 注意点</a></li>
     <li><a href="#120---121-注意点">1.20 -&gt; 1.21 注意点</a></li>
@@ -455,6 +456,50 @@
 </span></span></span><span class="line"><span class="cl"><span class="sd">    }</span><span class="w">    
 </span></span></span></code></pre></td></tr></table>
 </div>
+</div><h2 id="115---117-踩坑记录">1.15 -&gt; 1.17 踩坑记录</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">root@first-master:~# /etc/kubernetes/upgrade/kubeadm-v1.17.17 upgrade apply v1.17.17 -f 
+</span></span><span class="line"><span class="cl">root@first-master:~# kubeadm upgrade node
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>执行完 control plane 和第 1 台 master 升级后，出现 kubelet 报错并无法启动的情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Oct <span class="m">09</span> 15:09:36 first-master kubelet <span class="o">[</span>22604<span class="o">]</span>: E1009 15:09:36.565646  <span class="m">22604</span> csi_plugin.go:287<span class="o">]</span> Failed to initialize CSINode: 
+</span></span><span class="line"><span class="cl">error updating CSINode annotation: timed out waiting <span class="k">for</span> the condition<span class="p">;</span> caused by: the server could not find the requested resource
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>原因是 1.17 CSINode 相关处理有了非兼容更新并默认开启，1.17 kubelet 请求到了 1.16 老版本 kube-apiserver 后报错退出。</p>
+<p>解决方式</p>
+<ol>
+<li>控制面升级期间，在当前 master 节点的 kubelet 启动配置中暂时关闭该特性</li>
+<li>待所有 master 全部升级到 1.17 之后，再写回原来配置即可</li>
+</ol>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># /var/lib/kubelet/config.yaml</span>
+</span></span><span class="line"><span class="cl">featureGates:
+</span></span><span class="line"><span class="cl">  CSIMigration: <span class="nb">false</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># command line args</span>
+</span></span><span class="line"><span class="cl">--feature-gates<span class="o">=</span><span class="nv">VolumeSubpathEnvExpansion</span><span class="o">=</span>true,**CSIMigration<span class="o">=</span>false**
+</span></span></code></pre></td></tr></table>
+</div>
 </div><h2 id="118---119-踩坑记录">1.18 -&gt; 1.19 踩坑记录</h2>
 <ul>
 <li>feature gate <code>VolumeSubpathEnvExpansion</code> 在 1.19 被移除，导致执行 <code>kubeadm upgrade</code> 后，kube-apiserver, kube-controller-manager, kube-scheduler, kube-proxy, kubelet 均无法启动。解决方式
@@ -688,7 +733,7 @@
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2024-05-24 16:38
+        2024-10-09 15:55
         
     </span>
   </p>
