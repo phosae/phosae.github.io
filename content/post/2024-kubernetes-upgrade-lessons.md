@@ -241,6 +241,26 @@ spec:
         #    systemdCgroup = true
 ```
 
+对于部分 Ubuntu 版本 (Ubuntu 16.04.2, Linux 4.4.0)，笔者在升级后遇到了部分 Pod 无法启动、kubelet 报错无法处理 Cgroups 的情况
+
+```
+Nov 04 15:20:34 mynode kubelet[60862]: W1104 15:20:34.892535 60862 watcher.go:95] Error while processing event ("/sys/fs/cgroup/devices/libcontainer_50995_systemd_test_default.slice": 0x40000100 == IN_CREATE| IN_ISDIR): inotify_add_watch /sys/fs/cgroup/devices/libcontainer_50995_systemd_test_default.slice: no such file or directory
+```
+
+原因为运行时链路自 `dockerd -> nvidia-container-runtime` 改为 `containerd -> nvidia-container-runtime` 后，
+nvidia-container-runtime 仍会默认调用 docker-runc，而不是更新后的较新 runc。而 docker-runc (version 1.0.0-rc5+dev.docker-18.06) 在 Ubuntu 16.04.2 上处理 systemd driver cgroup 有点问题
+
+解决方式是修改配置文件 `/etc/nvidia-container-runtime/config.toml`，让 nvidia-container-runtime 优先使用 runc 而非 docker-runc
+
+```
+# Specify the runtimes to consider. This list is processed in order and the PATH
+# searched for matching executables unless the entry is an absolute path.
+runtimes = [
+    "runc",
+    "docker-runc",
+]
+```
+
 ## 结语：设计可持续演进的软件体系
 
 本次升级只涉及 Kubernetes 容器组件，仍然不包括
