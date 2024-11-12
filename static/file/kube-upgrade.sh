@@ -164,21 +164,43 @@ function format-container-disk() {
 
     systemctl stop docker
 
-    docker_device_name=/dev/$(lsblk --json | jq 'del(.blockdevices[] | select(.children != null) | .children[] | select(.children == null))' | jq -r '.blockdevices[] | select(.children != null) | select(.children[].children != null) | select(.children[].children[].name? == "docker-thinpool_tmeta") | .children[0].name')
+        storage_driver=$(jq -r '.["storage-driver"]' /etc/docker/daemon.json)
 
-    sudo rm -rf /var/lib/docker
-    cp /etc/docker/daemon.json /etc/docker/daemon.json.bk
-    jq 'del(.["storage-driver", "storage-opts"]) | . + { "storage-driver": "overlay2" }' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json >/dev/null
+    if [ "$storage_driver" == "devicemapper" ]; then
+        docker_device_name=/dev/$(lsblk --json | jq 'del(.blockdevices[] | select(.children != null) | .children[] | select(.children == null))' | jq -r '.blockdevices[] | select(.children != null) | select(.children[].children != null) | select(.children[].children[].name? == "docker-thinpool_tmeta") | .children[0].name')
 
-    if lvremove --force /dev/docker/thinpool; then echo "lvm thinpool removed"; fi
-    if lvremove --force /dev/docker/thinpoolmeta; then echo "lvm thinpoolmeta removed"; fi
+        sudo rm -rf /var/lib/docker
 
-    mkfs -t ext4 -F $docker_device_name
-    mkdir -p /var/lib/containerd
-    uuid=$(sudo blkid -s UUID -o value $docker_device_name)
-    cp /etc/fstab /etc/fstab.bak
-    echo "UUID=${uuid}  /var/lib/containerd  ext4  defaults,noatime  0  2" | sudo tee -a /etc/fstab
-    mount -a
+        cp /etc/docker/daemon.json /etc/docker/daemon.json.bk
+        jq 'del(.["storage-driver", "storage-opts"]) | . + { "storage-driver": "overlay2" }' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json >/dev/null
+
+        if lvremove --force /dev/docker/thinpool; then echo "lvm thinpool removed"; fi
+        if lvremove --force /dev/docker/thinpoolmeta; then echo "lvm thinpoolmeta removed"; fi
+
+        sudo mkfs -t ext4 -F $docker_device_name
+
+        sudo mkdir -p /var/lib/containerd
+
+        uuid=$(sudo blkid -s UUID -o value $docker_device_name)
+        sudo cp /etc/fstab /etc/fstab.bak
+        echo "UUID=${uuid}  /var/lib/containerd  ext4  defaults,noatime  0  2" | sudo tee -a /etc/fstab
+
+        sudo mount -a
+    elif [ "$storage_driver" == "overlay2" ]; then
+        container_device=$(lsblk --json | jq -r '.blockdevices[] | select(.mountpoint? == "/var/lib/docker") | .name // (.children[] | select(.mountpoint? == "/var/lib/docker") | .name)')
+        if [ -n "$container_device" ]; then
+            cp /etc/fstab /etc/fstab.bak
+            sed -i "s|/var/lib/docker|/var/lib/containerd|g" /etc/fstab
+            umount /var/lib/docker
+            mkdir -p /var/lib/containerd
+            mount -a
+        else
+            echo "No disk mounted to /var/lib/docker"
+        fi
+    else
+        echo "unexpected docker storage driver"
+        exit 1
+    fi
 
     echo "docker lvm disk formatted success"
 }
