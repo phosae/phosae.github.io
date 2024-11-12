@@ -54,7 +54,7 @@
   <meta itemprop="description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
   <meta itemprop="datePublished" content="2024-03-26T15:31:54+08:00">
   <meta itemprop="dateModified" content="2024-04-10T17:07:07+08:00">
-  <meta itemprop="wordCount" content="2785">
+  <meta itemprop="wordCount" content="3033">
   <meta itemprop="keywords" content="kubernetes"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 <meta name="twitter:description" content="Kubernetes v1.14.5 → v1.21.14 升级补遗及经验教训">
 
@@ -415,6 +415,36 @@ apiserver-1  apiserver-2  apiserver-3
 </span></span><span class="line"><span class="cl">        <span class="c">#  runtime_type = &#34;io.containerd.runc.v2&#34;</span>
 </span></span><span class="line"><span class="cl">        <span class="c">#  [plugins.&#34;io.containerd.grpc.v1.cri&#34;.containerd.runtimes.runc.options]</span>
 </span></span><span class="line"><span class="cl">        <span class="c">#    systemdCgroup = true</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>对于部分 Ubuntu 版本 (Ubuntu 16.04.2, Linux 4.4.0)，笔者在升级后遇到了部分 Pod 无法启动、kubelet 报错无法处理 Cgroups 的情况</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Nov 04 15:20:34 mynode kubelet[60862]: W1104 15:20:34.892535 60862 watcher.go:95] Error while processing event (&#34;/sys/fs/cgroup/devices/libcontainer_50995_systemd_test_default.slice&#34;: 0x40000100 == IN_CREATE| IN_ISDIR): inotify_add_watch /sys/fs/cgroup/devices/libcontainer_50995_systemd_test_default.slice: no such file or directory
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>原因为运行时链路自 <code>dockerd -&gt; nvidia-container-runtime</code> 改为 <code>containerd -&gt; nvidia-container-runtime</code> 后，
+nvidia-container-runtime 仍会默认调用 docker-runc，而不是更新后的较新 runc。而 docker-runc (version 1.0.0-rc5+dev.docker-18.06) 在 Ubuntu 16.04.2 上处理 systemd driver cgroup 有点问题</p>
+<p>解决方式是修改配置文件 <code>/etc/nvidia-container-runtime/config.toml</code>，让 nvidia-container-runtime 优先使用 runc 而非 docker-runc</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"># Specify the runtimes to consider. This list is processed in order and the PATH
+</span></span><span class="line"><span class="cl"># searched for matching executables unless the entry is an absolute path.
+</span></span><span class="line"><span class="cl">runtimes = [
+</span></span><span class="line"><span class="cl">    &#34;runc&#34;,
+</span></span><span class="line"><span class="cl">    &#34;docker-runc&#34;,
+</span></span><span class="line"><span class="cl">]
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="结语设计可持续演进的软件体系">结语：设计可持续演进的软件体系</h2>
