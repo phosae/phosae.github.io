@@ -55,7 +55,7 @@
   <meta itemprop="description" content="K8s CustomResourceDefinition internals">
   <meta itemprop="datePublished" content="2023-05-19T10:09:09+08:00">
   <meta itemprop="dateModified" content="2023-05-27T17:29:00+08:00">
-  <meta itemprop="wordCount" content="5432">
+  <meta itemprop="wordCount" content="5442">
   <meta itemprop="keywords" content="kubernetes,rest"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="K8s CustomResourceDefinitions (CRD) 原理">
 <meta name="twitter:description" content="K8s CustomResourceDefinition internals">
 
@@ -972,7 +972,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>在项目 /api 目录，执行 crd 生成脚本 update-crd-docker.sh</p>
+</div><p>在项目 /api 目录，执行 CRD 生成脚本 update-crd-docker.sh</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -985,9 +985,15 @@
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">controller-gen schemapatch:manifests<span class="o">=</span>./artifacts/crd <span class="nv">paths</span><span class="o">=</span>./... output:dir<span class="o">=</span>./artifacts/crd
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 安装 controller-gen</span>
+</span></span><span class="line"><span class="cl">go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.13.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">controller-gen schemapatch:manifests<span class="o">=</span>./artifacts/crd <span class="nv">paths</span><span class="o">=</span>./hello.zeng.dev/v1/... output:dir<span class="o">=</span>./artifacts/crd
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>即可动态生成 OpenAPI schemas (changes trace: git diff a5469c0 38dcc40 -- artifacts/crd/hello.zeng.dev_foos.yaml)</p>
@@ -1104,8 +1110,8 @@
 </div><p>可以发现 Go Structs 中含有 JSON Tags 的字段均被映射到了 OpenAPI Spec Properties，字段注释映射到了 description，字段类型映射到了 type。</p>
 <p>⚠️⚠️⚠️ 注意：这里的 <code>controller-gen schemapatch</code>，作用使用 patch 仅更新文件 hello.zeng.dev_foos.yaml 中的 openAPIV3Schema。如果使用 <code>controller-gen crd</code>，则会重新生成整个文件。</p>
 <ul>
-<li><code>controller-gen crd:crdVersions=v1 paths=./... output:dir=./artifacts/crd</code> 生成完整CRD定义 ➡️ <a href="https://github.com/phosae/x-kubernetes/blob/38dcc4056984705ffbf9dbeaa570e875857a6042/api/artifacts/crd/hello.zeng.dev_foos_full.yaml">hello.zeng.dev_foos_full.yaml</a></li>
-<li><code>controller-gen crd:crdVersions=v1,maxDescLen=0 paths=./... output:dir=./artifacts/crd</code> 生成不含注释的CRD定义 ➡️ <a href="https://github.com/phosae/x-kubernetes/blob/38dcc4056984705ffbf9dbeaa570e875857a6042/api/artifacts/crd/hello.zeng.dev_foos_nodesc.yaml">hello.zeng.dev_foos_nodesc.yaml</a></li>
+<li><code>controller-gen crd:crdVersions=v1 paths=./hello.zeng.dev/v1/... output:dir=./artifacts/crd</code> 生成完整CRD定义 ➡️ <a href="https://github.com/phosae/x-kubernetes/blob/38dcc4056984705ffbf9dbeaa570e875857a6042/api/artifacts/crd/hello.zeng.dev_foos_full.yaml">hello.zeng.dev_foos_full.yaml</a></li>
+<li><code>controller-gen crd:crdVersions=v1,maxDescLen=0 paths=./hello.zeng.dev/v1/... output:dir=./artifacts/crd</code> 生成不含注释的CRD定义 ➡️ <a href="https://github.com/phosae/x-kubernetes/blob/38dcc4056984705ffbf9dbeaa570e875857a6042/api/artifacts/crd/hello.zeng.dev_foos_nodesc.yaml">hello.zeng.dev_foos_nodesc.yaml</a></li>
 </ul>
 <p>这里没有引入需要学习成本的 <a href="https://book.kubebuilder.io/reference/markers/crd.html">generation markers</a>，故没法生成 additionalPrinterColumns 定义。也没有引入 <a href="https://book.kubebuilder.io/reference/markers/crd-validation.html">validation markers</a>，故没法生成字段校验 schema。</p>
 <p>⚠️⚠️⚠️ 注意：CRD OpenAPI Schema 之 <code>properties/apiVersion, kind, metadata</code> ，虽然工具生成了这些字段定义，实际非必需（如之前展示）。apiextensions-apiserver 的 <a href="https://github.com/kubernetes/apiextensions-apiserver/blob/37c0f7d353bee5630da4b697c410b00acec91f11/pkg/controller/openapi/builder/builder.go#L381-L413">openapi builder</a> 会自动注入这些定义。</p>
