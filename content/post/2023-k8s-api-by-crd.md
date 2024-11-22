@@ -518,7 +518,7 @@ type FooList struct {
 }
 ```
 
-在项目 /api 目录，执行 crd 生成脚本 update-crd-docker.sh
+在项目 /api 目录，执行 CRD 生成脚本 update-crd-docker.sh
 
 ```bash
 ~/x-kubernetes/api# ./hack/update-crd-docker.sh 
@@ -526,7 +526,10 @@ type FooList struct {
 或者在 /api 目录直接跑 controller-gen
 
 ```bash
-controller-gen schemapatch:manifests=./artifacts/crd paths=./... output:dir=./artifacts/crd
+# 安装 controller-gen
+go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.13.0
+
+controller-gen schemapatch:manifests=./artifacts/crd paths=./hello.zeng.dev/v1/... output:dir=./artifacts/crd
 ```
 
 即可动态生成 OpenAPI schemas (changes trace: git diff a5469c0 38dcc40 \-\- artifacts/crd/hello.zeng.dev_foos.yaml)
@@ -589,8 +592,8 @@ spec:
 可以发现 Go Structs 中含有 JSON Tags 的字段均被映射到了 OpenAPI Spec Properties，字段注释映射到了 description，字段类型映射到了 type。
 
 ⚠️⚠️⚠️ 注意：这里的 `controller-gen schemapatch`，作用使用 patch 仅更新文件 hello.zeng.dev_foos.yaml 中的 openAPIV3Schema。如果使用 `controller-gen crd`，则会重新生成整个文件。
-- `controller-gen crd:crdVersions=v1 paths=./... output:dir=./artifacts/crd` 生成完整CRD定义 ➡️ [hello.zeng.dev_foos_full.yaml]
-- `controller-gen crd:crdVersions=v1,maxDescLen=0 paths=./... output:dir=./artifacts/crd` 生成不含注释的CRD定义 ➡️ [hello.zeng.dev_foos_nodesc.yaml]
+- `controller-gen crd:crdVersions=v1 paths=./hello.zeng.dev/v1/... output:dir=./artifacts/crd` 生成完整CRD定义 ➡️ [hello.zeng.dev_foos_full.yaml]
+- `controller-gen crd:crdVersions=v1,maxDescLen=0 paths=./hello.zeng.dev/v1/... output:dir=./artifacts/crd` 生成不含注释的CRD定义 ➡️ [hello.zeng.dev_foos_nodesc.yaml]
 
 这里没有引入需要学习成本的 [generation markers](https://book.kubebuilder.io/reference/markers/crd.html)，故没法生成 additionalPrinterColumns 定义。也没有引入 [validation markers](https://book.kubebuilder.io/reference/markers/crd-validation.html)，故没法生成字段校验 schema。
 
