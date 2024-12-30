@@ -20,7 +20,7 @@
       <link>https://www.zeng.dev/post/2022-the-docker-mtu-problem/</link>
       <pubDate>Fri, 18 Nov 2022 18:11:28 +0800</pubDate>
       <guid>https://www.zeng.dev/post/2022-the-docker-mtu-problem/</guid>
-      <description>在 SDN 网络环境中，如果 docker0 bridge MTU 1500 大于 Host MTU（如 1400）时，会出现「即小包可通，大包不通」的情况，直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题</description>
+      <description>在 SDN 网络环境中，由于 docker0 bridge MTU 1500 大于 Host MTU（如 1400），网络会出现好像没问题但实际有问题的情况。直观来说就是 ping 8.8.8.8 能通，但是网站打不开、apt update 卡住不动、更无法下载文件。本文将复现并教你如何解决该问题</description>
     </item>
     <item>
       <title>各种容器运行时都解决了什么问题</title>
