@@ -47,7 +47,7 @@
   <meta property="og:type" content="article">
   <meta property="article:section" content="post">
     <meta property="article:published_time" content="2019-07-15T16:55:32+08:00">
-    <meta property="article:modified_time" content="2019-08-20T16:55:32+08:00">
+    <meta property="article:modified_time" content="2024-12-30T08:45:32+08:00">
     <meta property="article:tag" content="Go">
     <meta property="article:tag" content="Java">
     <meta property="article:tag" content="Concurrency">
@@ -55,8 +55,8 @@
   <meta itemprop="name" content="Java &amp; Go 并发编程对比">
   <meta itemprop="description" content="Java &amp; Go 并发编程对比">
   <meta itemprop="datePublished" content="2019-07-15T16:55:32+08:00">
-  <meta itemprop="dateModified" content="2019-08-20T16:55:32+08:00">
-  <meta itemprop="wordCount" content="7915">
+  <meta itemprop="dateModified" content="2024-12-30T08:45:32+08:00">
+  <meta itemprop="wordCount" content="7917">
   <meta itemprop="keywords" content="Go,Java,Concurrency"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="Java &amp; Go 并发编程对比">
 <meta name="twitter:description" content="Java &amp; Go 并发编程对比">
 
@@ -444,30 +444,32 @@
 </span><span class="lnt">20
 </span><span class="lnt">21
 </span><span class="lnt">22
+</span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">invokeAny</span><span class="p">()</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">rets</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">10</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">stops</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kd">struct</span><span class="p">{},</span> <span class="mi">9</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancel</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithCancel</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">  <span class="k">defer</span> <span class="nf">cancel</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">retChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">string</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// execute job
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="nx">ret</span> <span class="o">:=</span> <span class="nf">do</span><span class="p">()</span>
 </span></span><span class="line"><span class="cl">      <span class="k">select</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">stops</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">      <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctx</span><span class="p">.</span><span class="nf">Done</span><span class="p">():</span>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span>
 </span></span><span class="line"><span class="cl">      <span class="k">default</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">        <span class="c1">// execute job
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nx">rets</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">retChan</span> <span class="o">&lt;-</span> <span class="nx">ret</span>
 </span></span><span class="line"><span class="cl">      <span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}()</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">ret</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">rets</span>
-</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">ret</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="nx">stops</span> <span class="o">&lt;-</span> <span class="kd">struct</span><span class="p">{}{}</span>
-</span></span><span class="line"><span class="cl">  <span class="p">}</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// Wait for the first result
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">firstRet</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">retChan</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">firstRet</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">cancel</span><span class="p">()</span> <span class="c1">// Cancel other requests
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>invokeAll 简单场景非常类似之前使用 RetErr channel 模拟 Future 的情况，改为 channel slice 即可，这里不再展示。</p>
@@ -1379,7 +1381,7 @@
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2019-08-20 16:55
+        2024-12-30 08:45
         
     </span>
   </p>

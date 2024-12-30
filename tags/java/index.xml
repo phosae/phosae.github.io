@@ -6,7 +6,7 @@
     <description>Recent content in Java on ZengXu&#39;s BLOG</description>
     <generator>Hugo 0.125.0</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 08 May 2020 00:22:00 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 30 Dec 2024 08:45:32 +0800</lastBuildDate>
     <atom:link href="https://www.zeng.dev/tags/java/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>如何迁移 Spring Cloud Eureka 注册体系至 k8s</title>
