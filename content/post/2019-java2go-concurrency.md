@@ -1,7 +1,7 @@
 ---
 title: "Java & Go 并发编程对比"
 date: 2019-07-15T16:55:32+08:00
-lastmod: 2019-08-20T16:55:32+08:00
+lastmod: 2024-12-30T08:45:32+08:00
 draft: false
 keywords: ["Go","Java","Concurrency"]
 description: "Java & Go 并发编程对比"
@@ -167,26 +167,27 @@ Go 很容易实现 invokeAny，只要创建一个 buffered channel 接收结果�
 
 ```go
 func invokeAny() {
-  rets := make(chan struct{}, 10)
-  stops := make(chan struct{}, 9)
+	ctx, cancel := context.WithCancel(context.Background())
+  defer cancel()
+  retChan := make(chan string)
 
   for i := 0; i < 10; i++ {
     go func() {
+      // execute job
+      ret := do()
       select {
-      case <-stops:
+      case <-ctx.Done():
         return
       default:
-        // execute job
-        rets <- struct{}{}
+        retChan <- ret
       }
     }()
   }
-  ret := <-rets
-  fmt.Println(ret)
 
-  for i := 0; i < 9; i++ {
-    stops <- struct{}{}
-  }
+  // Wait for the first result
+  firstRet := <-retChan
+  fmt.Println(firstRet)
+  cancel() // Cancel other requests
 }
 ```
 
@@ -384,7 +385,7 @@ func shutdown() {
 |信号量       |Semaphore                            |buffered channel, x/sync/semaphore.Weighted |
 |CAS/Atomic  |Varhandle、volatile，Atomic 类        |atomic.Value，atomic 包  |
 |once        |单例模式                              |sync.Once               |
-|BSP 模型     |CountDownLatch，CyclicBarrier        | sync.WaitGroup         |
+|BSP 模型     |CountDownLatch，CyclicBarrier        |sync.WaitGroup         |
 
 注：BSP 指 [Bulk Synchronous Parallelism]
 
