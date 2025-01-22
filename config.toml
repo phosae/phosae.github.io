@@ -48,11 +48,11 @@ copyright = ""            # default: author.name ↓        # 默认为下面配
   weight = 30
   identifier = "tags"
   url = "/tags/"
-[[menu.main]]
-  name = "杂文"
-  weight = 40
-  identifier = "notion"
-  url = "https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7"
+# [[menu.main]]
+#   name = "杂文"
+#   weight = 40
+#   identifier = "notion"
+#   url = "https://www.notion.so/zengxu/Zeng-Xu-s-Little-World-a6b002fb4d134333abe74a4e0491cea7"
 [[menu.main]]
   name = "我"
   weight = 50
