@@ -6,13 +6,20 @@
     <description>Recent content in Tags on ZengXu&#39;s BLOG</description>
     <generator>Hugo 0.125.0</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 30 Dec 2024 08:45:32 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 09 Apr 2025 23:25:29 +0800</lastBuildDate>
     <atom:link href="https://www.zeng.dev/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Kubernetes</title>
-      <link>https://www.zeng.dev/tags/kubernetes/</link>
+      <title>Autoscaler</title>
+      <link>https://www.zeng.dev/tags/autoscaler/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://www.zeng.dev/tags/kubernetes/</guid>
+      <guid>https://www.zeng.dev/tags/autoscaler/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Container</title>
+      <link>https://www.zeng.dev/tags/container/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://www.zeng.dev/tags/container/</guid>
       <description></description>
     </item>
     <item>
@@ -20,6 +27,20 @@
       <link>https://www.zeng.dev/tags/en/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://www.zeng.dev/tags/en/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Serverless</title>
+      <link>https://www.zeng.dev/tags/serverless/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://www.zeng.dev/tags/serverless/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kubernetes</title>
+      <link>https://www.zeng.dev/tags/kubernetes/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://www.zeng.dev/tags/kubernetes/</guid>
       <description></description>
     </item>
     <item>
@@ -174,13 +195,6 @@
       <link>https://www.zeng.dev/tags/web/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://www.zeng.dev/tags/web/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Container</title>
-      <link>https://www.zeng.dev/tags/container/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://www.zeng.dev/tags/container/</guid>
       <description></description>
     </item>
     <item>
